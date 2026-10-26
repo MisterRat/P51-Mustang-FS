@@ -528,7 +528,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '3.30';
+const VERSION = '3.31';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -2817,6 +2817,7 @@ function makePilot() {
     leath = new THREE.MeshLambertMaterial({ color: 0x6e4f30 }),
     skin = new THREE.MeshLambertMaterial({ color: 0xd0a070 }),
     gog = new THREE.MeshLambertMaterial({ color: 0x151515 }),
+    lens = new THREE.MeshPhongMaterial({ color: 0x2a3d50, shininess: 90, specular: 0xaaaaaa }),
     pack = new THREE.MeshLambertMaterial({ color: 0x7b8460 });
   const mk = (geo, m, x, y, z, p = g) => {
     const o = new THREE.Mesh(geo, m);
@@ -2850,7 +2851,19 @@ function makePilot() {
   mk(new THREE.CylinderGeometry(0.05, 0.06, 0.12, 10), skin, 0, -0.1, 0, head); /* neck */
   sph(0.1, skin, 0, 0, 0, head, 0.92, 1.05, 1);
   sph(0.115, leath, 0, 0.025, 0.01, head, 0.95, 0.9, 1.02); /* helmet */
-  mk(new THREE.TorusGeometry(0.08, 0.022, 8, 16), gog, 0, 0.02, -0.075, head); /* goggles */
+  /* goggles: an elastic strap round the helmet and two round lenses on the face */
+  mk(
+    new THREE.CylinderGeometry(0.118, 0.118, 0.03, 20, 1, true),
+    new THREE.MeshLambertMaterial({ color: 0x151515, side: THREE.DoubleSide }),
+    0,
+    0.03,
+    0.005,
+    head,
+  );
+  [-1, 1].forEach((sd) => {
+    sph(0.034, lens, sd * 0.045, 0.03, -0.108, head, 1, 1, 0.45);
+    mk(new THREE.TorusGeometry(0.034, 0.007, 6, 14), gog, sd * 0.045, 0.03, -0.112, head);
+  });
   const arms = [],
     legs = [];
   [-1, 1].forEach((sd) => {
