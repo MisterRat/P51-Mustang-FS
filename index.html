@@ -559,7 +559,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '3.61';
+const VERSION = '3.62';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -13433,7 +13433,7 @@ function step(dt) {
     /* wet runway: weaker steering; a crosswind weathercocks the tail wheel aircraft into the wind */
     ry =
       -(s.y + s.r + (htr ? TRIM.r * 0.5 * Math.min(1, fs / 25) * Math.min(1, thr * 3) /* tyre friction holds the nose at idle; the trim only counters torque under power */ : 0)) * 0.5 * Math.min(1, fs / 12) * (1 - 0.35 * wetk - (FM.hyd ? 0.4 : 0)) -
-      Math.max(-0.6, Math.min(0.6, beta)) * Math.min(1, fs / 20);
+      Math.max(-0.6, Math.min(0.6, beta)) * Math.min(1, fs / 20) * Math.min(1, gs / 10); /* parked or crawling: tyre friction holds the tail against the wind */
   }
   if (WX.tI > 0 && !onGround) {
     /* turbulence jostles the aircraft */
