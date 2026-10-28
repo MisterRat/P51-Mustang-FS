@@ -37,6 +37,11 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #cmp canvas{display:block;width:min(44vw,560px);height:auto}
 #bd{position:fixed;display:none;width:38px;height:38px;border:2px solid #ff9f0a;pointer-events:none}
 #bd.off{border:0;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:22px solid #ff9f0a}
+#rpl{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(660px,94vw);display:none;background:rgba(10,18,28,.84);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 12px;color:#fff;font:600 13px system-ui,sans-serif;z-index:20;text-align:center}
+#rpl button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:5px 10px;margin:4px 3px 0;font:600 12px system-ui,sans-serif;cursor:pointer}
+#rpl input{width:100%;margin:6px 0 0}
+#rplT{font-size:12px;letter-spacing:.06em;margin-bottom:3px}
+#rplX{position:fixed;left:12px;top:64px;width:min(400px,44vw);display:none;background:rgba(10,18,28,.84);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:9px 12px;color:#fff;font:500 13px/1.45 system-ui,sans-serif;z-index:20;text-align:left}
 #aim{position:fixed;display:none;width:56px;height:56px;border:3px solid #55ff88;border-radius:50%;box-shadow:0 0 12px #55ff88,inset 0 0 8px #55ff88;pointer-events:none;z-index:6}
 #aim::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#55ff88}
 #aim.on{background:rgba(85,255,136,.28)}
@@ -262,7 +267,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="hp" id="hpBody"></div>
 <div class="hf" style="margin-top:4px">Land &amp; stop (throttle idle) to repair and rearm.<br>Takeoff: full throttle, at ~190 km/h ease back.</div></div>
 <div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
-<div id="flash"></div><div id="blk"></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
+<div id="flash"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
 <div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
 <div class="p" id="coach"><div id="coachT"></div><div id="coachH"></div><div id="coachS"></div></div>
@@ -443,6 +448,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Dogfight trainer</td><td>Shoot down 3 bandits. The coach gives the bandit's clock position, range and relative height, and says whether you are attacking or defending. Hull heals and ammunition resupplies between kills.</td></tr>
 <tr><td>Convoy strafing</td><td>One convoy at a time drives from the depot to the base: a jeep, supply trucks, a tanker and an APC. A path leads you in behind the rear vehicle and follows the road; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
 <tr><td>Building bombing</td><td>Destroy the 11 depot and base buildings. A path takes you level at 900 m, then into a 25&deg; dive. The red IMPACT circle shows where a bomb would land; the coach says GET READY and then RELEASE NOW. Ordnance resupplies a few seconds after you use it all.</td></tr>
+<tr><td>Replay (every mission)</td><td>When a mission is finished (or after a crash, press <b>\\</b>) an outside camera replays the flight: <b>orange</b> is your path. On the six maneuver trainers <b>green</b> is the best path for the same entry, with a ghost aircraft flying it, and the red marker shows the biggest gap with notes on where to improve. On the other missions green is the guide route and grey is the bandit. Buttons and a slider pause, scrub, slow down and change the camera (Side, Top, Behind).</td></tr>
 <tr><td>Barrel roll</td><td>Pull the nose up, then corkscrew around an imaginary barrel ahead with a steady roll and a light pull the whole way. Scored for heading error, height change and keeping the G above zero. Hardcore mode: enter faster and use rudder for the torque.</td></tr>
 <tr><td>Immelmann turn</td><td>Half loop up, then a half roll to level: you leave heading the other way and higher. Standard mode: about 520 km/h and 3.5 to 4.5 G. <b>Hardcore mode: about 650 km/h, 4.5 to 5.5 G, right rudder as the speed bleeds off, and watch the stall at the top.</b></td></tr>
 <tr><td>Split S</td><td>Roll onto your back and pull through a half loop down: the fastest way to reverse course and lose height. Start 2,400 m up with the throttle closed; it needs about 1,000 m. Hardcore mode: watch the speed and the G limit.</td></tr>
@@ -9007,6 +9013,7 @@ function placeAt(x, y, z, tx, tz, spd) {
   cp.copy(pos).add(new V(0, 4, 14));
 }
 function trainerReset() {
+  if (RPL.on) rpStop();
   convoyClear();
   CV.st = 'idle';
   CV.tm = 8;
@@ -9023,6 +9030,10 @@ function trainerReset() {
     td: null,
     spawn: 2,
     res: 0,
+    rpAuto: 0,
+    rpShown: false,
+    rec: null,
+    recEnd: false,
   });
   trn.a = null;
   guide.plan = null;
@@ -9102,12 +9113,29 @@ function updTrainer(dt) {
     pitch = Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3,
     R = Math.round,
     flapDeg = ANG[flapLvl];
+  if (!AERO[m] && !crashed && !trn.done) rpRecGen(dt, false);
   if (crashed) {
-    coach(name, 'You crashed.', footer, 'bad');
+    if (!AERO[m] && trn.rec && !trn.recEnd) {
+      trn.recEnd = true;
+      rpRecGen(0, true);
+    }
+    coach(name, 'You crashed.', footer + (rpAvail() ? '   \\ = replay' : ''), 'bad');
     return;
   }
   if (trn.done) {
-    coach(name + ' - COMPLETE', trn.sum, footer, 'ok');
+    if (!AERO[m] && trn.rec && !trn.recEnd) {
+      trn.recEnd = true;
+      rpRecGen(0, true);
+    }
+    const ae = rpAvail();
+    if (ae) {
+      trn.rpAuto = (trn.rpAuto || 0) + dt;
+      if (trn.rpAuto > 2.5 && !trn.rpShown) {
+        trn.rpShown = true;
+        rpStart();
+      }
+    }
+    coach(name + ' - COMPLETE', trn.sum, footer + (ae ? '   \\ = replay' : ''), 'ok');
     return;
   }
   const T0 = (t, h, l) => coach(name + '  -  ' + trn.title, t, h, l);
@@ -9879,6 +9907,7 @@ function aeroTick(c, def) {
     A.pmThr = thr;
     A.pmTxt = aeroStallReport(c, A);
   }
+  rpRecord(c, A);
   A.wasSt = stalled;
   if (A.pmT > 0) A.pmT -= c.dt;
   A.pb = bank;
@@ -10322,6 +10351,7 @@ function aeroRun(c, m) {
   if (m === 'immelmann' && trn.step === 1 && A.loop < 15 && !stalled && c.kmh < (A.hc ? 650 : 520) * 0.85) trn.step = 0;
   while (trn.step < def.steps.length && def.steps[trn.step].done(c, A)) trn.step++;
   if (trn.step >= def.steps.length) {
+    if (A.rec) A.rec.push({ t: trn.t - A.rt0, p: pos.clone(), q: q.clone(), g: gF, k: c.kmh, d: A.tgt ? A.tgt.e.p.clone() : null, dq: A.tgt ? A.tgt.e.q.clone() : null });
     trn.done = true;
     trn.sum = def.finish(c, A);
     note(AERO[m].name + ' COMPLETE');
@@ -10348,6 +10378,600 @@ function aeroRun(c, m) {
 Object.keys(AERO_DEF).forEach((m) => {
   TRAINERS[m] = (c) => aeroRun(c, m);
 });
+
+/* ---------- replay: an outside camera shows the path you flew against the best path ----------
+   While a maneuver is flown the trainer records the aircraft ten times a second (and the drone for the yo-yos). On completion the
+   best path for the same entry is built from geometry (loop radius for a good G, barrel radius, turn radius, a chord with a dip or climb)
+   and both are replayed together, with the biggest gap marked and notes on where to improve. */
+const RPL = { on: false, pause: false, t: 0, spd: 1, view: 0, az: 0, built: false, rec: null, ideal: null, dev: null, tips: [], gap: null, rad: 100, ctr: new V(), dist: 500, T: 0, kP: null, kI: null, kD: null };
+const RPV = ['SIDE', 'TOP', 'BEHIND'];
+const rpG = { line: [], dots: [], ghostP: null, ghostI: null, ghostD: null, mark: null, gapL: null, init: false };
+function rpInit() {
+  if (rpG.init) return;
+  rpG.init = true;
+  const ln = (col, op) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3 * 1500), 3));
+    g.setDrawRange(0, 0);
+    const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: op, fog: false }));
+    l.frustumCulled = false;
+    l.visible = false;
+    l.renderOrder = 6;
+    scene.add(l);
+    return l;
+  };
+  rpG.line = [ln(0xffa020, 0.95), ln(0x55ff88, 0.95), ln(0xcccccc, 0.6)];
+  const cols = [0xffa020, 0x55ff88, 0xdddddd];
+  cols.forEach((c, k) => {
+    rpG.dots[k] = [];
+    for (let i = 0; i < 90; i++) {
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: c, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, fog: false }));
+      sp.visible = false;
+      sp.renderOrder = 7;
+      scene.add(sp);
+      rpG.dots[k].push(sp);
+    }
+  });
+  const gh = (col, op) => {
+    const b = buildEnemy();
+    b.g.traverse((o) => {
+      if (o.material) {
+        o.material = o.material.clone();
+        o.material.color.setHex(col);
+        o.material.transparent = true;
+        o.material.opacity = op;
+      }
+    });
+    b.pilot.visible = false;
+    b.g.visible = false;
+    scene.add(b.g);
+    return b;
+  };
+  rpG.ghostP = gh(0xffa020, 0.95);
+  rpG.ghostI = gh(0x55ff88, 0.7);
+  rpG.ghostD = gh(0xcccccc, 0.7);
+  rpG.glow = [0xffa020, 0x55ff88, 0xdddddd].map((c) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: c, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, fog: false }));
+    sp.visible = false;
+    sp.renderOrder = 9;
+    scene.add(sp);
+    return sp;
+  });
+  rpG.ghostP.glow = rpG.glow[0];
+  rpG.ghostI.glow = rpG.glow[1];
+  rpG.ghostD.glow = rpG.glow[2];
+  rpG.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff3322, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, fog: false }));
+  rpG.mark.visible = false;
+  rpG.mark.renderOrder = 8;
+  scene.add(rpG.mark);
+  const gg = new THREE.BufferGeometry();
+  gg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  rpG.gapL = new THREE.Line(gg, new THREE.LineBasicMaterial({ color: 0xff3322, fog: false, depthTest: false }));
+  rpG.gapL.frustumCulled = false;
+  rpG.gapL.visible = false;
+  rpG.gapL.renderOrder = 8;
+  scene.add(rpG.gapL);
+}
+/* recording, called every frame by aeroTick from the first real step */
+function rpRecord(c, A) {
+  if (trn.step < 1 || trn.done) return;
+  if (!A.rec) {
+    A.rec = [];
+    A.rp0 = pos.clone();
+    A.rH = A.h0.clone();
+    A.rv0 = vel.length();
+    A.rt0 = trn.t;
+    A.rAcc = 1;
+  }
+  A.rAcc += c.dt;
+  if (A.rAcc < 0.1 || A.rec.length >= 1400) return;
+  A.rAcc = 0;
+  const e = A.tgt && A.tgt.e;
+  A.rec.push({ t: trn.t - A.rt0, p: pos.clone(), q: q.clone(), g: gF, k: c.kmh, d: e ? e.p.clone() : null, dq: e ? e.q.clone() : null });
+}
+function rpQ(f, u) {
+  const r = new V().crossVectors(f, u).normalize(),
+    uu = new V().crossVectors(r, f).normalize();
+  m4.makeBasis(r, uu, f.clone().negate());
+  return new Q().setFromRotationMatrix(m4);
+}
+/* ideal path builder: arrays of {p,f,u} about 10 m apart */
+function rpIdeal(m, A) {
+  const H = A.rH.clone(),
+    rt = new V().crossVectors(H, UPV).normalize(),
+    p0 = A.rp0.clone(),
+    v0 = A.rv0,
+    hc = A.hc,
+    out = [],
+    sg = A.rSide || 1,
+    push = (p, f, u) => out.push({ p: p.clone(), f: f.clone().normalize(), u: u.clone().normalize() });
+  let p = p0.clone(),
+    f = H.clone(),
+    u = UPV.clone();
+  const straight = (len, rollA) => {
+    const n = Math.max(2, Math.round(len / 10)),
+      u0 = u.clone(),
+      ax = new V().crossVectors(f, u0);
+    for (let i = 1; i <= n; i++) {
+      const a = ((rollA || 0) * i) / n;
+      p = p.clone().addScaledVector(f, len / n);
+      push(p, f, u0.clone().multiplyScalar(Math.cos(a)).addScaledVector(ax, Math.sin(a)));
+    }
+    u = out[out.length - 1].u.clone();
+  };
+  const arc = (R, th, pull) => {
+    const n = Math.max(6, Math.round((R * th) / 10)),
+      f0 = f.clone(),
+      u0 = u.clone(),
+      c = pull ? p.clone().addScaledVector(u0, R) : p.clone().addScaledVector(u0, -R);
+    for (let i = 1; i <= n; i++) {
+      const a = (th * i) / n,
+        co = Math.cos(a),
+        si = Math.sin(a);
+      if (pull) {
+        const pp = c.clone().addScaledVector(u0, -R * co).addScaledVector(f0, R * si);
+        push(pp, f0.clone().multiplyScalar(co).addScaledVector(u0, si), u0.clone().multiplyScalar(co).addScaledVector(f0, -si));
+      } else {
+        const pp = c.clone().addScaledVector(u0, R * co).addScaledVector(f0, R * si);
+        push(pp, f0.clone().multiplyScalar(co).addScaledVector(u0, -si), u0.clone().multiplyScalar(co).addScaledVector(f0, si));
+      }
+    }
+    const l = out[out.length - 1];
+    p = l.p.clone();
+    f = l.f.clone();
+    u = l.u.clone();
+  };
+  push(p, f, u);
+  let kind = 'energy';
+  if (m === 'immelmann') {
+    const G = hc ? 5 : 4,
+      R = Math.pow(v0 * 0.9, 2) / (9.8 * (G - 0.6));
+    A.rIdealG = G;
+    arc(R, Math.PI, true);
+    straight(250, Math.PI);
+    straight(250, 0);
+  } else if (m === 'splits') {
+    const G = hc ? 4.5 : 3.5,
+      R = Math.pow(v0 * 1.25, 2) / (9.8 * (G - 0.6));
+    A.rIdealG = G;
+    straight(150, Math.PI);
+    arc(R, Math.PI, true);
+    straight(250, 0);
+  } else if (m === 'barrel') {
+    const r = 90,
+      L = v0 * 5.5,
+      N = 70,
+      c0 = p0.clone();
+    A.rIdealG = 1.8;
+    out.length = 0;
+    for (let i = 0; i <= N; i++) {
+      const ph = (2 * Math.PI * i) / N,
+        s = (L * i) / N,
+        pp = c0.clone().addScaledVector(H, s).addScaledVector(rt, sg * r * Math.sin(ph)).addScaledVector(UPV, r * (1 - Math.cos(ph))),
+        ctr = c0.clone().addScaledVector(H, s).addScaledVector(UPV, r),
+        pn = c0.clone().addScaledVector(H, s + L / N).addScaledVector(rt, sg * r * Math.sin(ph + 0.09)).addScaledVector(UPV, r * (1 - Math.cos(ph + 0.09)));
+      push(pp, pn.sub(pp), ctr.sub(pp));
+    }
+    for (let i = 0; i < out.length; i++) {
+      const o = out[i];
+      o.u.addScaledVector(o.f, -o.u.dot(o.f)).normalize();
+    }
+    kind = 'time';
+  } else if (m === 'wingover') {
+    const v = v0 * 0.85,
+      Rp = (v * v) / (9.8 * Math.tan(1.05)),
+      Hup = Math.min(320, 0.26 * (v0 * v0) / 19.6),
+      N = 60;
+    A.rIdealG = 2.2;
+    out.length = 0;
+    const at = (ps) => p0.clone().addScaledVector(H, Rp * Math.sin(ps)).addScaledVector(rt, sg * Rp * (1 - Math.cos(ps))).addScaledVector(UPV, Hup * Math.sin(ps));
+    for (let i = 0; i <= N; i++) {
+      const ps = (Math.PI * i) / N,
+        pp = at(ps),
+        fw = at(ps + 0.03).sub(pp),
+        bank = 1.1 + 0.3 * Math.sin(ps),
+        tc = rt.clone().multiplyScalar(-sg * Math.cos(ps)).addScaledVector(H, -Math.sin(ps)).normalize(),
+        uu = UPV.clone().multiplyScalar(Math.cos(bank)).addScaledVector(tc, Math.sin(bank));
+      push(pp, fw, uu.addScaledVector(fw.clone().normalize(), -uu.dot(fw.clone().normalize())));
+    }
+  } else {
+    /* yo-yos: a chord to a point behind the drone's final position, with a dive (low) or a climb (high) in the middle */
+    const last = A.rec[A.rec.length - 1],
+      dF = new V(0, 0, -1).applyQuaternion(last.dq),
+      E = last.d.clone().addScaledVector(dF, -330),
+      amp = m === 'lowyoyo' ? -170 : 230,
+      n = Math.max(10, Math.round(p0.distanceTo(E) / 10));
+    A.rIdealG = 2;
+    out.length = 0;
+    const at = (t) => p0.clone().lerp(E, t).addScaledVector(UPV, amp * Math.sin(Math.PI * t));
+    for (let i = 0; i <= n; i++) {
+      const t = i / n,
+        pp = at(t),
+        fw = at(Math.min(1, t + 0.02)).sub(pp);
+      if (fw.lengthSq() < 1e-6) fw.copy(out[out.length - 1].f);
+      push(pp, fw, UPV);
+      const o = out[out.length - 1];
+      o.u.addScaledVector(o.f, -o.u.dot(o.f)).normalize();
+    }
+    kind = 'time';
+  }
+  /* timeline: loops and wingover trade speed for height; the others take the time the drone took */
+  let t = 0;
+  out[0].t = 0;
+  for (let i = 1; i < out.length; i++) {
+    const ds = out[i].p.distanceTo(out[i - 1].p),
+      v = kind === 'energy' ? Math.max(48, Math.sqrt(Math.max(0, v0 * v0 - 2 * 9.8 * (out[i].p.y - p0.y) * 0.9))) : v0;
+    out[i].v = v;
+    t += ds / v;
+    out[i].t = t;
+  }
+  out[0].v = v0;
+  if (kind === 'time') {
+    const T = A.rec[A.rec.length - 1].t,
+      k = T / Math.max(0.1, t);
+    out.forEach((o) => (o.t *= k));
+  }
+  return out;
+}
+function rpSamp(arr, t, fn) {
+  /* arr sorted by .t: returns interpolation info */
+  let lo = 0,
+    hi = arr.length - 1;
+  if (t <= arr[0].t) return { a: arr[0], b: arr[0], k: 0 };
+  if (t >= arr[hi].t) return { a: arr[hi], b: arr[hi], k: 0 };
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (arr[mid].t <= t) lo = mid;
+    else hi = mid;
+  }
+  return { a: arr[lo], b: arr[hi], k: (t - arr[lo].t) / Math.max(1e-6, arr[hi].t - arr[lo].t) };
+}
+function rpBuild(m, A) {
+  const rec = A.rec;
+  if (!rec || rec.length < 5) return false;
+  /* the side chosen: the way you rolled / turned */
+  const last = rec[rec.length - 1],
+    rt = new V().crossVectors(A.rH, UPV).normalize();
+  A.rSide = Math.sign(A.dir || A.dh || 1) || 1;
+  const I = rpIdeal(m, A),
+    R = RPL;
+  R.rec = rec;
+  R.ideal = I;
+  R.A = A;
+  R.m = m;
+  R.T = Math.max(last.t, I[I.length - 1].t);
+  /* the gap between the two paths */
+  const dev = rec.map((s) => {
+    let b = 1e9,
+      bj = 0;
+    for (let j = 0; j < I.length; j++) {
+      const d = s.p.distanceTo(I[j].p);
+      if (d < b) (b = d), (bj = j);
+    }
+    return { d: b, j: bj };
+  });
+  R.dev = dev;
+  let bi = 0;
+  dev.forEach((d, i) => d.d > dev[bi].d && (bi = i));
+  R.gap = { i: bi, d: dev[bi].d, j: dev[bi].j, pct: Math.round((100 * rec[bi].t) / Math.max(0.1, last.t)) };
+  /* the camera frame: the middle of everything and how far away to stand */
+  const pts = rec.map((s) => s.p).concat(I.map((o) => o.p));
+  const mn = new V(1e9, 1e9, 1e9),
+    mx = new V(-1e9, -1e9, -1e9);
+  pts.forEach((p) => (mn.min(p), mx.max(p)));
+  R.ctr.copy(mn).add(mx).multiplyScalar(0.5);
+  R.rad = Math.max(120, mn.distanceTo(mx) * 0.5);
+  R.dist = R.rad * 1.75;
+  R.H = A.rH.clone();
+  R.rt = rt;
+  R.tips = rpTips(m, A, rec, I, R);
+  return true;
+}
+function rpTips(m, A, rec, I, R) {
+  const t = [],
+    y0 = A.rp0.y,
+    rt = R.rt,
+    R0 = Math.round,
+    gAvg = rec.reduce((a, s) => a + s.g, 0) / rec.length,
+    yPk = Math.max(...rec.map((s) => s.p.y)) - y0,
+    iPk = Math.max(...I.map((o) => o.p.y)) - y0,
+    yMn = y0 - Math.min(...rec.map((s) => s.p.y)),
+    iMn = y0 - Math.min(...I.map((o) => o.p.y)),
+    lat = Math.max(...rec.map((s) => Math.abs(s.p.clone().sub(A.rp0).dot(rt)))),
+    latS = rec.reduce((b, s) => (Math.abs(s.p.clone().sub(A.rp0).dot(rt)) > Math.abs(b) ? s.p.clone().sub(A.rp0).dot(rt) : b), 0),
+    T = rec[rec.length - 1].t,
+    iT = I[I.length - 1].t,
+    len = rec.reduce((a, s, i) => (i ? a + s.p.distanceTo(rec[i - 1].p) : 0), 0),
+    iLen = I.reduce((a, o, i) => (i ? a + o.p.distanceTo(I[i - 1].p) : 0), 0),
+    ph = (x, d) => (x > 0 ? 'right' : 'left');
+  t.push('Biggest gap from the best path: ' + R0(R.gap.d) + ' m, ' + R.gap.pct + '% of the way through (the red marker).');
+  if (m === 'immelmann' || m === 'splits') {
+    const hgt = m === 'immelmann' ? yPk : yMn,
+      ihgt = m === 'immelmann' ? iPk : iMn,
+      word = m === 'immelmann' ? 'climbed' : 'dropped';
+    if (hgt > ihgt * 1.2) t.push('Your loop ' + word + ' ' + R0(hgt) + ' m against about ' + R0(ihgt) + ' m for the best path: the loop was too wide. Average G ' + gAvg.toFixed(1) + ' against about ' + A.rIdealG + ': pull harder early and keep it up to the top.');
+    else if (hgt < ihgt * 0.8) t.push('Your loop only ' + word + ' ' + R0(hgt) + ' m against about ' + R0(ihgt) + ' m for the best path: you cut it short or pulled very tight. Hold a steady pull all the way round.');
+    else t.push('Loop size was good: ' + R0(hgt) + ' m against about ' + R0(ihgt) + ' m for the best path.');
+    if (lat > 60) t.push('You drifted ' + R0(lat) + ' m to the ' + ph(latS) + ' of the loop plane. Keep the wings level while you pull' + (A.hc ? ' (in Hardcore, use rudder against torque)' : '') + '.');
+    const ex = rec[rec.length - 1].k,
+      ix = I[I.length - 1].v * 3.6 * 0 + 0;
+    t.push('You started the pull at ' + R0(rec[0].k) + ' km/h and finished at ' + R0(ex) + ' km/h' + (m === 'immelmann' ? ' (slowest ' + R0(Math.min(...rec.map((s) => s.k))) + ').' : '.'));
+  } else if (m === 'barrel') {
+    const lr = lat;
+    if (lr < 60) t.push('Your barrel was only ' + R0(lr) + ' m wide, the best path is about 90 m: roll while pulling a little, so the nose circles instead of just rolling in place.');
+    else if (lr > 140) t.push('Your barrel was ' + R0(lr) + ' m wide, the best path is about 90 m: use less pull while rolling.');
+    else t.push('Barrel size was good: ' + R0(lr) + ' m wide against about 90 m.');
+    const endDy = rec[rec.length - 1].p.y - y0;
+    t.push('You finished ' + R0(Math.abs(endDy)) + ' m ' + (endDy >= 0 ? 'above' : 'below') + ' where you started (the best path finishes level). Lowest G ' + Math.min(...rec.map((s) => s.g)).toFixed(1) + '.');
+  } else if (m === 'wingover') {
+    t.push('Your peak was ' + R0(yPk) + ' m above the start against about ' + R0(iPk) + ' m for the best path' + (yPk < iPk * 0.6 ? ': start the climbing turn harder and steeper.' : yPk > iPk * 1.5 ? ': too much climb, you lose speed.' : '.'));
+    t.push('You took ' + T.toFixed(1) + ' s against about ' + iT.toFixed(1) + ' s, slowest speed ' + R0(Math.min(...rec.map((s) => s.k))) + ' km/h.');
+  } else {
+    const low = m === 'lowyoyo',
+      dm = rec.map((s) => (s.d ? s.p.y - s.d.y : 0)),
+      ext = low ? Math.min(...dm) : Math.max(...dm);
+    t.push(low ? 'Your dive went ' + R0(-ext) + ' m below him; the best path dips about 170 m.' : 'You climbed ' + R0(ext) + ' m above him; the best path climbs about 230 m.');
+    t.push('Your path was ' + R0(len) + ' m long against about ' + R0(iLen) + ' m for the best path' + (len > iLen * 1.25 ? ': you flew too wide, cut across his turn earlier.' : '.'));
+    t.push('You took ' + T.toFixed(1) + ' s. Closest approach ' + R0(A.minRange) + ' m.');
+  }
+  return t;
+}
+/* the other missions: record the flight (and the nearest bandit) and the point of the guide route you were nearest to */
+function rpAvail() {
+  const m = trn.mode,
+    r = AERO[m] ? trn.a && trn.a.rec : trn.rec;
+  return !!(r && r.length > 4 && m !== 'free');
+}
+function rpRecGen(dt, last) {
+  if (!trn.rec) {
+    trn.rec = [];
+    trn.recAcc = 9;
+    trn.rt0 = trn.t;
+  }
+  trn.recAcc += dt;
+  if (!last && (trn.recAcc < 0.4 || trn.rec.length >= 1500)) return;
+  trn.recAcc = 0;
+  const e = EN.find((x) => !x.dying);
+  let gp = null;
+  if (guide.pts.length > 1) {
+    try {
+      const gs = guideState(),
+        o = guide.pts[Math.min(guide.pts.length - 1, gs.bi)];
+      gp = new V(o.x, o.y, o.z);
+    } catch (er) {}
+  }
+  trn.rec.push({ t: trn.t - trn.rt0, p: pos.clone(), q: q.clone(), g: gF, k: (FM.ias || vel.length()) * 3.6, d: e ? e.p.clone() : null, dq: e ? e.q.clone() : null, gp });
+}
+function rpBuildGen(m) {
+  const rec = trn.rec;
+  if (!rec || rec.length < 5) return false;
+  const R = RPL,
+    last = rec[rec.length - 1],
+    gpl = [];
+  rec.forEach((s) => {
+    if (s.gp && (!gpl.length || gpl[gpl.length - 1].distanceTo(s.gp) > 8)) gpl.push(s.gp);
+  });
+  R.rec = rec;
+  R.ideal = null;
+  R.gpl = gpl.length > 3 ? gpl : null;
+  R.A = trn;
+  R.m = m;
+  R.T = last.t;
+  let bi = -1,
+    bd = 0;
+  if (R.gpl)
+    rec.forEach((s, i) => {
+      if (!s.gp) return;
+      const d = s.p.distanceTo(s.gp);
+      if (d > bd) (bd = d), (bi = i);
+    });
+  R.gap = bi >= 0 ? { i: bi, d: bd, gi: rec[bi].gp, pct: Math.round((100 * rec[bi].t) / Math.max(0.1, last.t)) } : null;
+  const pts = rec.map((s) => s.p).concat(R.gpl || []);
+  const mn = new V(1e9, 1e9, 1e9),
+    mx = new V(-1e9, -1e9, -1e9);
+  pts.forEach((p) => (mn.min(p), mx.max(p)));
+  R.ctr.copy(mn).add(mx).multiplyScalar(0.5);
+  R.rad = Math.max(150, mn.distanceTo(mx) * 0.5);
+  R.dist = R.rad * 1.75;
+  const f0 = new V(0, 0, -1).applyQuaternion(rec[0].q);
+  f0.y = 0;
+  if (f0.lengthSq() < 1e-4) f0.set(0, 0, -1);
+  R.H = f0.normalize();
+  R.rt = new V().crossVectors(R.H, UPV).normalize();
+  const t = [],
+    R0 = Math.round,
+    mxk = Math.max(...rec.map((s) => s.k)),
+    yMx = Math.max(...rec.map((s) => s.p.y)),
+    len = rec.reduce((a, s, i) => (i ? a + s.p.distanceTo(rec[i - 1].p) : 0), 0),
+    gMx = Math.max(...rec.map((s) => s.g));
+  t.push('Flight: ' + fmtT(last.t) + ', ' + (len / 1000).toFixed(1) + ' km, top speed ' + R0(mxk) + ' km/h, peak ' + gMx.toFixed(1) + ' G, highest ' + R0(yMx) + ' m.');
+  if (R.gap) t.push('Biggest gap from the green guide route: ' + R0(R.gap.d) + ' m, ' + R.gap.pct + '% of the way through (the red marker).');
+  else t.push('This mission has no set route, so there is no best path: orange is your flight' + (rec.some((s) => s.d) ? ', grey is the bandit.' : '.'));
+  R.tips = t;
+  return true;
+}
+/* start / stop / per frame */
+function rpStart() {
+  const m = trn.mode,
+    aero = !!AERO[m],
+    A = aero ? trn.a : trn;
+  if (RPL.on || !rpAvail()) return;
+  if (!RPL.built || RPL.A !== A || (!aero && RPL.rec !== trn.rec) || (!aero && RPL.T !== trn.rec[trn.rec.length - 1].t)) RPL.built = aero ? rpBuild(m, A) : rpBuildGen(m);
+  if (!RPL.built) return;
+  rpInit();
+  const rec = RPL.rec,
+    I = RPL.ideal;
+  const fill = (k, pts) => {
+    const arr = rpG.line[k].geometry.attributes.position.array,
+      n = Math.min(pts.length, 1500);
+    for (let i = 0; i < n; i++) {
+      arr[i * 3] = pts[i].x;
+      arr[i * 3 + 1] = pts[i].y;
+      arr[i * 3 + 2] = pts[i].z;
+    }
+    rpG.line[k].geometry.setDrawRange(0, n);
+    rpG.line[k].geometry.attributes.position.needsUpdate = true;
+    rpG.line[k].visible = true;
+    const D = rpG.dots[k],
+      step = Math.max(1, Math.ceil(pts.length / D.length));
+    D.forEach((sp, i) => {
+      const p = pts[i * step];
+      sp.visible = !!p;
+      if (p) sp.position.copy(p);
+    });
+  };
+  fill(0, rec.map((s) => s.p));
+  if (I) fill(1, I.map((o) => o.p));
+  else if (RPL.gpl) fill(1, RPL.gpl);
+  else (rpG.line[1].visible = false), rpG.dots[1].forEach((sp) => (sp.visible = false));
+  const dr = rec.filter((s) => s.d).map((s) => s.d);
+  if (dr.length > 2) fill(2, dr);
+  else rpG.line[2].visible = false, rpG.dots[2].forEach((s) => (s.visible = false));
+  rpG.ghostD.g.visible = dr.length > 2;
+  rpG.ghostP.g.visible = true;
+  rpG.ghostI.g.visible = !!I;
+  rpG.ghostI.glow.visible = !!I;
+  const hasGap = !!RPL.gap,
+    gp = hasGap ? RPL.rec[RPL.gap.i].p : new V(),
+    gi = hasGap ? (I ? I[RPL.gap.j].p : RPL.gap.gi) : new V();
+  rpG.mark.position.copy(gp);
+  rpG.mark.visible = hasGap;
+  const ga = rpG.gapL.geometry.attributes.position.array;
+  ga.set([gp.x, gp.y, gp.z, gi.x, gi.y, gi.z]);
+  rpG.gapL.geometry.attributes.position.needsUpdate = true;
+  rpG.gapL.visible = hasGap;
+  RPL.on = true;
+  RPL.pause = false;
+  RPL.t = 0;
+  RPL.view = 0;
+  RPL.az = 0;
+  plane.visible = false;
+  coachHide();
+  document.body.classList.add('phHide');
+  aimE.style.display = aimT.style.display = 'none';
+  $$('rpl').style.display = 'block';
+  $$('rplX').style.display = 'block';
+  $$('rplT').innerHTML = AERO[m] ? 'REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span>' : 'REPLAY &mdash; <span style="color:#ffa020">your flight</span> <span style="color:#55ff88">&middot; green = guide route</span> <span style="color:#ddd">&middot; grey = bandit</span> <span style="color:#ff6655">&middot; red = biggest gap</span>';
+  $$('rplX').innerHTML = '<b>' + (AERO[m] ? 'WHERE TO IMPROVE' : 'FLIGHT SUMMARY') + '</b><br>' + RPL.tips.map((x) => '&bull; ' + x).join('<br>');
+  $$('rplS').max = String(Math.round(RPL.T * 10));
+  rpUi();
+}
+function rpStop() {
+  if (!RPL.on) return;
+  RPL.on = false;
+  plane.visible = true;
+  document.body.classList.remove('phHide');
+  $$('rpl').style.display = 'none';
+  $$('rplX').style.display = 'none';
+  rpG.line.forEach((l) => (l.visible = false));
+  rpG.dots.forEach((D) => D.forEach((s) => (s.visible = false)));
+  [rpG.ghostP, rpG.ghostI, rpG.ghostD].forEach((b) => ((b.g.visible = false), (b.glow.visible = false)));
+  rpG.mark.visible = false;
+  rpG.gapL.visible = false;
+  cp.copy(pos).add(new V(0, 4, 14));
+}
+function rpUi() {
+  $$('rplPlay').textContent = RPL.pause ? 'Play' : 'Pause';
+  $$('rplSpd').textContent = RPL.spd + 'x';
+  $$('rplView').textContent = 'View: ' + RPV[RPL.view];
+}
+function rpGhost(b, p, qq, d) {
+  b.g.position.copy(p);
+  b.g.quaternion.copy(qq);
+  b.g.scale.setScalar(Math.max(1, Math.min(30, cam.position.distanceTo(p) / 70)));
+  if (b.glow) {
+    b.glow.visible = b.g.visible;
+    b.glow.position.copy(p);
+    b.glow.scale.setScalar(Math.max(8, cam.position.distanceTo(p) * 0.035));
+  }
+  b.prop.rotation.z += 0.9;
+}
+function rpUpdate(dt) {
+  if (!RPL.on) return;
+  if (!RPL.pause) RPL.t += dt * RPL.spd;
+  if (RPL.t >= RPL.T + 1.5) RPL.t = RPL.T + 1.5 - 1e-3, (RPL.pause = true), rpUi();
+  RPL.az += dt * 0.12;
+  const t = Math.min(RPL.t, RPL.T),
+    rec = RPL.rec,
+    I = RPL.ideal;
+  coachHide();
+  let s = rpSamp(rec, t),
+    pP = s.a.p.clone().lerp(s.b.p, s.k),
+    qP = s.a.q.clone().slerp(s.b.q, s.k);
+  rpGhost(rpG.ghostP, pP, qP);
+  if (rpG.ghostD.g.visible && s.a.d && s.b.d) {
+    const pD = s.a.d.clone().lerp(s.b.d, s.k);
+    rpGhost(rpG.ghostD, pD, s.a.dq.clone().slerp(s.b.dq, s.k));
+  }
+  if (I) {
+    var si = rpSamp(I, t),
+      pI = si.a.p.clone().lerp(si.b.p, si.k),
+      fI = si.a.f.clone().lerp(si.b.f, si.k),
+      uI = si.a.u.clone().lerp(si.b.u, si.k);
+    rpGhost(rpG.ghostI, pI, rpQ(fI, uI));
+    var dist = pP.distanceTo(pI),
+      vI = (si.a.v || 0) * (1 - si.k) + (si.b.v || 0) * si.k;
+  }
+  $$('rplL').innerHTML =
+    '<span style="color:#ffa020">YOU</span> ' + Math.round(s.a.k) + ' km/h ' + s.a.g.toFixed(1) + ' G &nbsp; ' + (I ? '<span style="color:#55ff88">BEST</span> ' + (vI ? Math.round(vI * 3.6) + ' km/h' : '') + ' &nbsp; gap ' + Math.round(dist) + ' m &nbsp; ' : 'alt ' + Math.round(pP.y) + ' m &nbsp; ') + t.toFixed(1) + ' / ' + RPL.T.toFixed(1) + ' s';
+  if (document.activeElement !== $$('rplS')) $$('rplS').value = String(Math.round(RPL.t * 10));
+  /* dot sizes follow the distance */
+  [0, 1, 2].forEach((k) => {
+    rpG.dots[k].forEach((sp) => sp.visible && sp.scale.setScalar(Math.max(4, cam.position.distanceTo(sp.position) * 0.012)));
+  });
+  rpG.mark.scale.setScalar(Math.max(20, cam.position.distanceTo(rpG.mark.position) * 0.05));
+  plane.position.copy(pP);
+}
+function rpCam() {
+  if (!RPL.on) return;
+  const R = RPL,
+    a = 0.5 * Math.sin(R.az),
+    c = R.ctr;
+  cam.up.set(0, 1, 0);
+  if (R.view === 0) {
+    cam.position.copy(c).addScaledVector(R.rt, R.dist * Math.cos(a)).addScaledVector(R.H, R.dist * Math.sin(a)).addScaledVector(UPV, R.dist * 0.15);
+  } else if (R.view === 1) {
+    cam.position.copy(c).addScaledVector(UPV, R.dist * 1.25);
+    cam.up.copy(R.H);
+  } else {
+    cam.position.copy(c).addScaledVector(R.H, -R.dist * Math.cos(a)).addScaledVector(R.rt, R.dist * Math.sin(a)).addScaledVector(UPV, R.dist * 0.12);
+  }
+  cam.lookAt(c);
+}
+window.addEventListener(
+  'keydown',
+  (e) => {
+    if (RPL.on) {
+      if (e.code === 'Enter') return rpStop(); /* the normal Enter then restarts the trainer */
+      if (e.target && e.target.id === 'rplS') return;
+      let h = true;
+      if (e.code === 'Escape' || e.code === 'Backspace') rpStop();
+      else if (e.code === 'Space') (RPL.pause = !RPL.pause), rpUi();
+      else if (e.code === 'ArrowLeft') RPL.t = Math.max(0, RPL.t - 1);
+      else if (e.code === 'ArrowRight') RPL.t = Math.min(RPL.T, RPL.t + 1);
+      else if (e.code === 'Backslash') RPL.t = 0;
+      else if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3') (RPL.view = +e.code.slice(5) - 1), rpUi();
+      else h = false;
+      if (h) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    } else if (e.code === 'Backslash' && (trn.done || crashed) && rpAvail()) {
+      e.preventDefault();
+      rpStart();
+    }
+  },
+  true,
+);
+{
+  const on = (id, f) => ($$(id).onclick = f);
+  on('rplPlay', () => ((RPL.pause = !RPL.pause), rpUi()));
+  on('rplSpd', () => ((RPL.spd = RPL.spd === 1 ? 0.5 : RPL.spd === 0.5 ? 0.25 : 1), rpUi()));
+  on('rplView', () => ((RPL.view = (RPL.view + 1) % 3), rpUi()));
+  on('rplRst', () => ((RPL.t = 0), (RPL.pause = false), rpUi()));
+  on('rplExit', () => rpStop());
+  $$('rplS').oninput = () => ((RPL.t = +$$('rplS').value / 10), (RPL.pause = true), rpUi());
+}
 
 /* ---------- flight-path guidance: a Dubins path (turn radius from the plane's own speed and a 35 deg bank) joined to a final line with its own dive/glide angle ---------- */
 const mod2 = (a) => {
@@ -15681,7 +16305,7 @@ function frame(now) {
   viewYaw = ((((viewYaw + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;
   /* the frame's time is split into equal sub-steps of at most 1/120 s: physics stays accurate at any frame rate
      and the plane still moves exactly as far as the real time that passed, so there is no stutter */
-  if (started && !paused && !crashed && !BL.on) {
+  if (started && !paused && !crashed && !BL.on && !RPL.on) {
     const n = Math.max(1, Math.ceil(dt / PH_DT - 1e-6));
     for (let i = 0; i < n && !crashed; i++) step(dt / n);
   }
@@ -15689,7 +16313,7 @@ function frame(now) {
   axes();
   plane.position.copy(pos);
   plane.quaternion.copy(q);
-  if (started && !paused) {
+  if (started && !paused && !RPL.on) {
     updWeapons(dt);
     updEnemies(dt);
     updChutists(dt);
@@ -15786,6 +16410,10 @@ function frame(now) {
       );
     cam.up.set(0, 1, 0);
     cam.lookAt(pos);
+  }
+  if (RPL.on) {
+    rpUpdate(dt);
+    rpCam();
   }
   if (BL.on) bailCam(dt);
   if (PHOTO.on) photoCam(dt);
