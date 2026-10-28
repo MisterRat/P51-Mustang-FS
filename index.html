@@ -254,7 +254,7 @@ body.mob.editing #tc{display:block}
 Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middot; &#127919; calibrate</div>
 <div class="hp" id="hpBody"></div>
 <div class="hf" style="margin-top:4px">Land &amp; stop (throttle idle) to repair and rearm.<br>Takeoff: full throttle, at ~190 km/h ease back.</div></div>
-<div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i></div></div>
+<div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
 <div id="flash"></div><div id="blk"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
 <div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
@@ -331,21 +331,27 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <p>North American Aviation designed the NA-73X in 1940 for Britain, and it first flew on 26 October 1940. The early Allison-powered Mustangs were fast down low but weak at altitude. In 1942&ndash;43 the Rolls-Royce Merlin engine (built in the US by Packard as the V-1650) turned it into a high-altitude fighter with a laminar-flow wing.</p>
 <p>The <b>P-51D</b>, introduced in 1944, added the bubble canopy and six .50-caliber machine guns. With drop tanks it could escort bombers deep into Germany and back, which helped win air superiority over Europe. More than 15,000 Mustangs were built, nearly 8,000 of them P-51Ds. It also served in the Pacific and in Korea, and with air forces around the world into the 1980s. Many still fly today.</p>
 <h2>How this app compares with the real aircraft</h2>
-<div class="note"><b>Overall:</b> the low-speed handling, the airspeed placards (stall, flaps, redline), the inverted-flight oil limit and the armament follow the real aircraft closely. By default the app is an arcade-leaning simulation that is fun first: altitude effects, fuel, engine temperatures, spins and engine torque are left out. They are available in the optional <b>Hardcore Simulation Mode</b> (see the Hardcore page, with a master switch and a switch for each part); that page also lists what is still left out. Treat it as a simulation for enjoyment, not a certified model.</div>
+<div class="note"><b>Overall:</b> the airframe is built from our copies of the original factory blueprints and the performance is tuned to the P-51D flight-characteristics manual, as closely as a browser game allows; the low-speed handling, the airspeed placards (stall, flaps, redline), the inverted-flight oil limit and the armament follow the real aircraft closely. By default the app is an arcade-leaning simulation that is fun first: altitude effects, fuel, engine temperatures, spins and engine torque are left out. They are available in the optional <b>Hardcore Simulation Mode</b> (see the Hardcore page, with a master switch and a switch for each part); that page also lists what is still left out. Treat it as a simulation for enjoyment, not a certified model.</div>
 <table class="spec">
 <tr><th>Item</th><th>Real P-51D</th><th>This app</th><th>Match</th></tr>
-<tr><td>Wingspan</td><td>11.28 m (37 ft)</td><td>11.3 m</td><td class="m-ok">Close</td></tr>
-<tr><td>Length</td><td>9.83 m (32 ft 3 in)</td><td>about 9.6 m plus spinner</td><td class="m-ok">Close</td></tr>
+<tr><td>Wingspan</td><td>11.28 m (37 ft)</td><td>11.28 m (blueprint planform)</td><td class="m-ok">Match</td></tr>
+<tr><td>Length</td><td>9.83 m (32 ft 3 in)</td><td>9.8 m (blueprint fuselage oval and tail station)</td><td class="m-ok">Match</td></tr>
+<tr><td>Wing area</td><td>233.2 sq ft (21.7 m&sup2;) including flaps, ailerons and fuselage</td><td>about 237 sq ft, from the blueprint planform (1.6% over)</td><td class="m-ok">Close</td></tr>
+<tr><td>Flaps and ailerons</td><td>Flaps 32.2 sq ft in total (part of it under the fuselage); ailerons 12.2 sq ft with tabs</td><td>Flaps and ailerons are shaped from the plan drawing: the flap is about 22 in deep at the fuselage tapering to 17 in, the aileron tapers from 17 in to 7 in. Flaps about 30 sq ft exposed; ailerons about 13 sq ft (no separate trim tabs yet)</td><td class="m-ok">Close</td></tr>
+<tr><td>Tailplane and elevators</td><td>Stabilizer 28.0 sq ft (with 2.1 under the fuselage); elevators 13.05 sq ft with tabs; span 13 ft 2 in</td><td>Stabilizer about 28.2 sq ft; elevators about 13.3 sq ft in two halves with the fuselage gap; span 4.02 m</td><td class="m-ok">Match</td></tr>
+<tr><td>Fin and rudder</td><td>Fin 9.61 sq ft; rudder 10.41 sq ft with tab; total 20.0 sq ft; height 69 9/16 in</td><td>Fin about 9.5 sq ft above the fuselage line; rudder about 10.5 sq ft; height 1.77 m</td><td class="m-ok">Match</td></tr>
+<tr><td>Landing gear</td><td>Main gear at fuselage station 114, tail wheel at station 313 (wheelbase about 5 m); three-point attitude about 12 degrees</td><td>Gear, wheels and tail wheel at blueprint stations; sits about 11.5 degrees nose-up on the ground, and the wheels touch the runway</td><td class="m-ok">Match</td></tr>
+<tr><td>Canopy and cockpit</td><td>Bubble canopy, windscreen frame and sill from the cockpit drawings; pilot eye just behind the gunsight</td><td>Canopy, windscreen frame, sill, panel and seat at blueprint stations; the cockpit camera sits at the pilot's eyes</td><td class="m-ok">Close</td></tr>
 <tr><td>Engine</td><td>Packard V-1650-7 Merlin, 1,490 hp (1,720 hp with war emergency power)</td><td>Power follows the throttle; RPM and manifold-pressure gauges are scaled to match. <b>Hardcore mode:</b> the top 10% of the throttle is war emergency power, and a two-stage supercharger power curve holds power to about 3,000 m and fades above</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Top speed</td><td>703 km/h (437 mph) at 7,600 m (25,000 ft); roughly 580&ndash;610 km/h near sea level</td><td>Standard mode: about 685 km/h near sea level and 705 km/h at height (too fast low down, by about 14%). <b>Hardcore mode</b> (real-performance option): about 605 km/h near sea level and about 700 km/h true speed at 7,600 m, where the gauge shows only about 470 km/h indicated, as in the real aircraft</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Cruise</td><td>about 583 km/h (362 mph) true speed at altitude (typically 4,500&ndash;5,500 m)</td><td>Standard mode: 574 km/h at 65% throttle and 624 km/h at 80% near sea level. <b>Hardcore mode:</b> at 65% throttle about 490 km/h near sea level and about 590 km/h true speed at 5,000 m</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Stall, clean</td><td>about 160 km/h (100 mph) at around 9,000 lb</td><td>164 km/h, a little higher with bombs and rockets</td><td class="m-ok">Close</td></tr>
 <tr><td>Stall, gear and 45&deg; flaps</td><td>about 151 km/h (94 mph) at 9,000 lb</td><td>150 km/h</td><td class="m-ok">Close</td></tr>
-<tr><td>Flap speed limits</td><td>10&deg; 400 mph (644 km/h) &middot; 20&deg; 275 mph (443) &middot; 30&deg;/45&deg; 225 mph (362)</td><td>640 &middot; 440 &middot; 360 km/h; flaps retract automatically if exceeded</td><td class="m-ok">Close</td></tr>
+<tr><td>Flap speed limits</td><td>10&deg; 400 mph (644 km/h) &middot; 20&deg; 275 mph (443) &middot; 30&deg; 225 mph (362) &middot; 40&deg; 180 mph (290) &middot; 50&deg; 165 mph (265)</td><td>640 &middot; 440 &middot; 360 km/h; flaps retract automatically if exceeded. <b>Hardcore mode:</b> the real six settings and limits</td><td class="m-ok">Close</td></tr>
 <tr><td>Redline</td><td>505 mph (808 km/h) up to 5,000 ft; lower higher up</td><td>800 km/h, buffet from 755 km/h. <b>Hardcore mode:</b> the limit is the same indicated speed low down and Mach 0.75 higher up, so it falls with altitude</td><td class="m-ok">Close</td></tr>
 <tr><td>Climb rate</td><td>about 16 m/s (3,200 ft/min) at sea level</td><td>Standard mode: about 17.8 m/s clean and 16.7 m/s with the rockets and bombs loaded (slightly high). <b>Hardcore mode:</b> about 15 m/s clean and 14 m/s loaded at sea level, falling to about two-thirds of that at 7,600 m and to zero at the service ceiling</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Service ceiling</td><td>12,800 m (41,900 ft)</td><td>Standard mode: no limit, performance does not change with height. <b>Hardcore mode:</b> air density, supercharger power and induced drag take the climb rate to zero at about 12,000 m</td><td class="m-ok">Close in Hardcore mode</td></tr>
-<tr><td>Takeoff</td><td>roughly 350&ndash;450 m ground roll, rotate near 160 km/h</td><td>about 430 m and 17&ndash;18 s with 10&deg; flaps; rotate at 160, lift off at about 170 km/h</td><td class="m-ok">Close</td></tr>
+<tr><td>Takeoff</td><td>roughly 350&ndash;450 m ground roll, rotate near 160 km/h</td><td>Standard mode: about 430 m and 17&ndash;18 s with 10&deg; flaps; rotate at 160, lift off at about 170 km/h at the real 12&deg; ground attitude. Hardcore mode with full fuel and engine torque: about 740 m and 24 s</td><td class="m-ok">Close</td></tr>
 <tr><td>Load limits</td><td>Structure rated +8 G / &minus;4 G at design weight, with lower limits at high speed and weight</td><td>Standard mode: the plane simply cannot pull more than about +7 G / &minus;3.5 G; you start to black out above about 4.5 G sustained. <b>Hardcore mode:</b> +8 / &minus;4 G at 8,000 lb, scaled down with weight and 15% lower above 400 mph indicated; overstress bends the airframe (lasting until repaired) and about 1.5 times the limit breaks the wing</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Inverted flight</td><td>Limited to about 10 seconds (oil scavenging)</td><td>Engine cuts after 10 s inverted</td><td class="m-ok">Close</td></tr>
 <tr><td>Guns</td><td>Six .50 cal Brownings, about 1,880 rounds (400 inboard, 270 outboard), about 800 rounds/min each, muzzle velocity about 890 m/s</td><td>Six guns, 1,840 rounds (380 inboard, 270 outboard), 800 rounds/min each, 880 m/s, bullets drop under gravity, converge at 350 m</td><td class="m-ok">Close</td></tr>
@@ -400,6 +406,8 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <label><input type="checkbox" data-hc="turb"> <b>Weather: turbulence.</b> Rain, overcast and especially thunderstorms bump and roll the aircraft with updrafts and downdrafts, and a strong wind makes the air rough close to the ground. Ease the controls and slow down for rough air.</label>
 <label><input type="checkbox" data-hc="wet"> <b>Weather: wet runway.</b> After rain starts the runway and the grass are wet (and dry out slowly afterwards). The brakes grip about half as well, the steering is weaker, the tyres squeal less, and above about 160 km/h in heavy rain the aircraft hydroplanes: the brakes and steering hardly work. Land at the start of the runway and brake early.</label>
 <label><input type="checkbox" data-hc="ice"> <b>Weather: icing.</b> Cold, wet cloud below freezing coats the wing with ice. The air gets colder with height and with bad weather (the HUD shows the outside temperature and the ice build-up). Ice cuts the lift, adds drag and costs thrust, so the stall speed rises and the aircraft will not climb; leave the cloud or descend to warmer air to melt it. The cockpit also frosts over. Servicing on the ground clears it.</label>
+<label><input type="checkbox" data-hc="ops"> <b>Real flap settings and gear speed.</b> The flaps have the six real settings (10, 20, 30, 40 and 50 degrees) with the manual's speed limits: 10&deg; 644 km/h, 20&deg; 443, 30&deg; 362, 40&deg; 290, 50&deg; 265. They retract by themselves if you go faster. The landing gear will not come down above 170 mph (273 km/h), and the landing trainer follows the same limit.</label>
+<label><input type="checkbox" data-hc="pwr"> <b>Engine power limits.</b> War emergency power (the top 10% of the throttle) is allowed for 5 minutes: you get a warning at 4:30, and after 5:00 the engine overheats and loses most of its power until it cools. The engine may not turn faster than 3240 rpm: full throttle in a fast dive, above about 800 km/h, damages it the same way after 3 seconds.</label>
 <label><input type="checkbox" data-hc="ils"> <b>ILS realism.</b> The needles use the real sensitivity: the localizer needle is full scale at 2.5 degrees and the glide slope needle at only 0.7 degrees, twice as touchy as the standard ILS, so you must make small, steady corrections. The beam is a narrower cone in front of the runway. The outer marker (blue, about 7.4 km out) and the middle marker (amber, about 1 km out) light up on the display and sound their tones, and &ldquo;LOCALIZER CAPTURED&rdquo; and &ldquo;GLIDESLOPE CAPTURED&rdquo; are called when each needle settles on the centre.</label>
 </div>
 <h2>What it models</h2>
@@ -452,7 +460,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>PULL UP</td><td>Low and descending fast.</td></tr>
 <tr><td>ILS</td><td>The landing trainer teaches the instrument landing system. The ILS panel (beside the artificial horizon) is a cross-pointer: the <b>vertical needle</b> is the localizer (left / right of the runway centreline) and the <b>horizontal needle</b> is the glide slope (your height against a 3&deg; slope that meets the runway 200 m past the threshold). Each needle points toward where the beam is, so fly <b>toward</b> the needle: needle right = turn right, needle below the centre = descend. Red LOC / GS flags mean no beam yet. The beam reaches about 25 km out and 40&deg; either side of the runway, for both ends (36 and 18; in free flight the nearer end is used, switched on with L). The distance (DME) to the threshold is shown at the top. Standard needles are full scale at 5&deg; and 1.4&deg;. In the landing trainer the green ring leads you around the circuit and then sits on the centreline and the slope. Catch the slope from below. <b>Hardcore &gt; ILS realism</b> uses the real sensitivity (2.5&deg; and 0.7&deg;), a narrower cone, the outer and middle marker beacons with lamps and tones, and capture call-outs.</td></tr>
 <tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, drag the mouse to look, the right-drag slides the camera, the wheel moves it in and out in small steps (Shift + wheel in big steps; it never runs out), Ctrl + wheel changes the field of view, Shift moves fast. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
-<tr><td>Time &amp; weather</td><td>Settings &gt; Time of day &amp; weather. <b>Time</b>: your local clock, dawn, morning, midday, afternoon, evening or night; tick &ldquo;Time passes&rdquo; to run a day in 24 minutes. <b>Weather</b>: clear, partly cloudy, overcast, rain, thunderstorm or fog. Overcast, rain, storm and fog cut how far you can see and dim the sun. At night you get a moon, stars, runway lights, lit building windows, the hangars and the tower, and wingtip and tail lights (red left, green right, white tail). Rain streaks past the canopy; a thunderstorm adds lightning and thunder. Fly the runway lights in, and watch your altitude.</td></tr>
+<tr><td>Time &amp; weather</td><td>Settings &gt; Time of day &amp; weather. <b>Time</b>: your local clock, dawn, morning, midday, afternoon, evening or night; tick &ldquo;Time passes&rdquo; to run a day in 24 minutes. <b>Weather</b>: clear, partly cloudy, overcast, rain, thunderstorm or fog. Overcast, rain, storm and fog cut how far you can see and dim the sun. At night you get a moon, stars, runway lights, lit building windows, the hangars and the tower, and wingtip and tail lights (red left, green right, white tail). Rain streaks past the canopy; a thunderstorm adds lightning and thunder. Fly the runway lights in, and watch your altitude. <b>Night:</b> the instrument panel dims, and with the landing gear down the landing light puts a pool of light on the ground ahead of the nose.</td></tr>
 <tr><td>DAMAGE</td><td>Enemy hits hurt one system at a time (Settings &gt; Battle damage). <b>Engine</b>: less power, smoke, then fire or a dead engine. <b>Wing</b>: the plane rolls toward the damaged side and the aileron weakens (lost when badly hit). <b>Tail</b>: weaker elevator and rudder. <b>Fuel tank</b>: a leak. <b>Hydraulics</b>: flaps jam and the gear will not retract. A fire burns the hull: dive fast for about 3 seconds to put it out. Land and stop with the throttle at idle to repair everything. If it is hopeless, bail out (J twice, or hold both bumpers, or Pause menu &gt; Bail out): the canopy blows off, you climb out of the seat, fall clear and the parachute opens. <b>Drag the mouse</b> (or use the right stick) to look all around, down at the ground and up at the canopy. You need about 100 m of height when you climb out for the parachute to open in time; Enter restarts at any time. The aircraft is lost.</td></tr>
 <tr><td>Sound</td><td>The engine note follows the throttle and propeller speed, with wind, tyre rumble, guns, rockets, bombs and explosions (heard late when far away), and a chirp and squeal of rubber when you touch down fast. Warning tones: a pulsing buzzer for a stall, a steady wail past the redline, a two-tone warble in a spin, and fast beeps for overstress. Settings &gt; Sound has the overall volume and a separate Engine &amp; Wind volume; U mutes.</td></tr>
 <tr><td>OVERSTRESS <small>(Hardcore)</small></td><td>You are pulling more G than the airframe is rated for. Ease off at once: the damage adds up, and about 1.5 times the limit breaks the wing. Landing and stopping at idle repairs it.</td></tr>
@@ -465,7 +473,9 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>REDLINE &ndash; COMPRESSIBILITY</td><td>Over about 755 km/h: buffet and stick jitter. Ease off.</td></tr>
 <tr><td>G LIMIT</td><td>Pulling more than about 6.5 G. Above about 4.5 G sustained the screen greys out and you black out.</td></tr>
 <tr><td>OIL PRESSURE</td><td>Inverted for more than 10 seconds cuts the engine. Roll upright to recover.</td></tr>
-<tr><td>Flaps overspeed</td><td>Flaps retract on their own if you exceed their speed limit (10&deg; 640, 20&deg; 440, 30&deg;/45&deg; 360 km/h).</td></tr>
+<tr><td>Flaps overspeed</td><td>Flaps retract on their own if you exceed their speed limit (10&deg; 640, 20&deg; 440, 30&deg;/45&deg; 360 km/h). In Hardcore mode the flaps have the real six settings: 10&deg; 644, 20&deg; 443, 30&deg; 362, 40&deg; 290, 50&deg; 265 km/h.</td></tr>
+<tr><td>Gear overspeed <small>(Hardcore)</small></td><td>The gear will not come down above 273 km/h (170 mph): the HUD says GEAR OVERSPEED. Slow down and try again.</td></tr>
+<tr><td>WAR EMERGENCY / RPM <small>(Hardcore)</small></td><td>More than 5 minutes above 90% throttle, or more than 3 seconds above 3240 rpm in a fast dive, overheats the engine. Throttle back and let it cool.</td></tr>
 <tr><td>Panel lamps</td><td>GEAR is green with the gear down. FLAPS is amber when flaps are out. STALL is amber near the stall. ENG FAIL is red when the engine has cut. MAGS, BATT, CANOPY and INVERTER are always green.</td></tr>
 <tr><td>Coach colors</td><td>Green: on target. Amber: adjust. Red: danger.</td></tr>
 </table></div>
@@ -546,7 +556,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '3.41';
+const VERSION = '3.59';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -586,8 +596,26 @@ const store = {
    turb      turbulence: bumps and rolls in rough weather and low down in strong wind
    wet       wet runway in rain: weaker brakes, weaker steering, hydroplaning at speed
    ice       airframe icing in cloud below freezing: less lift, more drag, less thrust
+   ops       the real flap settings (10 to 50 degrees) and speed limits, and a landing gear speed limit (170 mph)
+   pwr       engine power limits: war emergency power for 5 minutes, and no more than 3240 rpm in a dive
    FM.use(name) is true only when the master switch AND that option are on. */
-const HC_KEYS = ['torque', 'spin', 'alt', 'heat', 'fuel', 'wep', 'perf', 'gload', 'ils', 'wind', 'turb', 'wet', 'ice'];
+const HC_KEYS = [
+  'torque',
+  'spin',
+  'alt',
+  'heat',
+  'fuel',
+  'wep',
+  'perf',
+  'gload',
+  'ils',
+  'wind',
+  'turb',
+  'wet',
+  'ice',
+  'ops',
+  'pwr',
+];
 const FM = {
   on: false,
   opt: {
@@ -604,6 +632,8 @@ const FM = {
     turb: true,
     wet: true,
     ice: true,
+    ops: true,
+    pwr: true,
   },
   lim: { pos: 7, neg: -3.5 } /* current structural limits in G (weight and speed dependent) */,
   over: 0 /* load / limit when over the limit, else 0 */,
@@ -616,6 +646,10 @@ const FM = {
     store.set('p51hc', { on: this.on, opt: this.opt });
   },
   eT: 0 /* engine heat 0..1.2; 1 = overheated */,
+  wepT: 0 /* seconds spent at war emergency power (5 minutes allowed) */,
+  wepW: false,
+  wepX: false,
+  rpmT: 0 /* seconds above 3240 rpm */,
   ice: 0 /* airframe ice 0..1 */,
   iceW: 0,
   hyd: false /* hydroplaning on a wet runway */,
@@ -3471,7 +3505,32 @@ const add = (g, m, x, y, z, p = model) => {
   p.add(o);
   return o;
 };
-const wy = (x) => -0.3 + (Math.abs(x) / 5.64) * 0.45; /* wing centre-line height incl. dihedral */
+/* ---------- wing, from the factory three-view: root chord 104 in, tip chord 50 in, 25% chord line at one fuselage station,
+   trailing edge broken at the flap/aileron joint, 5 degrees of dihedral. Stations are inches from the spinner tip (1 in = 0.0254 m). */
+const WR = -0.58, /* wing root centre height: its top sits just under the cockpit floor */
+  WD = 0.5, /* rise from root to tip (5 degrees of dihedral) */
+  WSEMI = 5.64,
+  WZ_LE0 = -4.88 + 107.9 * 0.0254,
+  WZ_LE1 = -4.88 + 121.4 * 0.0254,
+  WZ_TE0 = -4.88 + 211.9 * 0.0254,
+  WZ_TEK = -0.115,
+  WZ_TE1 = -4.88 + 171.4 * 0.0254,
+  WU_K = 0.59;
+const wzle = (u) => WZ_LE0 + (WZ_LE1 - WZ_LE0) * Math.min(1, u); /* leading edge z at span fraction u */
+const wzte = (u) => {
+  u = Math.min(1, u);
+  return u < WU_K ? WZ_TE0 + ((WZ_TEK - WZ_TE0) * u) / WU_K : WZ_TEK + ((WZ_TE1 - WZ_TEK) * (u - WU_K)) / (1 - WU_K);
+}; /* trailing edge z, including the flap or aileron */
+const wcf = (u) => {
+  const a = u * WSEMI,
+    ak = WU_K * WSEMI;
+  /* measured on the plan drawing: the flap is about 0.55 m deep at the fuselage tapering to 0.43 m where it meets the aileron; the aileron tapers from 0.43 m to 0.19 m at the tip */
+  if (a <= ak) return 0.55 - (0.55 - 0.43) * Math.max(0, (a - 0.575) / (ak - 0.575));
+  return Math.max(0.19, 0.43 - (0.43 - 0.19) * ((a - ak) / (5.45 - ak)));
+}; /* depth of the flap (inboard) and of the aileron (outboard) */
+const wzh = (u) => wzte(u) - wcf(u); /* the hinge line: where the fixed wing ends */
+const wmid = (u) => (wzle(u) + wzh(u)) / 2; /* middle of the fixed wing chord */
+const wy = (x) => WR + (Math.abs(x) / WSEMI) * WD; /* wing centre-line height incl. dihedral */
 function shp(pts) {
   const sh = new THREE.Shape();
   pts.forEach((p, i) => (i ? sh.lineTo(p[0], p[1]) : sh.moveTo(p[0], p[1])));
@@ -3489,82 +3548,346 @@ function slab(pts, th) {
   g.translate(0, th / 2, 0);
   return g;
 } /* pts = [x,z] planform */
-/* fuselage: smooth lofted body, with the cockpit opening cut out of the top */
-{
-  const cp = [
-    [0, -4.62],
-    [0.46, -4.6],
-    [0.52, -4.45],
-    [0.58, -4.0],
-    [0.63, -3.3],
-    [0.66, -2.6],
-    [0.68, -1.7],
-    [0.66, -0.8],
-    [0.6, 0.2],
-    [0.53, 1.2],
-    [0.43, 2.2],
-    [0.33, 3.1],
-    [0.23, 3.9],
-    [0.14, 4.6],
-    [0.07, 4.9],
-    [0, 4.96],
-  ];
-  const all = new THREE.SplineCurve(cp.map((p) => new THREE.Vector2(p[0], p[1])))
-    .getPoints(320)
-    .map((v) => new THREE.Vector2(Math.max(0, v.x), v.y));
-  const seg = (a, b, sc = 1) => all.filter((v) => v.y >= a && v.y <= b).map((v) => new THREE.Vector2(v.x * sc, v.y)),
-    G = 1.05,
-    PI = Math.PI;
-  add(new THREE.LatheGeometry(seg(-4.7, -1.65), 32).rotateX(PI / 2), metal, 0, 0, 0);
-  add(new THREE.LatheGeometry(seg(-1.65, 0.85), 32, PI + G, 2 * PI - 2 * G).rotateX(PI / 2), metal, 0, 0, 0);
-  add(new THREE.LatheGeometry(seg(-1.65, 0.85, 0.95), 32, PI + G, 2 * PI - 2 * G).rotateX(PI / 2), zchrom, 0, 0, 0);
-  add(new THREE.LatheGeometry(seg(0.85, 5), 32).rotateX(PI / 2), metal, 0, 0, 0);
-  add(new THREE.CircleGeometry(0.67, 24), zchrom, 0, 0, -1.64);
-  add(new THREE.CircleGeometry(0.56, 24), zchrom, 0, 0, 0.86);
+/* ---------- the fuselage, built from the factory general-arrangement drawing ----------
+   Stations are inches from the spinner tip (1 in = 0.0254 m). One table gives half-width, top, bottom and squareness at each station.
+   The body, the cockpit opening, the glass, the rails and every decal read it, so they always fit each other. */
+const FUS_N = -4.88; /* z of the spinner tip */
+const fz = (x) => FUS_N + x * 0.0254;
+const FUS_T = [
+  [27, 0.37, 0.42, -0.4, 2.3],
+  [35, 0.385, 0.455, -0.55, 2.4],
+  [50, 0.4, 0.495, -0.66, 2.5],
+  [70, 0.42, 0.533, -0.735, 2.6],
+  [90, 0.445, 0.56, -0.77, 2.6],
+  [110, 0.455, 0.577, -0.775, 2.6],
+  [130, 0.46, 0.585, -0.775, 2.6],
+  [180, 0.46, 0.585, -0.765, 2.6],
+  [222, 0.41, 0.577, -0.74, 2.6],
+  [250, 0.34, 0.545, -0.6, 2.5],
+  [280, 0.3, 0.52, -0.53, 2.4],
+  [300, 0.28, 0.525, -0.47, 2.3],
+  [320, 0.25, 0.5, -0.41, 2.2],
+  [340, 0.2, 0.4, -0.33, 2.2],
+  [360, 0.14, 0.27, -0.18, 2.2],
+  [380, 0.06, 0.12, -0.04, 2.1],
+  [387, 0.0, 0.05, 0.0, 2.0],
+].map((r) => [fz(r[0]), r[1], r[2], r[3], r[4]]);
+/* smooth interpolation of one column of a table whose first column is z */
+const crm = (T, z, c) => {
+  let i = 0;
+  while (i < T.length - 2 && z > T[i + 1][0]) i++;
+  const p0 = T[Math.max(0, i - 1)],
+    p1 = T[i],
+    p2 = T[i + 1],
+    p3 = T[Math.min(T.length - 1, i + 2)],
+    h = p2[0] - p1[0],
+    u = Math.max(0, Math.min(1, (z - p1[0]) / h)),
+    m1 = ((p2[c] - p0[c]) / (p2[0] - p0[0])) * h,
+    m2 = ((p3[c] - p1[c]) / (p3[0] - p1[0])) * h,
+    u2 = u * u,
+    u3 = u2 * u;
+  return (2 * u3 - 3 * u2 + 1) * p1[c] + (u3 - 2 * u2 + u) * m1 + (-2 * u3 + 3 * u2) * p2[c] + (u3 - u2) * m2;
+};
+function fusSec(z) {
+  z = Math.max(FUS_T[0][0], Math.min(FUS_T[FUS_T.length - 1][0], z));
+  const t = crm(FUS_T, z, 2),
+    b = crm(FUS_T, z, 3);
+  return { a: Math.max(0, crm(FUS_T, z, 1)), yc: (t + b) / 2, hh: Math.max(0.01, (t - b) / 2), n: crm(FUS_T, z, 4) };
 }
-add(new THREE.CylinderGeometry(0.6, 0.552, 0.5, 32, 1, true).rotateX(Math.PI / 2), red, 0, 0, -4.2); /* red cowl band */
-add(
-  new THREE.CylinderGeometry(0.684, 0.684, 1.5, 20, 1, true, Math.PI - 0.85, 1.7).rotateX(Math.PI / 2),
-  olive,
-  0,
-  0,
-  -2.45,
-); /* anti-glare panel */
-add(new THREE.BoxGeometry(0.4, 0.22, 0.9), metal, 0, -0.6, -3.3);
-add(new THREE.BoxGeometry(0.32, 0.15, 0.06), dark, 0, -0.6, -3.78); /* chin intake */
-/* belly radiator scoop: faired, rounded body with an intake lip and a trailing-edge exit flap */
-{
-  const sc = [
-    [-0.2, -0.4],
-    [-0.1, -0.72],
-    [0.15, -0.93],
-    [0.3, -1],
-    [1.5, -1],
-    [2, -0.86],
-    [2.45, -0.55],
-    [2.45, -0.35],
+/* a point [x, y] on the right-hand skin at section angle ang (0 = widest, PI/2 = top, PI = left, 3PI/2 = belly), pushed out by off */
+function fusPt(z, ang, off) {
+  const s = fusSec(z),
+    c = Math.cos(ang),
+    n = Math.sin(ang),
+    e = 2 / s.n;
+  off = off || 0;
+  return [
+    s.a * Math.sign(c) * Math.abs(c) ** e + Math.sign(c) * off * Math.abs(c),
+    s.yc + s.hh * Math.sign(n) * Math.abs(n) ** e + Math.sign(n) * off * Math.abs(n),
   ];
-  const g = new THREE.ExtrudeGeometry(shp(sc), {
-    depth: 0.62,
-    bevelEnabled: true,
-    bevelThickness: 0.11,
-    bevelSize: 0.11,
-    bevelSegments: 4,
+}
+/* half-width of the skin at height y */
+function fusX(z, y) {
+  const s = fusSec(z),
+    f = Math.min(0.999, Math.abs((y - s.yc) / s.hh)),
+    sn = f ** (s.n / 2);
+  return s.a * Math.sqrt(1 - sn * sn) ** (2 / s.n);
+}
+/* the cockpit opening edge (the sill): drops from the windscreen base to the front frame, then climbs to the turtle deck */
+const SILL_Z = [fz(129), fz(150), fz(222)];
+function sillY(z) {
+  if (z <= SILL_Z[0]) return 0.5;
+  if (z >= SILL_Z[2]) return 0.575;
+  if (z < SILL_Z[1]) {
+    const u = (z - SILL_Z[0]) / (SILL_Z[1] - SILL_Z[0]);
+    return 0.5 - 0.22 * u * u * (3 - 2 * u);
+  }
+  return 0.28 + ((z - SILL_Z[1]) / (SILL_Z[2] - SILL_Z[1])) * 0.295;
+}
+function sillAng(z) {
+  const s = fusSec(z),
+    f = Math.max(-0.995, Math.min(0.995, (sillY(z) - s.yc) / s.hh));
+  return Math.asin(Math.sign(f) * Math.abs(f) ** (s.n / 2));
+}
+const sillX = (z) => fusPt(z, sillAng(z))[0];
+function fusPatch(zA, zB, t0, t1, off, mat, nz, nt) {
+  const P = [],
+    I = [];
+  for (let i = 0; i <= nz; i++) {
+    const z = zA + ((zB - zA) * i) / nz;
+    for (let j = 0; j <= nt; j++) {
+      const q = fusPt(z, t0 + ((t1 - t0) * j) / nt, off);
+      P.push(q[0], q[1], z);
+    }
+  }
+  for (let i = 0; i < nz; i++)
+    for (let j = 0; j < nt; j++) {
+      const a = i * (nt + 1) + j,
+        c = a + nt + 1;
+      I.push(a, a + 1, c, a + 1, c + 1, c);
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+  g.setIndex(I);
+  g.computeVertexNormals();
+  return add(g, mat, 0, 0, 0);
+}
+const tubM = new THREE.MeshLambertMaterial({ color: 0x6f7d4b, side: 2 }); /* the cockpit tub (gets its wall texture with the interior) */
+const bodyM = metal.clone();
+bodyM.side = THREE.DoubleSide;
+{
+  /* body: rings from the nose to the tail; in the cockpit stretch the top of the ring is left out above the sill */
+  const nU = 24,
+    nL = 40,
+    nR = nU + nL,
+    ST = [];
+  for (let x = 27; x <= 387; x += 3) ST.push(fz(x));
+  const iA = (129 - 27) / 3,
+    iB = (222 - 27) / 3,
+    P = [],
+    I = [],
+    TU = [],
+    TI = [];
+  ST.forEach((z) => {
+    const ts = sillAng(z);
+    for (let j = 0; j < nU; j++) {
+      const q = fusPt(z, ts + ((Math.PI - 2 * ts) * j) / nU);
+      P.push(q[0], q[1], z);
+    }
+    for (let k = 0; k < nL; k++) {
+      const q = fusPt(z, Math.PI - ts + ((Math.PI + 2 * ts) * k) / nL);
+      P.push(q[0], q[1], z);
+    }
   });
-  g.rotateY(-Math.PI / 2);
-  g.translate(0.31, 0, 0);
-  add(g, metal, 0, 0, 0);
-  const lip = add(new THREE.BoxGeometry(0.58, 0.2, 0.05), dark, 0, -0.85, 0.07, model);
-  lip.rotation.x = -0.75; /* intake opening */
-  add(new THREE.BoxGeometry(0.62, 0.025, 0.34), metal2, 0, -0.84, 2.3, model).rotation.x = 0.55;
+  for (let i = 0; i < ST.length - 1; i++)
+    for (let j = 0; j < nR; j++) {
+      if (i >= iA && i + 1 <= iB && j < nU) continue;
+      const a = i * nR + j,
+        b = i * nR + ((j + 1) % nR),
+        c = a + nR,
+        d = b + nR;
+      I.push(a, b, c, b, d, c);
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+  g.setIndex(I);
+  g.computeVertexNormals();
+  add(g, bodyM, 0, 0, 0);
+  /* the nose face behind the spinner */
+  {
+    const q = [0, fusSec(ST[0]).yc, ST[0]],
+      F = [],
+      Q = [...q];
+    for (let j = 0; j < nR; j++) Q.push(P[j * 3], P[j * 3 + 1], P[j * 3 + 2]);
+    for (let j = 0; j < nR; j++) F.push(0, 1 + ((j + 1) % nR), 1 + j);
+    const cg = new THREE.BufferGeometry();
+    cg.setAttribute('position', new THREE.Float32BufferAttribute(Q, 3));
+    cg.setIndex(F);
+    cg.computeVertexNormals();
+    add(cg, dark, 0, 0, 0);
+  }
+  /* the cockpit tub: the inside of the skin below the sill, with its own colour and wall texture */
+  for (let i = iA; i < iB; i++) {
+    for (let k = 0; k <= nL; k++) {
+      [i, i + 1].forEach((ii) => {
+        const z = ST[ii],
+          ts = sillAng(z),
+          q = fusPt(z, Math.PI - ts + ((Math.PI + 2 * ts) * k) / nL, -0.012);
+        TU.push(q[0], q[1], z);
+      });
+    }
+  }
+  const m = iB - iA;
+  const UV = [];
+  for (let i = 0; i < m; i++)
+    for (let k = 0; k <= nL; k++) {
+      UV.push(i / m, k / nL, (i + 1) / m, k / nL);
+    }
+  for (let i = 0; i < m; i++)
+    for (let k = 0; k < nL; k++) {
+      const a = (i * (nL + 1) + k) * 2,
+        b = a + 2,
+        c = a + 1,
+        d = a + 3;
+      TI.push(a, c, b, b, c, d);
+    }
+  const tg = new THREE.BufferGeometry();
+  tg.setAttribute('position', new THREE.Float32BufferAttribute(TU, 3));
+  tg.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2));
+  tg.setIndex(TI);
+  tg.computeVertexNormals();
+  add(tg, tubM, 0, 0, 0);
+}
+fusPatch(fz(27), fz(47), 0, Math.PI * 2, 0.006, red, 6, 40); /* red cowl band */
+fusPatch(fz(52), fz(128), Math.PI / 2 - 0.9, Math.PI / 2 + 0.9, 0.004, olive, 14, 16); /* anti-glare panel */
+add(new THREE.BoxGeometry(0.3, 0.1, 0.03), dark, 0, -0.43, fz(29), model); /* the chin air intake */
+/* exhaust stacks: six stubs on each side of the cowl */
+[-1, 1].forEach((sd) => {
+  for (let i = 0; i < 6; i++) {
+    const z = fz(38 + 8 * i);
+    add(new THREE.BoxGeometry(0.06, 0.1, 0.2), soot, sd * (fusX(z, 0.11) + 0.012), 0.11, z);
+  }
+});
+/* belly radiator scoop (from the manual's duct drawing): a shallow lip, a diffuser that deepens to the radiator, then a nozzle
+   that closes up to the exit flap. One lofted body, rounded section, dark mouth and exit. */
+{
+  const T = [
+      [fz(157), -0.95, 0.24],
+      [fz(160), -1.04, 0.29],
+      [fz(170), -1.12, 0.33],
+      [fz(185), -1.135, 0.34],
+      [fz(200), -1.12, 0.335],
+      [fz(215), -1.06, 0.32],
+      [fz(230), -0.98, 0.3],
+      [fz(245), -0.82, 0.27],
+      [fz(252), -0.74, 0.25],
+    ],
+    nt = 20,
+    nz = 28,
+    top = -0.42,
+    P = [],
+    I = [];
+  const sec = (z) => {
+    let i = 0;
+    while (i < T.length - 2 && z > T[i + 1][0]) i++;
+    const u = Math.max(0, Math.min(1, (z - T[i][0]) / (T[i + 1][0] - T[i][0]))),
+      k = u * u * (3 - 2 * u);
+    return [T[i][1] + (T[i + 1][1] - T[i][1]) * k, T[i][2] + (T[i + 1][2] - T[i][2]) * k];
+  };
+  const ring = (z) => {
+    const [yb, hw] = sec(z),
+      R = [];
+    for (let j = 0; j < nt; j++) {
+      const t = (Math.PI * 2 * j) / nt,
+        c = Math.cos(t),
+        n = Math.sin(t),
+        e = 2 / 3.2;
+      R.push([hw * Math.sign(c) * Math.abs(c) ** e, (top + yb) / 2 + ((top - yb) / 2) * Math.sign(n) * Math.abs(n) ** e, z]);
+    }
+    return R;
+  };
+  for (let i = 0; i <= nz; i++) ring(T[0][0] + ((T[T.length - 1][0] - T[0][0]) * i) / nz).forEach((p) => P.push(...p));
+  for (let i = 0; i < nz; i++)
+    for (let j = 0; j < nt; j++) {
+      const a = i * nt + j,
+        b = i * nt + ((j + 1) % nt),
+        c = a + nt,
+        d = b + nt;
+      I.push(a, c, b, b, c, d);
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+  g.setIndex(I);
+  g.computeVertexNormals();
+  const scM = metal.clone();
+  scM.side = THREE.DoubleSide;
+  add(g, scM, 0, 0, 0);
+  const cap = (z, flip) => {
+    const R = ring(z),
+      C = [0, top * 0.5 + sec(z)[0] * 0.5, z],
+      Q = [...C],
+      F = [];
+    R.forEach((p) => Q.push(...p));
+    for (let j = 0; j < nt; j++) F.push(0, 1 + j, 1 + ((j + 1) % nt));
+    const cg = new THREE.BufferGeometry();
+    cg.setAttribute('position', new THREE.Float32BufferAttribute(Q, 3));
+    cg.setIndex(flip ? F.map((v, i, A) => A[i - (i % 3) + ((3 - (i % 3)) % 3)]) : F);
+    cg.computeVertexNormals();
+    return cg;
+  };
+  const dk = new THREE.MeshLambertMaterial({ color: 0x0c0c0d, side: THREE.DoubleSide });
+  add(cap(fz(157)), dk, 0, 0, 0); /* the intake mouth */
+  add(cap(fz(252)), dk, 0, 0, 0); /* the exit */
+  add(new THREE.BoxGeometry(0.5, 0.025, 0.36), metal2, 0, -0.66, fz(252) + 0.12, model).rotation.x = 0.5; /* exit flap, hanging down and aft */
+  add(new THREE.BoxGeometry(0.5, 0.03, 0.05), metal2, 0, -0.95, fz(157), model); /* the sharp intake lip */
 } /* exit flap */
-[-1, 1].forEach((s) => {
-  for (let i = 0; i < 6; i++) add(new THREE.BoxGeometry(0.06, 0.1, 0.2), soot, s * 0.665, 0.14, -3.4 + i * 0.3);
-}); /* exhaust stacks */
 /* canopy, pilot */
-const CAN = { cy: 0.45, cz: -0.5, rx: 0.66, ry: 0.72, rz: 1.6 };
-const can = add(new THREE.SphereGeometry(1, 36, 22, 0, Math.PI * 2, 0, Math.PI / 2 + 0.08), glass, 0, CAN.cy, CAN.cz);
-can.scale.set(CAN.rx, CAN.ry, CAN.rz);
+/* canopy: ONE lofted teardrop sitting on the fuselage's cockpit-opening edge (the sill). Table from the drawing:
+   [z, top of the glass, squareness]. The windscreen is the part forward of CAN.zJ, the hood the part behind it. */
+const CAN = {
+  z0: fz(129),
+  z1: fz(222),
+  zJ: fz(150),
+  tab: [
+    [fz(129), 0.59, 3.4],
+    [fz(134), 0.67, 3.2],
+    [fz(140), 0.78, 3.0],
+    [fz(146), 0.875, 2.8],
+    [fz(150), 0.9, 2.6],
+    [fz(158), 0.927, 2.5],
+    [fz(170), 0.915, 2.5],
+    [fz(180), 0.89, 2.5],
+    [fz(190), 0.85, 2.5],
+    [fz(200), 0.79, 2.5],
+    [fz(210), 0.71, 2.4],
+    [fz(216), 0.65, 2.4],
+    [fz(222), 0.58, 2.4],
+  ],
+};
+function canSec(z) {
+  const yb = sillY(z),
+    top = crm(CAN.tab, z, 1);
+  return { xb: sillX(z), yb, h: Math.max(0.01, top - yb), e: 2 / crm(CAN.tab, z, 2) };
+}
+/* a point on the glass at height z, section angle t (0 = right sill, PI/2 = top, PI = left sill), pushed out by off */
+function canPt(z, t, off) {
+  const q = canSec(z),
+    c = Math.cos(t),
+    n = Math.sin(t);
+  off = off || 0;
+  return [
+    q.xb * Math.sign(c) * Math.abs(c) ** q.e + Math.sign(c) * off * Math.abs(c),
+    q.yb + q.h * Math.abs(n) ** q.e + off * Math.abs(n),
+    z,
+  ];
+}
+const canInside = (x, y, z) => {
+  const q = canSec(z),
+    f = (y - q.yb) / q.h;
+  if (f < 0 || f > 1) return f < 0;
+  const sn = f ** (1 / q.e);
+  return Math.abs(x) <= q.xb * Math.sqrt(Math.max(0, 1 - sn * sn)) ** q.e;
+};
+function canLoft(za, zb, nz) {
+  const nt = 32,
+    P = [],
+    I = [];
+  for (let i = 0; i <= nz; i++)
+    for (let j = 0; j <= nt; j++) P.push(...canPt(za + ((zb - za) * i) / nz, (Math.PI * j) / nt, 0));
+  for (let i = 0; i < nz; i++)
+    for (let j = 0; j < nt; j++) {
+      const a = i * (nt + 1) + j,
+        c = a + nt + 1;
+      I.push(a, a + 1, c, a + 1, c + 1, c);
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+  g.setIndex(I);
+  g.computeVertexNormals();
+  return g;
+}
+add(canLoft(CAN.z0, CAN.zJ, 12), glass, 0, 0, 0); /* windscreen glass: stays when the hood is jettisoned */
+const can = add(canLoft(CAN.zJ, CAN.z1, 40), glass, 0, 0, 0); /* the hood */
 /* ---------- pilot figure and parachute: the player's seat, the bandits' cockpits and the descents ---------- */
 function makePilot() {
   const g = new THREE.Group(),
@@ -3706,7 +4029,8 @@ function makeChute(r, c1, c2) {
   return g;
 }
 const plPilot = makePilot();
-plPilot.position.set(0, 0.3, -0.33);
+plPilot.position.set(0, 0.07, -0.33);
+plPilot.scale.setScalar(0.95);
 model.add(plPilot);
 /* the player's hands follow the controls: left on the throttle knob, right on the stick grip (two-bone reach, elbows down and out) */
 const IK = {
@@ -3782,16 +4106,24 @@ function ikLeg(l, k, T, sd) {
   IK.f.copy(IK.h).sub(IK.e).normalize().applyQuaternion(IK.qi.copy(l.quaternion).invert());
   k.quaternion.setFromUnitVectors(IK.dn, IK.f);
 }
-/* tail */
+/* tail, from the factory side and plan views: fin 69 9/16 in above the reference line, rudder hinge at station 362, tailplane span 13 ft 2 1/8 in,
+   elevator hinge at station 338.5 */
+const FIN_H = 1.767,
+  RUD_Z = fz(362),
+  STB_Y = 0.12,
+  EL_Z = fz(338.5);
 add(
   plate(
     [
-      [1.3, 0.5],
-      [3.2, 0.62],
-      [4.0, 1.95],
-      [4.2, 1.95],
-      [4.46, 0.12],
-      [2.5, 0.1],
+      [fz(300), 0.4],
+      [fz(310.9), 0.5],
+      [fz(327.2), 0.6],
+      [fz(337.4), 1.14],
+      [fz(344.5), 1.66],
+      [fz(351.6), FIN_H],
+      [RUD_Z, FIN_H],
+      [RUD_Z, 0.12],
+      [fz(300), 0.12],
     ],
     0.08,
   ),
@@ -3800,17 +4132,22 @@ add(
   0,
   0,
 );
-/* rudder: hinged on its slanted leading edge, deflects with the pedals (s.y) */
+/* rudder: hinged on its vertical hinge line, deflects with the pedals (s.y) */
 const rudG = new THREE.Group();
-rudG.position.set(0, 1.93, 4.2);
+rudG.position.set(0, FIN_H, RUD_Z);
 model.add(rudG);
 add(
   plate(
     [
       [0, 0],
-      [0.52, 0],
-      [0.73, -1.77],
-      [0.25, -1.73],
+      [fz(372) - RUD_Z, 0],
+      [fz(376) - RUD_Z, -0.167],
+      [fz(384.2) - RUD_Z, -1.037],
+      [fz(387.3) - RUD_Z, -1.607],
+      [fz(386.2) - RUD_Z, -1.8],
+      [fz(381) - RUD_Z, -1.9],
+      [fz(372) - RUD_Z, -1.92],
+      [0, -1.92],
     ],
     0.1,
   ),
@@ -3820,81 +4157,103 @@ add(
   0,
   rudG,
 );
-const RUD_AX = new THREE.Vector3(0, 1.73, -0.25).normalize();
+const RUD_AX = new THREE.Vector3(0, 1, 0);
+/* tailplane: swept leading edge, rounded tips; the elevator is the part behind the hinge line */
 add(
   slab(
     [
-      [-1.95, 4.0],
-      [0, 3.25],
-      [1.95, 4.0],
-      [1.95, 4.36],
-      [-1.95, 4.36],
+      [-2.008, fz(318.5)],
+      [-1.93, fz(317.5)],
+      [-0.12, fz(307.2)],
+      [0.12, fz(307.2)],
+      [1.93, fz(317.5)],
+      [2.008, fz(318.5)],
+      [2.008, EL_Z],
+      [-2.008, EL_Z],
     ],
     0.07,
   ),
   metal,
   0,
-  0.12,
+  STB_Y,
   0,
 );
 /* elevator: hinged at the stabiliser's rear spar, deflects with the stick (s.p) */
 const elevG = new THREE.Group();
-elevG.position.set(0, 0.125, 4.36);
+elevG.position.set(0, STB_Y + 0.005, EL_Z);
 model.add(elevG);
-add(
-  slab(
-    [
-      [-1.95, 0],
-      [1.95, 0],
-      [1.95, 0.38],
-      [-1.95, 0.38],
-    ],
-    0.08,
+/* two elevator halves with the fuselage between them (blueprint: 13.05 sq ft with tabs) */
+[-1, 1].forEach((sd) =>
+  add(
+    slab(
+      [
+        [sd * 0.11, 0],
+        [sd * 2.008, 0],
+        [sd * 2.008, fz(347) - EL_Z],
+        [sd * 1.9, fz(348.5) - EL_Z],
+        [sd * 0.11, fz(354.5) - EL_Z],
+      ],
+      0.08,
+    ),
+    metal2,
+    0,
+    0,
+    0,
+    elevG,
   ),
-  metal2,
-  0,
-  0,
-  0,
-  elevG,
 );
-/* wing: tapered laminar-flow planform with dihedral and rounded tips */
+/* wing: tapered laminar-flow planform with dihedral and rounded tips. The box ends at the hinge line; flaps and ailerons make up the rest. */
 {
   const g = new THREE.BoxGeometry(1, 1, 1, 28, 1, 6),
     p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     const X = p.getX(i) * 11.28,
-      u = Math.min(1, Math.abs(X) / 5.64);
-    let ch = 2.35 - 1.25 * u;
+      u = Math.min(1, Math.abs(X) / WSEMI),
+      zl = wzle(u),
+      zh = wzh(u);
+    let ch = zh - zl;
     if (u > 0.88) ch *= Math.sqrt(Math.max(0.2, 1 - Math.pow((u - 0.88) / 0.12, 2) * 0.55));
-    const th = 0.3 - 0.19 * u,
+    const th = 0.38 - 0.24 * u,
       vz = p.getZ(i),
       vy = p.getY(i);
-    p.setXYZ(i, X, -0.3 + vy * th * (1 - 0.75 * Math.pow(2 * vz, 2)) + u * 0.45, 0.98 - ch + (vz + 0.5) * ch);
+    p.setXYZ(i, X, WR + vy * th * (1 - 0.75 * Math.pow(2 * vz, 2)) + u * WD, zh - ch + (vz + 0.5) * ch);
   }
   g.computeVertexNormals();
   add(g, metal, 0, 0, 0);
 }
-/* flaps (animated) and ailerons */
+/* flaps (animated) and ailerons: each hinges on the wing's trailing hinge line, so the group is turned to lie along it */
 const flapP = [],
   ailP = [],
-  pmat = metal2;
-[-1, 1].forEach((s) => {
-  const o = new THREE.Group();
-  o.position.set(s * 2.15, wy(2.15) - 0.01, 0.98);
-  o.rotation.z = s * 0.08;
+  pmat = metal2,
+  WDIH = Math.atan(WD / WSEMI);
+const ctlSurf = (s, x0, x1, cf, th) => {
+  const xm = (x0 + x1) / 2,
+    z0 = wzh(x0 / WSEMI),
+    z1 = wzh(x1 / WSEMI),
+    m = (z1 - z0) / (x1 - x0),
+    o = new THREE.Group();
+  o.position.set(s * xm, wy(xm) - 0.01, (z0 + z1) / 2);
+  o.rotation.set(0, -Math.atan(s * m), s * WDIH);
   model.add(o);
   const hg = new THREE.Group();
   o.add(hg);
-  add(new THREE.BoxGeometry(2.8, 0.05, 0.34), pmat, 0, 0, 0.17, hg);
-  flapP.push(hg);
-  const a = new THREE.Group();
-  a.position.set(s * 4.3, wy(4.3) - 0.01, 0.98);
-  a.rotation.z = s * 0.08;
-  model.add(a);
-  const ag = new THREE.Group();
-  a.add(ag);
-  add(new THREE.BoxGeometry(1.4, 0.05, 0.3), pmat, 0, 0, 0.15, ag);
-  ailP.push([ag, s]);
+  /* planform follows the wing: the front edge is the hinge, the back edge is the wing's own trailing edge (so it fits at every point, kink included) */
+  const L = Math.hypot(x1 - x0, z1 - z0),
+    N = 10,
+    back = [];
+  for (let k = N; k >= 0; k--) {
+    const lx = (k / N - 0.5) * L /* along the hinge, local */,
+      X = xm + s * lx /* span position (always outboard-positive) */,
+      f = (X - x0) / (x1 - x0),
+      dep = wzte(X / WSEMI) - (z0 + (z1 - z0) * f);
+    back.push([lx, Math.max(0.05, dep - 0.004)]);
+  }
+  add(slab([[-L / 2, 0], [L / 2, 0], ...back], th), pmat, 0, 0, 0, hg);
+  return hg;
+};
+[-1, 1].forEach((s) => {
+  flapP.push(ctlSurf(s, 0.45, 3.31, 0.5, 0.05));
+  ailP.push([ctlSurf(s, 3.36, 5.35, 0.3, 0.045), s]);
 });
 /* wing fixtures: nav lights, pylons, rocket stubs */
 add(
@@ -3902,54 +4261,26 @@ add(
   new THREE.MeshBasicMaterial({ color: 0xff2a2a }),
   -5.55,
   wy(5.55) + 0.03,
-  0.35,
+  wzle(1) + 0.2,
 );
 add(
   new THREE.SphereGeometry(0.07, 8, 6),
   new THREE.MeshBasicMaterial({ color: 0x2aff5a }),
   5.55,
   wy(5.55) + 0.03,
-  0.35,
+  wzle(1) + 0.2,
 );
 [-1, 1].forEach((s) => {
-  add(new THREE.BoxGeometry(0.09, 0.34, 0.55), metal2, s * 2.9, wy(2.9) - 0.2, 0.3);
-  [3.7, 4.1, 4.5].forEach((x) => add(new THREE.BoxGeometry(0.05, 0.2, 0.35), metal2, s * x, wy(x) - 0.17, 0.2));
+  add(new THREE.BoxGeometry(0.09, 0.34, 0.55), metal2, s * 2.9, wy(2.9) - 0.2, wmid(2.9 / WSEMI));
+  [3.7, 4.1, 4.5].forEach((x) => add(new THREE.BoxGeometry(0.05, 0.2, 0.35), metal2, s * x, wy(x) - 0.17, wmid(x / WSEMI)));
 });
 /* national insignia (star-and-bar): decals are wrapped onto the real surface so they never clip or float */
 {
-  const FCP = [
-    [0, -4.62],
-    [0.46, -4.6],
-    [0.52, -4.45],
-    [0.58, -4.0],
-    [0.63, -3.3],
-    [0.66, -2.6],
-    [0.68, -1.7],
-    [0.66, -0.8],
-    [0.6, 0.2],
-    [0.53, 1.2],
-    [0.43, 2.2],
-    [0.33, 3.1],
-    [0.23, 3.9],
-    [0.14, 4.6],
-    [0.07, 4.9],
-    [0, 4.96],
-  ];
-  const FSP = new THREE.SplineCurve(FCP.map((p) => new THREE.Vector2(p[0], p[1]))).getPoints(400);
-  const fuseR = (z) => {
-    for (let i = 1; i < FSP.length; i++)
-      if (FSP[i].y >= z) {
-        const a = FSP[i - 1],
-          b = FSP[i];
-        return a.x + ((b.x - a.x) * (z - a.y)) / (b.y - a.y || 1);
-      }
-    return 0;
-  };
   const wingY = (X, z, sg) => {
-    const u = Math.min(1, Math.abs(X) / 5.64),
-      ch = 2.35 - 1.25 * u,
-      vz = (z - (0.98 - ch)) / ch - 0.5;
-    return -0.3 + sg * 0.5 * (0.3 - 0.19 * u) * (1 - 0.75 * Math.pow(2 * vz, 2)) + u * 0.45;
+    const u = Math.min(1, Math.abs(X) / WSEMI),
+      zl = wzle(u),
+      vz = Math.max(-0.5, Math.min(0.5, (z - zl) / (wzh(u) - zl) - 0.5));
+    return WR + sg * 0.5 * (0.38 - 0.24 * u) * (1 - 0.75 * Math.pow(2 * vz, 2)) + u * WD;
   };
   const c = document.createElement('canvas');
   c.width = 256;
@@ -4000,20 +4331,20 @@ add(
     decal(16, 6, (u, v) => {
       const z = s > 0 ? z1 - u * (z1 - z0) : z0 + u * (z1 - z0),
         ph = (v - 0.5) * 2 * f0,
-        R = fuseR(z) + 0.008;
-      return [s * R * Math.cos(ph), R * Math.sin(ph), z];
+        q = fusPt(z, ph, 0.008);
+      return [s * q[0], q[1], z];
     });
   });
   /* upper left wing: follows taper, dihedral and airfoil thickness */
   decal(16, 8, (u, v) => {
     const X = -4.25 + u * 1.5,
-      z = 0.57 - v * 0.75;
+      z = wmid(3.5 / WSEMI) + 0.375 - v * 0.75;
     return [X, wingY(X, z, 1) + 0.012, z];
   });
   /* lower right wing, inboard of the ordnance stations */
   decal(16, 8, (u, v) => {
     const X = 2.5 - u * 1.5,
-      z = 0.65 - v * 0.75;
+      z = wmid(1.75 / WSEMI) + 0.375 - v * 0.75;
     return [X, wingY(X, z, -1) - 0.012, z];
   });
   /* ---- nose art (chosen in the pause menu): painted decals wrapped onto the cowling, plus a victory tally under the cockpit ---- */
@@ -4050,8 +4381,8 @@ add(
           v = uv.getY(i),
           z = s > 0 ? z1 - u * (z1 - z0) : z0 + u * (z1 - z0),
           ph = phc + (v - 0.5) * 2 * phh,
-          R = rf ? rf(z) : fuseR(z) + off;
-        p.setXYZ(i, s * R * Math.cos(ph), R * Math.sin(ph), z);
+          q = rf ? rf(z, ph) : fusPt(z, ph, off);
+        p.setXYZ(i, s * q[0], q[1], z);
       }
       gm.computeVertexNormals();
       gm.computeBoundingSphere();
@@ -4060,11 +4391,10 @@ add(
     };
     const mouths = [],
       MH = 452,
-      bandR = (z) => (z >= -4.45 && z <= -3.95 ? 0.552 + ((z + 4.45) / 0.5) * 0.048 : 0),
-      mouthR = (z) => Math.max(fuseR(z), bandR(z)) + 0.012;
+      mouthR = (z, ph) => fusPt(z, ph, 0.012);
     [-1, 1].forEach((s) => {
-      mouths.push({ s, ...wrap(s, -4.44, -1.95, -0.265, 0.885, mk(NW, MH), 0, mouthR) });
-      sides.push({ s, ...wrap(s, -3.85, -1.95, -0.36, 0.46, mk(NW, CH), 0.012) });
+      mouths.push({ s, ...wrap(s, fz(28), -1.95, -0.265, 0.885, mk(NW, MH), 0, mouthR) });
+      sides.push({ s, ...wrap(s, fz(46), -1.95, -0.36, 0.46, mk(NW, CH), 0.012) });
       tallies.push({ s, ...wrap(s, -1.5, -0.35, 0.09, 0.17, mk(TW, TH), 0.012) });
     });
     const star = (g, x, y, r, fill, stroke) => {
@@ -4459,8 +4789,8 @@ add(
           g.scale(-1, 1);
         }
         for (let i = 0; i < 6; i++) {
-          const zs = -3.4 + i * 0.3,
-            x0 = ((zs + 0.12 + 3.55) / 2.4) * EW,
+          const zs = fz(38 + 8 * i),
+            x0 = ((zs - fz(34)) / 2.2) * EW,
             y0 = 78 + (rnd() - 0.5) * 6,
             L = (200 + rnd() * 300) * (1 - 0.07 * i),
             w0 = 11 + rnd() * 5;
@@ -4495,7 +4825,7 @@ add(
         g.restore();
       });
       [-1, 1].forEach((s) => {
-        const e = wrap(s, -3.55, -1.15, 0.22, 0.26, exh[s < 0 ? 0 : 1], 0.006);
+        const e = wrap(s, fz(34), fz(34) + 2.2, 0.26, 0.2, exh[s < 0 ? 0 : 1], 0.006);
         const m = e.m.material;
         m.alphaTest = 0.02;
         m.depthWrite = false;
@@ -4509,13 +4839,13 @@ add(
         WH = 256,
         x0 = 2.0,
         x1 = 4.1,
-        za = 0.3,
-        zb = -1.0,
+        za = -1.3,
+        zb = -2.4,
         wc = mk(WW, WH),
         wg = wc.getContext('2d');
       [2.3, 3.0, 3.7].forEach((ax) => {
         const px = ((ax - x0) / (x1 - x0)) * WW,
-          zle = 0.98 - (2.35 - 1.25 * Math.min(1, ax / 5.64)),
+          zle = wzle(Math.min(1, ax / WSEMI)),
           py = (1 - (za - zle) / (za - zb)) * WH;
         wg.lineCap = 'round';
         const hz = wg.createLinearGradient(0, py, 0, py + 110);
@@ -4661,8 +4991,8 @@ add(
         const u = uv.getX(i),
           v = 1 - uv.getY(i),
           X = sd * (0.7 + u * 4.8),
-          ch = 2.35 - 1.25 * Math.min(1, Math.abs(X) / 5.64),
-          zr = 0.98 - ch + v * ch;
+          uu = Math.min(1, Math.abs(X) / WSEMI),
+          zr = wzle(uu) + v * (wzh(uu) - wzle(uu));
         p.setXYZ(i, X, wingY(X, zr, sg) + sg * 0.012, zr);
       }
       gm.computeVertexNormals();
@@ -4718,9 +5048,10 @@ add(
         const u = uv.getX(i),
           v = uv.getY(i),
           z = FZ0 + u * (FZ1 - FZ0),
-          ph = (v - 0.5) * 2 * FP,
-          R = fuseR(z) + 0.005;
-        p.setXYZ(i, sd * R * Math.cos(ph), R * Math.sin(ph), z);
+          lim = z >= SILL_Z[0] - 0.05 && z <= SILL_Z[2] ? Math.min(FP, sillAng(z) - 0.04) : FP,
+          ph = (v - 0.5) * 2 * lim,
+          q = fusPt(z, ph, 0.005);
+        p.setXYZ(i, sd * q[0], q[1], z);
       }
       gm.computeVertexNormals();
       gm.computeBoundingSphere();
@@ -4745,7 +5076,7 @@ add(
       /* six .50 cal barrels per wing: three poke out of the leading edge, with a blast tube; and the ejection ports underneath */
       [2.3, 3.0, 3.7].forEach((ax, i) => {
         const X = sd * ax,
-          zle = 0.98 - (2.35 - 1.25 * Math.min(1, ax / 5.64)),
+          zle = wzle(Math.min(1, ax / WSEMI)),
           y = wingY(X, zle + 0.12, 0) + 0.02;
         gadd(new THREE.CylinderGeometry(0.022, 0.022, 0.42 - i * 0.04, 10), steel, X, y, zle - 0.14, Math.PI / 2);
         gadd(new THREE.CylinderGeometry(0.03, 0.026, 0.07, 10), dark, X, y, zle - 0.36 + i * 0.04, Math.PI / 2);
@@ -4753,19 +5084,20 @@ add(
       });
       /* fuel filler caps: flat discs with a rim, on the upper wing */
       const cx = sd * 1.7,
-        cz = 0.05;
+        cz = wmid(1.7 / WSEMI);
       gadd(new THREE.CylinderGeometry(0.1, 0.1, 0.014, 18), metal2, cx, wingY(cx, cz, 1) + 0.005, cz);
       gadd(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 14), dark, cx, wingY(cx, cz, 1) + 0.009, cz);
       /* static discharge wicks along the trailing edge of the tip and the ailerons */
       [4.6, 5.0, 5.4].forEach((wx) => {
-        const X = sd * wx;
-        gadd(new THREE.CylinderGeometry(0.004, 0.004, 0.22, 4), dark, X, wingY(X, 0.99, 0) - 0.02, 1.08, Math.PI / 2);
+        const X = sd * wx,
+          zt = wzte(wx / WSEMI);
+        gadd(new THREE.CylinderGeometry(0.004, 0.004, 0.22, 4), dark, X, wingY(X, zt - 0.02, 0) - 0.02, zt + 0.08, Math.PI / 2);
       });
     });
     /* pitot tube on the left wing, with its mast */
     {
       const X = -4.4,
-        zle = 0.98 - (2.35 - 1.25 * (4.4 / 5.64)),
+        zle = wzle(4.4 / WSEMI),
         y = wingY(X, zle, 0) - 0.14;
       gadd(new THREE.CylinderGeometry(0.01, 0.01, 0.42, 8), steel, X, y, zle - 0.1, Math.PI / 2);
       gadd(new THREE.CylinderGeometry(0.006, 0.014, 0.1, 8), steel, X, y, zle - 0.34, Math.PI / 2);
@@ -4779,13 +5111,13 @@ add(
 add(new THREE.CylinderGeometry(0.012, 0.012, 0.55, 6), dark, 0, 0.78, 1.5);
 model.add(
   new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new V(0, 1.05, 1.5), new V(0, 1.93, 4.3)]),
+    new THREE.BufferGeometry().setFromPoints([new V(0, 1.05, 1.5), new V(0, 1.72, 4.1)]),
     new THREE.LineBasicMaterial({ color: 0x222222 }),
   ),
 );
 /* propeller: 4 blades + spinner */
 const prop = new THREE.Group();
-prop.position.set(0, 0, -4.65);
+prop.position.set(0, 0, fz(20.5));
 model.add(prop);
 const bladeGroups = [];
 for (let k = 0; k < 4; k++) {
@@ -4806,11 +5138,11 @@ for (let k = 0; k < 4; k++) {
 }
 {
   const sp = [
-    [0, -0.85],
-    [0.09, -0.74],
-    [0.2, -0.45],
-    [0.28, -0.12],
-    [0.3, 0],
+    [0, -0.52],
+    [0.2, -0.39],
+    [0.3, -0.27],
+    [0.37, -0.09],
+    [0.38, 0.165],
   ];
   add(
     new THREE.LatheGeometry(
@@ -4834,32 +5166,55 @@ const ring = add(
   -0.05,
   prop,
 );
-/* landing gear. These numbers also decide the sitting attitude, the ground pitch limit and the ride height */
-const GEAR = { mainR: 0.42, mainY: -1.58, mainZ: 0.3, tailR: 0.15, tailY: -1.14, tailZ: 4.3 };
+/* landing gear, from the factory drawing: main wheel centres 142 in apart (71 in each side) at station 114, 27 in tyres, 76.5 in from the
+   reference line to the ground, tail wheel at station 313, 26.5 in below the line. These numbers also decide the sitting attitude, the
+   ground pitch limit and the ride height */
+const GEAR = { mainR: 0.343, mainY: -1.6, mainZ: fz(114), mainX: 1.8, tailR: 0.17, tailY: -0.673, tailZ: fz(313) };
 GEAR.mainBottom = GEAR.mainY - GEAR.mainR;
 GEAR.tailBottom = GEAR.tailY - GEAR.tailR;
-GEAR.h = -GEAR.mainBottom; /* origin height above the ground with the main wheels down */
+GEAR.h = -GEAR.mainBottom - 0.02; /* origin height above the terrain with the main wheels down: the model sits 0.17 m above the origin and the runway surface is 0.15 m above the terrain */
 GEAR.sit = Math.atan2(
   GEAR.tailBottom - GEAR.mainBottom,
   GEAR.tailZ - GEAR.mainZ,
 ); /* nose-up angle at which the tail wheel touches too */
 const gear = new THREE.Group();
 model.add(gear);
+/* a round strut between two points */
+const GV = new THREE.Vector3(),
+  GY = new THREE.Vector3(0, 1, 0);
+function gStrut(a, b, r0, r1, m, p) {
+  GV.set(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+  const L = GV.length(),
+    o = add(new THREE.CylinderGeometry(r1, r0, L, 10), m, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2, p || gear);
+  o.quaternion.setFromUnitVectors(GY, GV.normalize());
+  return o;
+}
+const gearTop = (s) => [s * 1.42, wy(1.42) - 0.2, GEAR.mainZ],
+  gearAxle = (s) => [s * (GEAR.mainX - 0.12), GEAR.mainY, GEAR.mainZ];
 [-1, 1].forEach((s) => {
-  add(new THREE.CylinderGeometry(0.05, 0.075, 1.45, 8), metal2, s * 1.775, -0.89, 0.3, gear).rotation.z = s * 0.315;
-  add(new THREE.BoxGeometry(0.03, 1.0, 0.34), metal, s * 1.77, -0.64, 0.3, gear).rotation.z = s * 0.315;
+  gStrut(gearTop(s), gearAxle(s), 0.05, 0.075, metal2);
+  const a = gearTop(s),
+    b = gearAxle(s);
+  const door = gStrut(
+    [a[0] + s * 0.05, a[1], a[2]],
+    [b[0] + s * 0.05, b[1] + 0.35, b[2]],
+    0.0,
+    0.0,
+    metal,
+  );
+  door.geometry = new THREE.BoxGeometry(0.03, Math.hypot(b[0] - a[0], b[1] + 0.35 - a[1]) * 0.9, 0.34);
   add(
-    new THREE.CylinderGeometry(GEAR.mainR, GEAR.mainR, 0.24, 22).rotateZ(Math.PI / 2),
+    new THREE.CylinderGeometry(GEAR.mainR, GEAR.mainR, 0.2, 22).rotateZ(Math.PI / 2),
     dark,
-    s * 2.0,
+    s * GEAR.mainX,
     GEAR.mainY,
     GEAR.mainZ,
     gear,
   );
-  add(new THREE.CylinderGeometry(0.2, 0.2, 0.27, 16).rotateZ(Math.PI / 2), metal2, s * 2.0, -1.58, 0.3, gear);
+  add(new THREE.CylinderGeometry(0.17, 0.17, 0.22, 16).rotateZ(Math.PI / 2), metal2, s * GEAR.mainX, GEAR.mainY, GEAR.mainZ, gear);
 });
-add(new THREE.BoxGeometry(0.05, 1.06, 0.07), metal2, 0, -0.62, 4.28, gear);
-add(new THREE.BoxGeometry(0.2, 0.1, 0.2), metal2, 0, -0.12, 4.3, gear);
+add(new THREE.BoxGeometry(0.05, 0.3, 0.07), metal2, 0, -0.53, GEAR.tailZ - 0.02, gear);
+add(new THREE.BoxGeometry(0.2, 0.08, 0.3), metal2, 0, -0.42, GEAR.tailZ, gear);
 add(
   new THREE.CylinderGeometry(GEAR.tailR, GEAR.tailR, 0.1, 12).rotateZ(Math.PI / 2),
   dark,
@@ -4886,10 +5241,10 @@ add(
     return o;
   };
   [-1, 1].forEach((sd) => {
-    const wx = sd * 2.0,
+    const wx = sd * GEAR.mainX,
       wy0 = GEAR.mainY,
       wz = GEAR.mainZ;
-    [-0.075, 0, 0.075].forEach((dx) =>
+    [-0.06, 0, 0.06].forEach((dx) =>
       put(new THREE.TorusGeometry(GEAR.mainR - 0.004, 0.017, 6, 36).rotateY(Math.PI / 2), tread, wx + dx, wy0, wz),
     );
     for (let k = 0; k < 8; k++) {
@@ -4897,30 +5252,37 @@ add(
       put(
         new THREE.CylinderGeometry(0.014, 0.014, 0.03, 6).rotateZ(Math.PI / 2),
         bolt,
-        wx + sd * 0.135,
-        wy0 + Math.cos(th) * 0.15,
-        wz + Math.sin(th) * 0.15,
+        wx + sd * 0.115,
+        wy0 + Math.cos(th) * 0.12,
+        wz + Math.sin(th) * 0.12,
       );
     }
-    put(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 12).rotateZ(Math.PI / 2), chrome, wx + sd * 0.14, wy0, wz);
-    put(new THREE.CylinderGeometry(0.26, 0.26, 0.012, 24).rotateZ(Math.PI / 2), bolt, wx - sd * 0.15, wy0, wz);
-    const a = sd * 0.315;
-    put(
+    put(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 12).rotateZ(Math.PI / 2), chrome, wx + sd * 0.12, wy0, wz);
+    put(new THREE.CylinderGeometry(0.21, 0.21, 0.012, 24).rotateZ(Math.PI / 2), bolt, wx - sd * 0.12, wy0, wz);
+    const ga = gearTop(sd),
+      gb = gearAxle(sd);
+    GV.set(gb[0] - ga[0], gb[1] - ga[1], gb[2] - ga[2]);
+    const gl = GV.length();
+    GV.normalize();
+    const pst = put(
       new THREE.CylinderGeometry(0.036, 0.036, 0.5, 10),
       chrome,
-      sd * 1.775 + 0.45 * Math.sin(a),
-      -0.89 - 0.45 * Math.cos(a),
-      0.3,
-      a,
+      gb[0] - GV.x * 0.32,
+      gb[1] - GV.y * 0.32,
+      gb[2] - GV.z * 0.32,
     );
-    put(new THREE.CylinderGeometry(0.01, 0.01, 0.9, 5), dark, sd * 1.75, -0.7, 0.45, a); /* brake line */
+    pst.quaternion.setFromUnitVectors(GY, GV);
+    const bl = put(new THREE.CylinderGeometry(0.01, 0.01, gl * 0.8, 5), dark, ga[0] + (gb[0] - ga[0]) * 0.5, ga[1] + (gb[1] - ga[1]) * 0.5, ga[2] + 0.1);
+    bl.quaternion.setFromUnitVectors(GY, GV);
   });
-  [-1, 1].forEach((sd) => put(new THREE.BoxGeometry(0.018, 0.24, 0.045), metal2, sd * 0.065, -0.98, 4.3));
+  [-1, 1].forEach((sd) => put(new THREE.BoxGeometry(0.018, 0.16, 0.045), metal2, sd * 0.065, -0.6, GEAR.tailZ));
   mergeGroup(gd);
 }
 let gearOn = true;
 /* ---------- cockpit interior ---------- */
 const ck = new THREE.Group();
+ck.scale.set(0.8, 0.88, 1); /* the cockpit is built roomy; the blueprint says the real one is narrower and sits lower, so it is fitted to the fuselage here */
+ck.position.y = -0.29;
 model.add(ck);
 const pcv = document.createElement('canvas');
 pcv.width = 1024;
@@ -5072,6 +5434,19 @@ const pbg = (() => {
     ['FUSE', 138],
   ].forEach(([l, x]) => tg(x, 490, l, false));
   txt('BOOSTER', 205, 460, 10, '#9a9da1');
+  tg(50, 418, 'GUN SAFE', true); /* gun and camera safety switch (14) */
+  g.fillStyle = '#0b0c0d';
+  g.fillRect(8, 262, 26, 70);
+  g.strokeStyle = '#8d9196';
+  g.lineWidth = 2;
+  g.strokeRect(8.5, 262.5, 25, 69);
+  g.fillStyle = '#cfd2d4';
+  g.fillRect(15, 276, 12, 8);
+  g.fillStyle = '#d22';
+  g.beginPath();
+  g.arc(21, 280, 7, 0, 7);
+  g.fill();
+  txt('BOOST', 21, 346, 9, '#b9bcc0'); /* boost control lever (10) */
   tg(205, 490, 'PUMP', true);
   g.fillStyle = '#0b0c0d';
   g.fillRect(790, 450, 205, 70);
@@ -5179,7 +5554,7 @@ function bar(p1, p2, t, mat, par) {
 /* instrument panel: low, tilted toward the pilot's eye, sitting right behind the firewall */
 {
   const pg = new THREE.Group();
-  pg.position.set(0, 0.5, -1.465); /* the top edge stays where it was; the panel now reaches lower, like the real one */
+  pg.position.set(0, 0.719, -1.465); /* the top edge stays where it was; the panel now reaches lower, like the real one */
   pg.rotation.x = -0.45;
   ck.add(pg);
   /* the panel is narrower at the top so it fits inside the windscreen: sloped shoulders over the upper 40% */
@@ -5251,48 +5626,66 @@ function bar(p1, p2, t, mat, par) {
     new THREE.ExtrudeGeometry(gs, { depth: 0.03, bevelEnabled: false }).rotateX(Math.PI / 2).translate(0, 0.015, 0),
     dark,
     0,
-    0.775,
+    0.994,
     -1.66,
     ck,
   ).rotation.x = -0.08; /* joins the cowl top */
 }
-add(new THREE.BoxGeometry(0.07, 0.04, 0.1), dark, 0, 0.81, -1.66, ck); /* gunsight housing */
+add(new THREE.BoxGeometry(0.07, 0.04, 0.1), dark, 0, 1.029, -1.66, ck); /* gunsight housing */
 add(
   new THREE.PlaneGeometry(0.07, 0.05),
   new THREE.MeshBasicMaterial({ color: 0xffe9a0, transparent: true, opacity: 0.12, side: 2, depthWrite: false }),
   0,
-  0.88,
+  1.099,
   -1.6,
   ck,
 ).rotation.x = 0.9;
-/* canopy structure: sill rails along the cockpit opening, windscreen pillars outside the gauge area, top bow */
-[-1, 1].forEach((s) => {
-  bar([s * 0.57, 0.34, -1.62], [s * 0.57, 0.34, 0.86], 0.05, dark);
-  add(new THREE.BoxGeometry(0.13, 0.3, 0.8), dark, s * 0.43, 0.18, -0.5, ck);
-}); /* sill rails, side consoles */
-const eyc = (x, z) => CAN.cy + CAN.ry * Math.sqrt(Math.max(0, 1 - (x / CAN.rx) ** 2 - ((z - CAN.cz) / CAN.rz) ** 2));
-function arch(z, t) {
-  t = t || 0.026;
-  const xm = CAN.rx * Math.sqrt(Math.max(0, 1 - ((z - CAN.cz) / CAN.rz) ** 2)) * 0.995,
-    P = [];
-  for (let i = 0; i <= 10; i++) {
-    const x = -xm + (2 * xm * i) / 10;
-    P.push([x, eyc(x, z) + 0.012, z]);
+/* half-width of the cockpit opening at height z: the fuselage's own opening edge */
+const cabW = (z) => sillX(z) - 0.012;
+/* canopy structure, in the airframe's own frame (it is not part of the scaled cockpit group): sill rails, windscreen posts, bows */
+const ckW = new THREE.Group(),
+  railG = new THREE.Group(),
+  wsG = new THREE.Group(),
+  hoodG = new THREE.Group();
+model.add(ckW);
+ckW.add(railG, wsG, hoodG);
+[-1, 1].forEach((sd) => {
+  for (let z = CAN.z0; z < CAN.z1 - 0.01; z += 0.12) {
+    const z2 = Math.min(CAN.z1, z + 0.12);
+    bar(
+      [sd * (sillX(z) - 0.014), sillY(z) + 0.006, z],
+      [sd * (sillX(z2) - 0.014), sillY(z2) + 0.006, z2],
+      0.034,
+      dark,
+      railG,
+    );
   }
-  for (let i = 0; i < 10; i++) bar(P[i], P[i + 1], t, dark);
-  [0, 10].forEach((i) => bar([P[i][0], 0.34, z], P[i], t, dark));
+  add(new THREE.BoxGeometry(0.13, 0.3, 0.8), dark, sd * 0.43, 0.18, -0.5, ck);
+}); /* sill rails, side consoles */
+function arch(z, t, grp) {
+  t = t || 0.026;
+  const P = [];
+  for (let i = 0; i <= 16; i++) P.push(canPt(z, (Math.PI * i) / 16, 0.01));
+  for (let i = 0; i < 16; i++) bar(P[i], P[i + 1], t, dark, grp);
 }
-arch(-1.05, 0.02);
-const nb0 = ck.children.length;
-arch(0.45);
-arch(0.8); /* windscreen top bow + canopy bows */
-const canBars = ck.children.slice(nb0); /* these go with the canopy when the pilot bails out */
+function rib(t0, za, zb, th, grp) {
+  const n = Math.max(2, Math.round((zb - za) / 0.08));
+  for (let i = 0; i < n; i++)
+    bar(canPt(za + ((zb - za) * i) / n, t0, 0.01), canPt(za + ((zb - za) * (i + 1)) / n, t0, 0.01), th, dark, grp);
+}
+arch(fz(149), 0.03, wsG); /* windscreen top bow */
+arch(CAN.z0 + 0.012, 0.034, wsG); /* windscreen front frame: closes the glass onto the cowl and joins the sill rails */
+[1.15, Math.PI - 1.15].forEach((t0) => rib(t0, CAN.z0 + 0.012, fz(149), 0.026, wsG)); /* the posts either side of the flat centre panel */
+arch(fz(152), 0.026, hoodG); /* hood front frame */
+arch(fz(205), 0.03, hoodG); /* hood rear frame */
+[wsG, hoodG, railG].forEach(mergeGroup);
+const canBars = [hoodG]; /* these go with the canopy when the pilot bails out */
 
 /* seat, armour plate, headrest */
-add(new THREE.BoxGeometry(0.2, 0.8, 0.2), pmatD, 0, -0.2, -0.35, ck);
-add(new THREE.BoxGeometry(0.46, 0.06, 0.46), pmatD, 0, 0.22, -0.45, ck);
-add(new THREE.BoxGeometry(0.46, 0.55, 0.07), pmatD, 0, 0.52, -0.2, ck);
-add(new THREE.BoxGeometry(0.28, 0.2, 0.06), pmatD, 0, 0.95, -0.2, ck);
+add(new THREE.BoxGeometry(0.2, 0.55, 0.2), pmatD, 0, 0.066, -0.35, ck);
+add(new THREE.BoxGeometry(0.46, 0.06, 0.46), pmatD, 0, 0.356, -0.45, ck);
+add(new THREE.BoxGeometry(0.46, 0.55, 0.07), pmatD, 0, 0.656, -0.2, ck);
+add(new THREE.BoxGeometry(0.28, 0.2, 0.06), pmatD, 0, 1.086, -0.2, ck);
 const ckStick = new THREE.Group();
 ckStick.position.set(0, 0.05, -0.82);
 ck.add(ckStick);
@@ -5306,7 +5699,8 @@ add(
 ); /* the long pale stick */
 add(new THREE.SphereGeometry(0.04, 10, 8), dark, 0, 0.52, 0, ckStick);
 const ckPed = {},
-  ckPedU = {};
+  ckPedU = {},
+  ckLev = {}; /* animated console levers: flap, gear */
 const ckThr = new THREE.Group();
 ckThr.position.set(-0.43, 0.34, -0.45);
 ck.add(ckThr);
@@ -5328,15 +5722,14 @@ add(new THREE.SphereGeometry(0.03, 8, 6), red, 0, 0.21, 0, ckThr);
     return o;
   };
   [-1, 1].forEach((sd) => {
-    A(new THREE.BoxGeometry(0.03, 0.36, 2.2), ig, sd * 0.585, 0.15, -0.35); /* side walls */
     A(new THREE.BoxGeometry(0.16, 0.035, 0.72), ig2, sd * 0.45, 0.352, -0.48); /* console tops */
     ckPedU[sd] = A(new THREE.BoxGeometry(0.13, 0.12, 0.02), blk, sd * 0.17, 0.09, -1.3, -0.4);
     A(new THREE.CylinderGeometry(0.012, 0.012, 0.26, 6), chr, sd * 0.17, -0.03, -1.4, 0.5);
     ckPed[sd] = A(new THREE.BoxGeometry(0.11, 0.012, 0.16), blk, sd * 0.17, -0.02, -1.05); /* rudder pedals + arms */
-    bar([sd * 0.15, 1.0, -0.2], [sd * 0.1, 0.3, -0.43], 0.04, bel);
-    A(new THREE.BoxGeometry(0.05, 0.03, 0.03), chr, sd * 0.1, 0.3, -0.43);
+    bar([sd * 0.15, 1.136, -0.2], [sd * 0.1, 0.436, -0.43], 0.04, bel);
+    A(new THREE.BoxGeometry(0.05, 0.03, 0.03), chr, sd * 0.1, 0.436, -0.43);
   }); /* harness straps + buckles */
-  A(new THREE.BoxGeometry(0.5, 0.02, 0.08), bel, 0, 0.265, -0.52); /* lap belt */
+  A(new THREE.BoxGeometry(0.5, 0.02, 0.08), bel, 0, 0.401, -0.52); /* lap belt */
   A(new THREE.BoxGeometry(0.1, 0.012, 0.3), blk, -0.43, 0.372, -0.53); /* throttle quadrant slot plate */
   A(new THREE.CylinderGeometry(0.01, 0.01, 0.2, 6), chr, -0.43, 0.47, -0.56, 0, 0, 0.1);
   A(new THREE.SphereGeometry(0.03, 10, 8), blu, -0.44, 0.5695, -0.56); /* prop lever (blue), on top of its shaft */
@@ -5406,23 +5799,50 @@ add(new THREE.SphereGeometry(0.03, 8, 6), red, 0, 0.21, 0, ckThr);
       add(new THREE.CylinderGeometry(0.013, 0.013, 0.01, 10), i % 2 ? red : chr, 0.045, 0.016, -0.22 + i * 0.07, sp);
     }
     mergeGroup(sp);
+    {
+      const lc = document.createElement('canvas');
+      lc.width = 128;
+      lc.height = 512;
+      const lg = lc.getContext('2d');
+      lg.fillStyle = '#0b0c0d';
+      lg.fillRect(0, 0, 128, 512);
+      lg.fillStyle = '#d8dadc';
+      lg.font = 'bold 26px sans-serif';
+      lg.textAlign = 'center';
+      lg.textBaseline = 'middle';
+      ['GEN', 'BATT', 'GUN HT', 'PITOT', 'POS LT', 'RECOG', 'COCKPT'].forEach((t, i) =>
+        lg.fillText(t, 64, ((0.03 + 0.07 * i) / 0.5) * 512),
+      );
+      const lb = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.07, 0.5),
+        new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(lc), side: 2 }),
+      );
+      lb.rotation.x = -Math.PI / 2;
+      lb.position.set(0.008, 0.0135, 0);
+      sp.add(lb);
+    }
   }
-  /* the red canopy release arm: runs along the right rail from the first strut (the windscreen bow) forward to just short of the instrument panel */
+  /* the red canopy release arm: runs along the right sill, inside the glass, from the windscreen bow forward toward the instrument panel */
   {
-    const redM = new THREE.MeshLambertMaterial({ color: 0xc41d14 });
-    A(
-      new THREE.CylinderGeometry(0.028, 0.028, 0.05, 12).rotateZ(Z),
-      blk,
-      0.545,
-      0.5,
-      -1.05,
-    ); /* hinge block at the strut */
-    bar([0.54, 0.5, -1.05], [0.52, 0.62, -1.42], 0.022, redM);
-    A(new THREE.SphereGeometry(0.024, 10, 8), redM, 0.52, 0.62, -1.42);
+    const redM = new THREE.MeshLambertMaterial({ color: 0xc41d14 }),
+      zA = fz(150) + 0.02,
+      zB = fz(150) - 0.34,
+      pA = [sillX(zA) - 0.05, sillY(zA) + 0.07, zA],
+      pB = [sillX(zB) - 0.07, sillY(zB) + 0.16, zB];
+    add(new THREE.CylinderGeometry(0.028, 0.028, 0.05, 12).rotateZ(Z), blk, pA[0], pA[1], pA[2], ckW); /* hinge block */
+    bar(pA, pB, 0.022, redM, ckW);
+    add(new THREE.SphereGeometry(0.024, 10, 8), redM, pB[0], pB[1], pB[2], ckW);
   }
   /* left wall: a red lever (undercarriage/flaps) and a floor of dark red with two foot plates; the stick gets a rubber boot */
-  bar([-0.55, 0.3, -0.95], [-0.5, 0.52, -1.05], 0.022, red);
-  A(new THREE.SphereGeometry(0.03, 10, 8), red, -0.5, 0.52, -1.05);
+  {
+    /* landing gear control (60): a lever with a wheel-shaped knob, tilts with the gear */
+    const gg = new THREE.Group();
+    gg.position.set(-0.55, 0.3, -0.95);
+    ck.add(gg);
+    bar([0, 0, 0], [0.05, 0.22, -0.1], 0.022, red, gg);
+    A(new THREE.CylinderGeometry(0.035, 0.035, 0.014, 14).rotateZ(Z), red, 0.05, 0.22, -0.1, 0, 0, 0, gg);
+    ckLev.gear = gg;
+  }
   A(new THREE.BoxGeometry(0.98, 0.02, 1.7), new THREE.MeshLambertMaterial({ color: 0x4a1f19 }), 0, -0.12, -0.62);
   [-1, 1].forEach((sd) =>
     A(
@@ -5440,6 +5860,291 @@ add(new THREE.SphereGeometry(0.03, 8, 6), red, 0, 0.21, 0, ckThr);
     0.15,
     -0.82,
   );
+  /* ---- the manual's consoles (figures 3 and 4): side shelves with the placards, the left console controls, the right radios ---- */
+  {
+    const n0b = ck.children.length;
+    const mk = (pw, ph, fn) => {
+      const c = document.createElement('canvas');
+      c.width = pw;
+      c.height = ph;
+      fn(c.getContext('2d'), pw, ph);
+      const t = new THREE.CanvasTexture(c);
+      t.anisotropy = 4;
+      return new THREE.MeshLambertMaterial({ map: t, side: 2 });
+    };
+    const plate = (g, pw, ph, bg, fg) => {
+      g.fillStyle = bg;
+      g.fillRect(0, 0, pw, ph);
+      g.strokeStyle = fg;
+      g.lineWidth = 6;
+      g.strokeRect(8, 8, pw - 16, ph - 16);
+      g.fillStyle = fg;
+      g.textBaseline = 'middle';
+    };
+    const dark = 0x1b1d1a;
+    /* raised side shelves above each console, tilted in toward the pilot */
+    const shelf = {};
+    [-1, 1].forEach((sd) => {
+      const sh = A(new THREE.BoxGeometry(0.02, 0.2, 0.64), ig, sd * 0.55, 0.455, -0.46);
+      sh.rotation.z = -sd * 0.15;
+      if (sd > 0) {
+        sh.position.y = 0.56; /* raised clear of the switch panel below it, and stood up straighter so it stays inside the skin */
+        sh.rotation.z = -0.1;
+      }
+      shelf[sd] = sh;
+    });
+    const onShelf = (sd, g, m, w, h, z, y) => {
+      const o = A(new THREE.PlaneGeometry(w, h), m, -sd * 0.0108, y || 0, z, 0, (-sd * Math.PI) / 2, 0, shelf[sd]);
+      return o;
+    };
+    /* left shelf: airplane restriction plate (51), fuel system diagram (52), map case (53) */
+    onShelf(
+      -1,
+      null,
+      mk(1024, 420, (g, w, h) => {
+        plate(g, w, h, '#d6d3c4', '#16160f');
+        g.textAlign = 'center';
+        g.font = 'bold 58px sans-serif';
+        g.fillText('AIRPLANE RESTRICTION PLATE', w / 2, 62);
+        g.font = 'bold 46px sans-serif';
+        g.fillText('MAX. DIVING SPEED 505 I.A.S.', w / 2, 140);
+        g.fillText('MAX. DIVING R.P.M. 3240', w / 2, 200);
+        g.font = 'bold 42px sans-serif';
+        g.fillText('FLAP RESTRICTIONS  (MAX. I.A.S.)', w / 2, 270);
+        g.font = 'bold 40px sans-serif';
+        g.fillText('10° 400   20° 275   30° 225   40° 180   50° 165', w / 2, 322);
+        g.font = 'bold 40px sans-serif';
+        g.fillText('DO NOT LOWER LANDING GEAR ABOVE 170 I.A.S.', w / 2, 380);
+      }),
+      0.2,
+      0.085,
+      0.17,
+    );
+    onShelf(
+      -1,
+      null,
+      mk(512, 420, (g, w, h) => {
+        plate(g, w, h, '#cfd0c2', '#16160f');
+        g.textAlign = 'center';
+        g.font = 'bold 40px sans-serif';
+        g.fillText('FUEL SYSTEM', w / 2, 48);
+        g.strokeStyle = '#16160f';
+        g.lineWidth = 6;
+        const bx = (x, y, t) => {
+          g.strokeRect(x, y, 130, 56);
+          g.font = 'bold 28px sans-serif';
+          g.fillText(t, x + 65, y + 30);
+        };
+        bx(40, 90, 'L. MAIN');
+        bx(330, 90, 'R. MAIN');
+        bx(185, 180, 'FUS. TANK');
+        g.beginPath();
+        g.arc(w / 2, 290, 34, 0, 7);
+        g.stroke();
+        g.font = 'bold 22px sans-serif';
+        g.fillText('SELECTOR', w / 2, 290);
+        g.beginPath();
+        g.moveTo(105, 146);
+        g.lineTo(105, 215);
+        g.lineTo(w / 2 - 36, 285);
+        g.moveTo(395, 146);
+        g.lineTo(395, 215);
+        g.lineTo(w / 2 + 36, 285);
+        g.moveTo(250, 236);
+        g.lineTo(250, 256);
+        g.moveTo(w / 2, 324);
+        g.lineTo(w / 2, 384);
+        g.stroke();
+        g.font = 'bold 26px sans-serif';
+        g.fillText('TO ENGINE', w / 2, 400);
+      }),
+      0.1,
+      0.085,
+      -0.02,
+    );
+    A(new THREE.BoxGeometry(0.035, 0.07, 0.15), ig2, -0.012, 0, -0.26, 0, 0, 0, shelf[-1]); /* map case pocket */
+    onShelf(
+      -1,
+      null,
+      mk(256, 96, (g, w, h) => {
+        plate(g, w, h, '#2a2c26', '#e6e6dc');
+        g.textAlign = 'center';
+        g.font = 'bold 40px sans-serif';
+        g.fillText('MAP CASE', w / 2, h / 2);
+      }),
+      0.07,
+      0.026,
+      -0.26,
+    ).position.x -= 0.03;
+    /* right shelf: engine limitations plate (63) and the SCR-522 radio control box (64) */
+    onShelf(
+      1,
+      null,
+      mk(1024, 520, (g, w, h) => {
+        plate(g, w, h, '#d6d3c4', '#16160f');
+        g.textAlign = 'center';
+        g.font = 'bold 52px sans-serif';
+        g.fillText('PACKARD V-1650-7   100 OCT.', w / 2, 60);
+        g.textAlign = 'left';
+        g.font = 'bold 36px sans-serif';
+        g.fillText('R.P.M.   M.P.', 330, 118);
+        g.font = 'bold 34px sans-serif';
+        [
+          ['TAKE OFF ONLY', '3000', '61'],
+          ['WAR EMERG. 5 MIN.', '3000', '67'],
+          ['MILITARY 15 MIN.', '3000', '61'],
+          ['MAX. CONTINUOUS', '2700', '46'],
+          ['CRUISE-MAX', '2400', '36'],
+        ].forEach((r, i) => {
+          g.fillText(r[0], 36, 170 + i * 52);
+          g.fillText(r[1], 380, 170 + i * 52);
+          g.fillText(r[2], 540, 170 + i * 52);
+        });
+        g.font = 'bold 30px sans-serif';
+        g.fillText('COOLANT   121 MAX.   100-110', 36, 460);
+        g.fillText('OIL TEMP.   90 MAX.   70-80', 36, 500);
+        g.fillText('OIL PRESS.  90 MAX.  70-80  (MIN. 50)', 520, 460);
+        g.fillText('FUEL PRESS.  19 MAX.  12-16', 520, 500);
+        g.fillText('TAKE-OFF: OIL 15°C MIN.', 640, 170);
+        g.fillText('COOLANT 60°C MIN.', 640, 215);
+        g.fillText('MAX. DIVE 3240 RPM', 640, 260);
+      }),
+      0.27,
+      0.11,
+      0.16,
+    );
+    A(
+      new THREE.BoxGeometry(0.05, 0.1, 0.15),
+      new THREE.MeshLambertMaterial({ color: 0x4d5240 }),
+      -0.02,
+      0,
+      -0.2,
+      0,
+      0,
+      0,
+      shelf[1],
+    );
+    onShelf(
+      1,
+      null,
+      mk(256, 128, (g, w, h) => {
+        plate(g, w, h, '#16171a', '#d8dadc');
+        g.textAlign = 'center';
+        g.font = 'bold 32px sans-serif';
+        g.fillText('SCR-522', w / 2, 36);
+        g.font = 'bold 20px sans-serif';
+        g.fillText('A  B  C  D', w / 2, 96);
+      }),
+      0.08,
+      0.04,
+      -0.2,
+    ).position.x -= 0.045;
+    [-0.23, -0.17].forEach((z) =>
+      A(new THREE.CylinderGeometry(0.012, 0.012, 0.02, 10).rotateZ(Z), chr, -0.047, -0.03, z, 0, 0, 0, shelf[1]),
+    );
+    /* the left console (figure 3): switches (45-49), friction lock (42-43), flap control (54), carburettor air (55), bomb control (61, 62) */
+    A(new THREE.BoxGeometry(0.15, 0.006, 0.07), blk, -0.45, 0.371, -0.8);
+    for (let i = 0; i < 5; i++) {
+      const x = -0.505 + i * 0.027,
+        t = A(new THREE.CylinderGeometry(0.0055, 0.0055, 0.03, 6), tog, x, 0.387, -0.8, i % 2 ? 0.5 : -0.5);
+      A(new THREE.SphereGeometry(0.008, 8, 6), tog, x, 0.4, -0.8 - Math.sin(t.rotation.x) * 0.012);
+    }
+    bar([-0.505, 0.372, -0.47], [-0.505, 0.43, -0.43], 0.012, blk);
+    A(new THREE.SphereGeometry(0.014, 8, 6), blk, -0.505, 0.43, -0.43); /* friction lock lever */
+    A(new THREE.CylinderGeometry(0.02, 0.02, 0.025, 12), blk, -0.46, 0.38, -0.26); /* carburettor air control knob */
+    {
+      const fg =
+        new THREE.Group(); /* wing flap control (54): a lever with a round knob at the aft end of the pedestal */
+      fg.position.set(-0.5, 0.372, -0.2);
+      ck.add(fg);
+      bar([0, 0, 0], [0, 0.1, 0], 0.014, blk, fg);
+      A(
+        new THREE.SphereGeometry(0.02, 10, 8),
+        new THREE.MeshLambertMaterial({ color: 0xe6e4dc }),
+        0,
+        0.105,
+        0,
+        0,
+        0,
+        0,
+        fg,
+      );
+      ckLev.flap = fg;
+    }
+    bar(
+      [-0.52, 0.36, -0.9],
+      [-0.52, 0.42, -0.86],
+      0.016,
+      new THREE.MeshLambertMaterial({ color: 0xc41d14 }),
+    ); /* bomb control handle (61) */
+    A(new THREE.BoxGeometry(0.05, 0.03, 0.02), blk, -0.52, 0.375, -0.9); /* antisalvo guard (62) */
+    /* a placard for the left switches */
+    A(
+      new THREE.PlaneGeometry(0.15, 0.025),
+      mk(512, 90, (g, w, h) => {
+        plate(g, w, h, '#14151a', '#c8cac6');
+        g.textAlign = 'center';
+        g.font = 'bold 30px sans-serif';
+        ['FLUOR', 'LAND', 'OIL', 'COOL', 'COCKPIT'].forEach((t, i) => g.fillText(t, 50 + i * 103, 46));
+      }),
+      -0.45,
+      0.373,
+      -0.84,
+      -Math.PI / 2,
+      0,
+      0,
+    );
+    /* right console: detonator switches with red DANGER guards (65), the SCR-695 radio box (83), seat adjustment handle (82), oxygen regulator (72) */
+    A(new THREE.BoxGeometry(0.1, 0.006, 0.07), blk, 0.43, 0.371, -0.8);
+    [-0.025, 0.025].forEach((dx) =>
+      A(
+        new THREE.BoxGeometry(0.03, 0.03, 0.04),
+        new THREE.MeshLambertMaterial({ color: 0xc41d14 }),
+        0.43 + dx,
+        0.385,
+        -0.8,
+      ),
+    );
+    A(
+      new THREE.PlaneGeometry(0.1, 0.02),
+      mk(256, 52, (g, w, h) => {
+        plate(g, w, h, '#a31812', '#f2eee2');
+        g.textAlign = 'center';
+        g.font = 'bold 34px sans-serif';
+        g.fillText('DANGER', w / 2, h / 2);
+      }),
+      0.43,
+      0.373,
+      -0.745,
+      -Math.PI / 2,
+      0,
+      0,
+    );
+    A(
+      new THREE.BoxGeometry(0.07, 0.07, 0.11),
+      new THREE.MeshLambertMaterial({ color: 0x4d5240 }),
+      0.5,
+      0.4,
+      -0.16,
+    ); /* SCR-695 box */
+    A(new THREE.CylinderGeometry(0.014, 0.014, 0.012, 10).rotateX(Z), chr, 0.5, 0.41, -0.105);
+    bar([0.24, 0.1, -0.42], [0.27, 0.18, -0.34], 0.014, blk);
+    A(new THREE.SphereGeometry(0.016, 8, 6), blk, 0.27, 0.18, -0.34); /* seat adjustment handle */
+    A(
+      new THREE.BoxGeometry(0.06, 0.06, 0.05),
+      new THREE.MeshLambertMaterial({ color: 0x4a4f44 }),
+      0.5,
+      0.3,
+      -1.32,
+    ); /* oxygen regulator */
+    A(new THREE.CylinderGeometry(0.02, 0.02, 0.01, 12).rotateX(Z), chr, 0.5, 0.31, -1.29);
+    const mgp = new THREE.Group(); /* the plain parts of the consoles are merged to save draw calls */
+    ck.add(mgp);
+    ck.children.slice(n0b).forEach((o) => {
+      if (o.isMesh && !Array.isArray(o.material) && !o.material.map && !o.children.length) mgp.add(o); /* meshes that carry children (the shelves and their plates) stay as they are */
+    });
+    mergeGroup(mgp);
+  }
   /* the side walls: riveted olive plate with placards */
   {
     const wc = document.createElement('canvas');
@@ -5474,6 +6179,9 @@ add(new THREE.SphereGeometry(0.03, 8, 6), red, 0, 0.21, 0, ckThr);
     }
     g.fillStyle = '#b32018';
     g.fillRect(300, 200, 150, 8);
+    tubM.map = new THREE.CanvasTexture(wc);
+    tubM.color.set(0xffffff);
+    tubM.needsUpdate = true;
     ig.map = new THREE.CanvasTexture(wc);
     ig.map.anisotropy = 4;
     ig.color.set(0xffffff);
@@ -5487,13 +6195,21 @@ add(new THREE.SphereGeometry(0.03, 8, 6), red, 0, 0.21, 0, ckThr);
       side: 2,
       depthWrite: false,
     });
-    A(new THREE.BoxGeometry(0.11, 0.1, 0.003), gl, 0, 0.93, -1.55, 0.75);
-    A(new THREE.BoxGeometry(0.125, 0.008, 0.012), blk, 0, 0.893, -1.584);
-    A(new THREE.BoxGeometry(0.02, 0.075, 0.02), blk, 0, 0.855, -1.6);
+    A(new THREE.BoxGeometry(0.11, 0.1, 0.003), gl, 0, 1.149, -1.55, 0.75);
+    A(new THREE.BoxGeometry(0.125, 0.008, 0.012), blk, 0, 1.112, -1.584);
+    A(new THREE.BoxGeometry(0.02, 0.075, 0.02), blk, 0, 1.074, -1.6);
   } /* reflector sight glass */
   A(new THREE.BoxGeometry(0.05, 0.11, 0.055), blk, 0, 0.585, 0, 0, 0, 0, ckStick);
   A(new THREE.SphereGeometry(0.013, 8, 6), red, 0, 0.64, -0.01, 0, 0, 0, ckStick);
   A(new THREE.BoxGeometry(0.012, 0.04, 0.02), chr, 0, 0.6, -0.04, 0, 0, 0, ckStick);
+  /* the wall shelves and panels sit a little too close to the skin: keep them inside it */
+  ck.children.forEach((o) => {
+    if (Math.abs(o.position.x) >= 0.53) o.position.x -= Math.sign(o.position.x) * 0.065;
+  });
+  /* the instrument panel, glare shield and gun sight come back toward the pilot: the eye was about 0.9 m from the panel, the real one is nearer 0.7 m */
+  ck.children.forEach((o) => {
+    if (o.position.z < -1.45 && o.position.y > 0.7) o.position.z += 0.27;
+  });
 } /* stick grip, button, trigger */
 /* live instruments, drawn onto the panel texture */
 const DEG = Math.PI / 180;
@@ -5605,23 +6321,12 @@ function pCard(c, x, y, r, hdg, title, small) {
   c.fill();
 }
 /* a small round gauge with a green arc */
-function pSmall(c, x, y, r, t, val, mx, col, lo) {
+function pSmall(c, x, y, r, t, val, mx, bands, lo) {
+  lo = lo || 0;
   gBase(c, x, y, r, '');
-  gTicks(c, x, y, r, lo || 0, mx, -120, 120, (mx - (lo || 0)) / 4, 2, () => '', 9);
-  gBand(
-    c,
-    x,
-    y,
-    r,
-    lo || 0,
-    mx,
-    -120,
-    120,
-    (lo || 0) + (mx - (lo || 0)) * 0.55,
-    (lo || 0) + (mx - (lo || 0)) * 0.8,
-    col,
-  );
-  gNeedle(c, x, y, r, val, lo || 0, mx, -120, 120, 0.82, '#fff', 2.4);
+  gTicks(c, x, y, r, lo, mx, -120, 120, (mx - lo) / 4, 2, () => '', 9);
+  (bands || []).forEach((b) => gBand(c, x, y, r, lo, mx, -120, 120, b[0], b[1], b[2]));
+  gNeedle(c, x, y, r, val, lo, mx, -120, 120, 0.82, '#fff', 2.4);
   c.fillStyle = '#b9bcc0';
   c.font = 'bold ' + Math.max(9, (r * 0.3) | 0) + 'px sans-serif';
   c.textAlign = 'center';
@@ -5682,19 +6387,21 @@ function drawPanel() {
   }
   gBase(c, 690, 85, 48, '');
   gTicks(c, 690, 85, 48, 0, 10, -120, 120, 2, 2, (q) => q, 1);
-  gNeedle(c, 690, 85, 48, engOut ? 0.4 : 4.1, 0, 10, -120, 120, 0.8, '#fff', 2.6);
+  gBand(c, 690, 85, 48, 0, 10, -120, 120, 3.75, 4.25, '#3c3');
+  gNeedle(c, 690, 85, 48, engOut ? 0.4 : 4.0, 0, 10, -120, 120, 0.8, '#fff', 2.6);
   c.fillStyle = '#9a9da1';
   c.fillText('SUCTION', 690, 85 + 48 + 16);
   gBase(c, 830, 80, 56, 'MAN PRESS kPa');
-  gBand(c, 830, 80, 56, 40, 220, -120, 120, 90, 125, '#3c3');
-  gBand(c, 830, 80, 56, 40, 220, -120, 120, 200, 220, '#d22');
-  gTicks(c, 830, 80, 56, 40, 220, -120, 120, 20, 2, (q) => q, 2);
-  gNeedle(c, 830, 80, 56, mp * 3.386, 40, 220, -120, 120, 0.8, '#fff', 3.4);
+  gBand(c, 830, 80, 56, 40, 240, -120, 120, 88, 122, '#3c3');
+  gBand(c, 830, 80, 56, 40, 240, -120, 120, 122, 207, '#ec3');
+  gBand(c, 830, 80, 56, 40, 240, -120, 120, 207, 240, '#d22');
+  gTicks(c, 830, 80, 56, 40, 240, -120, 120, 40, 2, (q) => q, 1);
+  gNeedle(c, 830, 80, 56, mp * 3.386, 40, 240, -120, 120, 0.8, '#fff', 3.4);
   {
     const x = 925,
       y = 175,
       r = 36,
-      on = Math.floor(now / 700) % 2;
+      on = 0; /* the oxygen flow blinker stays dark: the flashing was distracting */
     gBase(c, x, y, r, '');
     c.fillStyle = on ? '#e8e8e2' : '#101010';
     c.beginPath();
@@ -5705,7 +6412,20 @@ function drawPanel() {
     c.fillText('O2 FLOW', x, y + r + 16);
   }
   /* left column: carburettor air temperature (9) and the g meter */
-  pSmall(c, 95, 210, 44, 'CARB AIR C', engOut ? 10 : 12 + thr * 22 + FM.eT * 15, 60, '#3c3', -30);
+  pSmall(
+    c,
+    95,
+    210,
+    44,
+    'CARB AIR C',
+    engOut ? 10 : 12 + thr * 12 + FM.eT * 15,
+    60,
+    [
+      [15, 30, '#3c3'],
+      [40, 60, '#d22'],
+    ],
+    -30,
+  );
   {
     const x = 95,
       y = 330,
@@ -5771,8 +6491,9 @@ function drawPanel() {
       y = 210,
       r = 84;
     gBase(c, x, y, r, 'TACHOMETER  RPM x100');
-    gBand(c, x, y, r, 0, 45, -120, 120, 16, 25, '#3c3');
-    gBand(c, x, y, r, 0, 45, -120, 120, 30, 33, '#d22');
+    gBand(c, x, y, r, 0, 45, -120, 120, 16, 24, '#3c3');
+    gBand(c, x, y, r, 0, 45, -120, 120, 30, 32.4, '#ec3');
+    gBand(c, x, y, r, 0, 45, -120, 120, 32.4, 45, '#d22');
     gTicks(c, x, y, r, 0, 45, -120, 120, 5, 5, (q) => q, 1);
     gNeedle(c, x, y, r, rpm / 100, 0, 45, -120, 120, 0.8, '#fff', 5);
   }
@@ -5830,22 +6551,51 @@ function drawPanel() {
     gTicks(c, x, y, r, -20, 20, -255, 75, 5, 5, (q) => Math.abs(q), 1);
     gNeedle(c, x, y, r, Math.max(-20, Math.min(20, vel.y)), -20, 20, -255, 75, 0.8, '#fff', 3.5);
   }
-  pSmall(c, 705, 385, 42, 'COOLANT C', engOut ? 40 : 78 + thr * 20 + FM.eT * 40, 150, '#3c3');
+  pSmall(c, 705, 385, 42, 'COOLANT C', engOut ? 40 : 85 + thr * 25 + FM.eT * 30, 150, [
+    [100, 110, '#3c3'],
+    [121, 150, '#d22'],
+  ]);
   {
     const x = 860,
       y = 385,
       r = 70;
     gBase(c, x, y, r, '');
-    pSmall(c, x - r * 0.45, y - r * 0.1, r * 0.4, '', engOut ? 40 : 62 + thr * 28 + FM.eT * 30, 150, '#3c3');
-    pSmall(c, x + r * 0.45, y - r * 0.1, r * 0.4, '', engOut ? 0 : 16, 25, '#3c3');
-    pSmall(c, x, y + r * 0.42, r * 0.4, '', engOut ? 4 : 62 + thr * 14, 100, '#3c3');
+    pSmall(c, x - r * 0.45, y - r * 0.1, r * 0.4, '', engOut ? 40 : 65 + thr * 15 + FM.eT * 25, 150, [
+      [70, 80, '#3c3'],
+      [90, 150, '#d22'],
+    ]);
+    pSmall(c, x + r * 0.45, y - r * 0.1, r * 0.4, '', engOut ? 0 : 14, 25, [
+      [12, 16, '#3c3'],
+      [19, 25, '#d22'],
+    ]);
+    pSmall(c, x, y + r * 0.42, r * 0.4, '', engOut ? 4 : 65 + thr * 15, 100, [
+      [0, 50, '#d22'],
+      [70, 80, '#3c3'],
+      [90, 100, '#d22'],
+    ]);
     c.fillStyle = '#9a9da1';
     c.font = 'bold 10px sans-serif';
     c.textAlign = 'center';
     c.fillText('OIL TEMP  FUEL P  OIL P', x, y + r + 16);
   }
   /* hydraulic pressure gauge (21) in the lower centre panel */
-  pSmall(c, 665, 582, 30, 'HYD', engOut ? 600 : 1000, 1500, '#3c3');
+  pSmall(c, 665, 582, 30, 'HYD', engOut ? 600 : 1000, 1500, [[800, 1100, '#3c3']]);
+  /* oxygen pressure gauge (29) and oxygen system warning light (30) */
+  pSmall(
+    c,
+    950,
+    285,
+    38,
+    'OXYGEN',
+    400,
+    500,
+    [
+      [400, 500, '#3c3'],
+      [0, 100, '#d22'],
+    ],
+    0,
+  );
+  lamp(c, 940, 372, 'O2', false, '#ff3b30');
   /* warning lights */
   lamp(c, 270, 496, 'GEAR', gearOn, '#38d058');
   lamp(c, 345, 496, 'FLAPS', flapLvl > 0, '#ffb030');
@@ -5853,6 +6603,11 @@ function drawPanel() {
   lamp(c, 595, 496, 'STALL', buffet > 0.05, '#ffb030');
   lamp(c, 670, 496, 'MAGS', !engOut, '#38d058');
   lamp(c, 745, 496, 'BATT', true, '#38d058');
+  const nk = WX.lt || 0; /* night: the instrument lights are dim */
+  if (nk > 0.05) {
+    c.fillStyle = 'rgba(0,0,0,' + (0.5 * nk).toFixed(2) + ')';
+    c.fillRect(0, 0, 1024, 640);
+  }
   ptex.needsUpdate = true;
 }
 
@@ -5895,7 +6650,7 @@ const gunT = [0, 0, 0, 0, 0, 0];
 [-1, 1].forEach((sd) =>
   [2.3, 3.0, 3.7].forEach((ax) => {
     const x = sd * ax,
-      zle = 0.98 - (2.35 - 1.25 * Math.min(1, ax / 5.64)),
+      zle = wzle(Math.min(1, ax / WSEMI)),
       y = wy(ax),
       zm =
         zle -
@@ -5954,7 +6709,7 @@ let rkN = 0,
         new THREE.MeshLambertMaterial({ color: 0x5a6b3a }),
         sd * x,
         wy(x) - 0.27,
-        0.2,
+        wmid(x / WSEMI),
       ),
     ),
   ),
@@ -5965,8 +6720,8 @@ const bmMesh = [];
     new THREE.SphereGeometry(0.3, 12, 8),
     new THREE.MeshLambertMaterial({ color: 0x6b6f3a }),
     sd * 2.9,
-    -0.62,
-    0.3,
+    wy(2.9) - 0.55,
+    wmid(2.9 / WSEMI),
   );
   m.scale.set(1, 1, 3.2);
   bmMesh.push(m);
@@ -8369,17 +9124,30 @@ const TRAINERS = {
           ? 'You are fast. '
           : 'You start on the DOWNWIND leg of the landing circuit: parallel to the runway, flying the opposite way. The circuit is downwind, base, final.\nFirst slow down. ') +
         "Close the throttle completely: hold Ctrl (or D-pad down) until the bar reads 0%.\nKeep the nose level, don't climb or dive. With power off she slows by herself, about 20 seconds.";
-      h = 'Speed ' + R(kmh) + ' km/h, throttle ' + R(thr * 100) + '%. Target: idle, then below 350 km/h for the gear.';
+      h =
+        'Speed ' +
+        R(kmh) +
+        ' km/h, throttle ' +
+        R(thr * 100) +
+        '%. Target: idle, then below ' +
+        (FM.use('ops') ? 273 : 350) +
+        ' km/h for the gear.';
       l = 'warn';
     } else if (st === 1) {
       trn.title = 'Step 2/7: Landing gear';
       txt =
-        'Lower the landing gear: press G (or A). The gear is a big drag brake and you need it down to land.\nSafe below 350 km/h.';
+        'Lower the landing gear: press G (or A). The gear is a big drag brake and you need it down to land.\nSafe below ' +
+        (FM.use('ops') ? '273 (170 mph)' : 350) +
+        ' km/h.';
       h =
-        kmh > 350
-          ? 'Speed ' + R(kmh) + ': wait until below 350 km/h. Keep the nose level, throttle idle.'
+        kmh > (FM.use('ops') ? 273 : 350)
+          ? 'Speed ' +
+            R(kmh) +
+            ': wait until below ' +
+            (FM.use('ops') ? 273 : 350) +
+            ' km/h. Keep the nose level, throttle idle.'
           : 'Speed ' + R(kmh) + ' km/h: gear down now (G / A).';
-      l = kmh > 350 ? 'warn' : 'bad';
+      l = kmh > (FM.use('ops') ? 273 : 350) ? 'warn' : 'bad';
     } else if (st === 2) {
       trn.title = 'Step 3/7: Flaps';
       txt =
@@ -11462,6 +12230,8 @@ const dzf = (v, d = 0.14) => {
 function toggleGear() {
   const was = gearOn;
   if (DM.on && DM.hyd && gearOn && !onGround) return note('HYDRAULICS - GEAR WILL NOT RETRACT');
+  if (!onGround && !gearOn && FM.use('ops') && (FM.ias || spd()) > 76)
+    return note('GEAR OVERSPEED - SLOW BELOW 273 KM/H');
   if (!onGround) gearOn = !gearOn;
   else if (spd() < 1) gearOn = true;
   if (gearOn !== was) SND.gear(gearOn);
@@ -11826,7 +12596,7 @@ const ACT = {
   },
   flapDn: () => {
     if (DM.on && DM.hyd) return note('HYDRAULICS - FLAPS JAMMED');
-    flapLvl = Math.min(4, flapLvl + 1);
+    flapLvl = Math.min(ANG.length - 1, flapLvl + 1);
     SND.flaps();
   },
   flapUp: () => {
@@ -12059,8 +12829,26 @@ const GT = [
     [315, 7],
     [2000, 7],
   ],
-  ANG = [0, 10, 20, 30, 45],
-  FLIM = [999, 178.8, 122.9, 100.8, 100.8];
+  ANG_S = [0, 10, 20, 30, 45],
+  FLIM_S = [999, 178.8, 122.9, 100.8, 100.8],
+  /* the manual's flap settings and speed limits: 10 deg 400 mph, 20 deg 275, 30 deg 225, 40 deg 180, 50 deg 165 */
+  ANG_H = [0, 10, 20, 30, 40, 50],
+  FLIM_H = [999, 178.8, 122.9, 100.6, 80.5, 73.8];
+let ANG = ANG_S,
+  FLIM = FLIM_S,
+  flapHC = false;
+/* Hardcore 'ops': the real flap settings (6 steps up to 50 degrees) with their speed limits */
+function syncFlaps() {
+  const h = FM.use('ops');
+  if (h === flapHC) return;
+  flapHC = h;
+  ANG = h ? ANG_H : ANG_S;
+  FLIM = h ? FLIM_H : FLIM_S;
+  FL = h ? FL_H : FL_S;
+  flapLvl = Math.min(flapLvl, ANG.length - 1);
+  const e = document.getElementById('flp6');
+  if (e) e.style.display = h ? '' : 'none';
+}
 function gmax(v) {
   const m = v * 2.237;
   for (let i = 1; i < GT.length; i++)
@@ -12107,6 +12895,7 @@ function readControls(dt) {
   s.p += (tp - s.p) * a;
   s.r += (tr - s.r) * a;
   s.y += (ty - s.y) * a;
+  syncFlaps();
   while (flapLvl > 0 && v0() > FLIM[flapLvl]) {
     flapLvl--;
     note('FLAPS OVERSPEED - RETRACTED');
@@ -12153,6 +12942,7 @@ function hardcore(dt, fs, v, aa, am, r) {
   const hq = FM.use('torque'),
     hs = FM.use('spin'),
     hh = FM.use('heat'),
+    hw = FM.use('pwr'),
     hf = FM.use('fuel');
   {
     const pw = thr * (FM.hot ? 0.35 : 1) * (engOut ? 0 : 1),
@@ -12209,7 +12999,7 @@ function hardcore(dt, fs, v, aa, am, r) {
       FM.lowT = 0;
     }
     /* engine heat: full throttle (above 90%) heats the engine, lower power and fast air cool it */
-    if (hh) {
+    if (hh || (hw && FM.eT > 0)) {
       if (thr > 0.9 && !engOut) FM.eT = Math.min(1.2, FM.eT + (dt / 240) * (1 + Math.max(0, 1 - v / 80)));
       else FM.eT = Math.max(0, FM.eT - (dt / 40) * (0.5 + Math.min(1, v / 80)));
       if (!FM.hot && FM.eT >= 1) {
@@ -12226,6 +13016,35 @@ function hardcore(dt, fs, v, aa, am, r) {
     } else {
       FM.eT = 0;
       FM.hot = false;
+    }
+    /* engine power limits from the manual: war emergency power for 5 minutes, and no more than 3240 rpm in a dive */
+    if (hw && !engOut) {
+      if (thr > 0.9) {
+        FM.wepT += dt;
+        if (FM.wepT > 270 && !FM.wepW) {
+          FM.wepW = true;
+          note('WAR EMERGENCY POWER: 30 SECONDS LEFT');
+        }
+        if (FM.wepT > 300 && !FM.wepX) {
+          FM.wepX = true;
+          FM.eT = Math.max(FM.eT, 1.2);
+          note('5 MINUTE LIMIT EXCEEDED - ENGINE OVERHEATED, THROTTLE BACK');
+        }
+      } else {
+        FM.wepT = Math.max(0, FM.wepT - dt);
+        if (FM.wepT < 30) FM.wepW = FM.wepX = false;
+      }
+      const rpmD = 700 + thr * 2300 + Math.max(0, (FM.ias || v) * 2.237 - 420) * 3;
+      if (rpmD > 3240) {
+        FM.rpmT += dt;
+        if (FM.rpmT > 3 && FM.rpmT - dt <= 3) {
+          FM.eT = Math.max(FM.eT, 1.2);
+          note('OVERSPEED OVER 3240 RPM - ENGINE DAMAGED, THROTTLE BACK');
+        }
+      } else FM.rpmT = Math.max(0, FM.rpmT - dt);
+    } else if (!hw) {
+      FM.wepT = FM.rpmT = 0;
+      FM.wepW = FM.wepX = false;
     }
   }
 }
@@ -12453,11 +13272,13 @@ function crash(why) {
 }
 
 /* ---------- HUD ---------- */
-const FL = ['UP', '10°', '20°', '30°', '45°'],
+const FL_S = ['UP', '10°', '20°', '30°', '45°'],
+  FL_H = ['UP', '10°', '20°', '30°', '40°', '50°'],
   tqf = $$('tqf'),
   tqh = $$('tqh'),
   tqv = $$('tqv'),
   fli = [...document.querySelectorAll('#flp i')];
+let FL = FL_S;
 const hud = $$('hud'),
   ah = $$('ah').getContext('2d'),
   warn = $$('warn');
@@ -12801,9 +13622,9 @@ const AFL = (() => {
 })();
 /* wingtip and tail lights */
 const NAVL = [
-  [-5.5, 0.15, 0.3, 0xff2a2a],
-  [5.5, 0.15, 0.3, 0x2aff55],
-  [0, 1.98, 4.15, 0xffffff] /* top of the fixed fin, so it stays put when the rudder moves */,
+  [-5.5, wy(5.5) + 0.05, wzle(1) + 0.2, 0xff2a2a],
+  [5.5, wy(5.5) + 0.05, wzle(1) + 0.2, 0x2aff55],
+  [0, 1.82, 4.2, 0xffffff] /* top of the fixed fin, so it stays put when the rudder moves */,
 ].map((a) => {
   const sp = new THREE.Sprite(
     new THREE.SpriteMaterial({
@@ -12985,6 +13806,7 @@ Object.assign(WX, {
     }
     /* lights: dusk and night, and murky weather */
     const lt = Math.max(cl((0.1 - e) / 0.2), m > 0.4 ? 0.5 : 0);
+    WX.lt = lt;
     BLDL.opacity = lt;
     T.forEach((t) => {
       if (t.lit) t.lit.visible = !t.dead && lt > 0.02;
@@ -13196,22 +14018,26 @@ const SHT = (() => {
     [0.12, 5.0],
   ]);
   const wing = [
-    [0, -1.4],
-    [-5.62, -0.12],
-    [-5.7, 0.5],
-    [-5.5, 0.98],
-    [0, 0.98],
-    [5.5, 0.98],
-    [5.7, 0.5],
-    [5.62, -0.12],
+    [0, -2.14],
+    [-5.5, -1.78],
+    [-5.7, -1.3],
+    [-5.64, -0.5],
+    [-3.33, -0.12],
+    [0, 0.5],
+    [3.33, -0.12],
+    [5.64, -0.5],
+    [5.7, -1.3],
+    [5.5, -1.78],
   ];
   const tail = [
-    [0, 3.9],
-    [-1.9, 4.35],
-    [-1.95, 4.9],
-    [0, 5.0],
-    [1.95, 4.9],
-    [1.9, 4.35],
+    [-0.1, 2.9],
+    [-2.0, 3.18],
+    [-2.0, 4.0],
+    [-0.12, 4.19],
+    [0.12, 4.19],
+    [2.0, 4.0],
+    [2.0, 3.18],
+    [0.1, 2.9],
   ];
   for (let k = 6; k >= 0; k--) {
     g.lineJoin = 'round';
@@ -13290,6 +14116,53 @@ function updShadow() {
   p.needsUpdate = true;
   SHD.gm.computeBoundingSphere();
   SHD.m.material.opacity = 0.5 / (1 + h / 650);
+}
+/* landing light (night, gear down): a pool of light on the ground ahead of the nose, at the point the lamp's beam meets the ground */
+const LLP = (() => {
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({
+      map: GLOWT,
+      color: 0xfff0c0,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false,
+    }),
+  );
+  m.visible = false;
+  m.frustumCulled = false;
+  scene.add(m);
+  return m;
+})();
+function updLandingLight() {
+  const on = started && !crashed && gearOn && (WX.lt || 0) > 0.3 && !BL.on;
+  LLP.visible = on;
+  if (!on) return;
+  const dx = fwd.x - up.x * 0.12,
+    dy = fwd.y - up.y * 0.12,
+    dz = fwd.z - up.z * 0.12,
+    dl = Math.hypot(dx, dy, dz);
+  let t = 15,
+    x = 0,
+    y = 0,
+    z = 0;
+  for (; t < 600; t += 15) {
+    x = pos.x + (dx / dl) * t;
+    y = pos.y + (dy / dl) * t;
+    z = pos.z + (dz / dl) * t;
+    if (y <= H(x, z)) break;
+  }
+  if (t >= 600) {
+    LLP.visible = false;
+    return;
+  }
+  const sc = 7 + t * 0.09;
+  LLP.position.set(x, H(x, z) + 0.35, z);
+  LLP.scale.set(sc, 1, sc * 1.7);
+  LLP.rotation.y = Math.atan2(fwd.x, fwd.z);
+  LLP.material.opacity = Math.min(0.75, (WX.lt - 0.2) * 1.1) * (1 - t / 640);
 }
 /* vapour trails from the wingtips when you pull hard at speed */
 const VT = (() => {
@@ -13929,6 +14802,14 @@ function frame(now) {
   prop.rotation.z = pa;
   tiltV += ((onGround && !crashed ? GEAR.sit * (1 - Math.min(1, spd() / 42)) : 0) - tiltV) * Math.min(1, 4 * dt);
   model.rotation.x = tiltV;
+  { /* the tail settles about the main wheels, so they stay on the ground */
+    const ct = Math.cos(tiltV),
+      st = Math.sin(tiltV),
+      py = GEAR.mainBottom,
+      pz = GEAR.mainZ;
+    model.position.y = 0.17 + (py - (py * ct - pz * st));
+    model.position.z = pz - (py * st + pz * ct);
+  }
   ckStick.rotation.x = s.p * 0.35;
   ckStick.rotation.z = -s.r * 0.3;
   ckThr.rotation.x = 0.3 - thr * 0.9;
@@ -13944,6 +14825,8 @@ function frame(now) {
   ckPed[-1].position.z = -1.05 + s.y * 0.05;
   ckPedU[1].position.z = -1.3 - s.y * 0.05;
   ckPedU[-1].position.z = -1.3 + s.y * 0.05;
+  if (ckLev.flap) ckLev.flap.rotation.x = 0.5 - (flapLvl / (ANG.length - 1)) * 1.0;
+  if (ckLev.gear) ckLev.gear.rotation.x = gearOn ? 0.45 : -0.25;
   {
     const inCk = camMode == 1 || lb > 0.4;
     bladeGroups.forEach((g) => (g.visible = !inCk));
@@ -13955,7 +14838,7 @@ function frame(now) {
   flapP.forEach((g) => (g.rotation.x = fl * 0.79));
   const lookOn = !!(pad.lx || pad.ly) || Math.abs(viewYaw) > 0.03 || Math.abs(viewPitch) > 0.03;
   lb += ((camMode == 1 || lookOn ? 1 : 0) - lb) * Math.min(1, 10 * dt);
-  const cockPos = SC.cockPos.set(0, 1.17, -0.55).applyQuaternion(q).add(pos),
+  const cockPos = SC.cockPos.set(0, 0.69, -0.43).applyEuler(model.rotation).add(model.position).applyQuaternion(q).add(pos),
     dv = tmp.copy(fwd).applyAxisAngle(up, -viewYaw),
     rt = SC.rt.crossVectors(dv, up).normalize();
   dv.applyAxisAngle(rt, viewPitch);
@@ -14038,6 +14921,7 @@ function frame(now) {
   drawIls();
   drawGuide();
   updShadow();
+  updLandingLight();
   updTrails(dt);
   driftClouds(dt);
   updWX(dt);

@@ -255,7 +255,7 @@ with sync_playwright() as p:
       // engine heat
       sky(100,1);let h=0;while(!FM.hot&&h<400){run(1);pos.y=3000;vel.set(0,0,-100);q.identity();h++}o.heatSecs=h;
       thr=0.5;h=0;while(FM.hot&&h<200){run(1);pos.y=3000;vel.set(0,0,-100);q.identity();h++}o.cooled=!FM.hot;
-      FM.opt.heat=false;sky(100,1);for(let k=0;k<300;k++){run(1);pos.y=3000;vel.set(0,0,-100);q.identity()}o.heatOff=FM.hot||FM.eT>0;FM.opt.heat=true;
+      FM.opt.heat=false;FM.opt.pwr=false;sky(100,1);for(let k=0;k<300;k++){run(1);pos.y=3000;vel.set(0,0,-100);q.identity()}o.heatOff=FM.hot||FM.eT>0;FM.opt.heat=true;FM.opt.pwr=true;
       // altitude: indicated speed falls with height, power fades, service ceiling
       sky(150,1);run(0.05);o.iasLow=FM.ias/vel.length();
       pos.y=9000;run(0.05);o.iasHigh=FM.ias/vel.length();o.psHigh=AT.ps;
@@ -277,7 +277,7 @@ with sync_playwright() as p:
       document.getElementById('hcOn').click();
       o.masterOff=[FM.on,FM.use('torque'),power(0.5)];o.yawBack=yawOnRoll();
       reset();paused=false;return o}""")
-    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 13 and hc["ui"][2], str(hc["ui"]))
+    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 15 and hc["ui"][2], str(hc["ui"]))
     check("hardcore: master switch enables the options and is saved", hc["uiOn"] == [True, True, True], str(hc["uiOn"]))
     check("hardcore: torque swings the nose left on the take-off roll (only when on)", abs(hc["yawOff"]) < 1e-6 and hc["yawOn"] > 0.05 and abs(hc["yawTorqueOff"]) < 1e-6, str([hc["yawOff"], hc["yawOn"], hc["yawTorqueOff"]]))
     check("hardcore: stall with rudder held spins; opposite rudder + stick forward recovers", hc["spin"] and hc["recovered"], str([hc["spin"], hc["recovered"]]))
@@ -291,6 +291,36 @@ with sync_playwright() as p:
     check("hardcore: structural limit is +8 G (light), lower when heavy and at high speed", abs(hc["limLight"] - 7.11) < 0.1 and hc["limHeavy"] < hc["limLight"] and hc["limFast"] < hc["limLight"], str([hc["limLight"], hc["limHeavy"], hc["limFast"]]))
     check("hardcore: war emergency power is the top 10% of the throttle", abs(hc["wep"][1] - 1) < 1e-9 and hc["wep"][0] < 0.88 and hc["wepOff"] == 0.5, str([hc["wep"], hc["wepOff"]]))
     check("hardcore: master switch off restores the plain model", hc["masterOff"] == [False, False, 0.5] and abs(hc["yawBack"]) < 1e-6, str([hc["masterOff"], hc["yawBack"]]))
+    ops = pg.evaluate("""()=>{
+      FM.on=true;FM.opt.ops=true;FM.opt.pwr=true;FM.opt.heat=false;
+      syncFlaps();const a=[ANG.length,FL[5],FLIM[4],FLIM[5]];
+      flapLvl=5;FM.opt.ops=false;syncFlaps();const b=[ANG.length,flapLvl];FM.opt.ops=true;syncFlaps();
+      reset();FM.on=true;FM.opt.ops=true;gearOn=false;onGround=false;FM.ias=90;toggleGear();const g1=gearOn;FM.ias=60;toggleGear();const g2=gearOn;
+      FM.wepT=0;FM.wepX=false;FM.eT=0;engOut=false;thr=1;const r=new V();for(let i=0;i<301;i++)hardcore(1,80,80,0,1,r);
+      const w=[FM.wepW,FM.wepX,FM.eT];
+      FM.wepT=0;FM.wepX=false;FM.wepW=false;FM.eT=0;FM.opt.pwr=false;for(let i=0;i<301;i++)hardcore(1,80,80,0,1,r);const wo=[FM.wepX,FM.eT];
+      FM.opt.pwr=true;FM.wepT=0;FM.eT=0;thr=1;FM.rpmT=0;FM.ias=230;for(let i=0;i<4;i++)hardcore(1,230,230,0,1,r);const f1=FM.eT;
+      FM.eT=0;FM.rpmT=0;FM.ias=150;for(let i=0;i<5;i++)hardcore(1,150,150,0,1,r);const f2=FM.eT;
+      FM.opt.heat=true;FM.on=false;syncFlaps();return {a,b,g1,g2,w,wo,f1,f2}}""")
+    check("hardcore ops: six real flap settings (10-50 deg) with the manual's limits, back to five when off", ops["a"][0] == 6 and ops["a"][1] == "50°" and abs(ops["a"][2] - 80.5) < 0.2 and abs(ops["a"][3] - 73.8) < 0.2 and ops["b"] == [5, 4], str(ops))
+    check("hardcore ops: the gear will not come down above 273 km/h, and does below", ops["g1"] is False and ops["g2"] is True, str(ops))
+    check("hardcore pwr: war emergency power overheats the engine after 5 minutes (not when the option is off)", ops["w"][0] and ops["w"][1] and ops["w"][2] >= 1.2 and not ops["wo"][0] and ops["wo"][1] == 0, str(ops))
+    check("hardcore pwr: more than 3240 rpm in a dive overheats the engine, normal speed does not", ops["f1"] >= 1.2 and ops["f2"] == 0, str(ops))
+    lv = pg.evaluate("""()=>{reset();const a=!!ckLev.flap&&!!ckLev.gear;gearOn=true;flapLvl=0;return a}""")
+    pg.wait_for_timeout(300)
+    r0 = pg.evaluate("()=>[ckLev.flap.rotation.x,ckLev.gear.rotation.x]")
+    pg.evaluate("()=>{flapLvl=4;gearOn=false}"); pg.wait_for_timeout(400)
+    r1 = pg.evaluate("()=>[ckLev.flap.rotation.x,ckLev.gear.rotation.x]")
+    check("cockpit: the flap and gear levers on the left console move with the flaps and the gear", lv and abs(r0[0] - r1[0]) > 0.5 and abs(r0[1] - r1[1]) > 0.3, str([r0, r1]))
+    pg.evaluate("()=>{gearOn=true;flapLvl=0}")
+    pg.evaluate("()=>{WX.setTime('night')}"); pg.wait_for_timeout(600)
+    pg.evaluate("()=>{pos.set(0,60,-300);vel.set(0,-1,-55);onGround=false;gearOn=true}"); pg.wait_for_timeout(500)
+    night = pg.evaluate("()=>[WX.lt,LLP.visible,LLP.material.opacity]")
+    pg.evaluate("()=>{gearOn=false}"); pg.wait_for_timeout(500)
+    night2 = pg.evaluate("()=>LLP.visible")
+    pg.evaluate("()=>{WX.setTime('midday');gearOn=true}"); pg.wait_for_timeout(500)
+    day = pg.evaluate("()=>LLP.visible")
+    check("night: the landing light pool shows with the gear down at night, not with the gear up or by day", night[0] > 0.5 and night[1] and night[2] > 0.05 and not night2 and not day, str([night, night2, day]))
     pg.evaluate("()=>{navigator.getGamepads=()=>[]}")
 
     n = pg.evaluate("()=>MENU.length")
