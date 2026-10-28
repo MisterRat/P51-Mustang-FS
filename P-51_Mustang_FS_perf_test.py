@@ -16,6 +16,7 @@ Reference values (real P-51D, from the flight-characteristics document and the b
 Hardcore mode is meant to land within a few percent of these. Standard mode is intentionally
 a little faster (arcade) and the About page documents that.
 
+Trim is set for the current speed (as a pilot would); the Hardcore trim tabs otherwise change the hands-off speed.
 Wind, turbulence, wet runway and icing are switched off so the numbers repeat from run to run.
 Method: each case resets the plane in the air, holds a pitch angle with a simple controller,
 and reads the climb rate over 15 s (best of four pitch angles). Top speed and cruise are
@@ -33,8 +34,8 @@ JS = """(mode)=>{
   const run=(t,hold)=>{for(let i=0;i<t*120;i++){if(crashed)break;
     const pit=Math.asin(Math.max(-1,Math.min(1,fwd.y)));pad.p=Math.max(-1,Math.min(1,(hold-pit)*5));pad.r=0;pad.y=0;
     step(1/120);FM.eT=0;FM.fuel=Math.max(FM.fuel,0.6)}};
-  const start=(h,spd,t,clean)=>{reset();paused=true;pos.set(0,h,0);q.identity();vel.set(0,0,-spd);thr=t;FM.reset();FM.fuel=0.6;onGround=false;gearOn=false;flapLvl=0;fl=0;if(clean){rkN=6;bmN=2}axes()};
-  const level=(h,t,clean)=>{start(h,150,t,clean);for(let k=0;k<45;k++){run(2,0);pos.y=h;vel.y=0}return Math.round(FM.ias*3.6)};
+  const start=(h,spd,t,clean)=>{reset();paused=true;pos.set(0,h,0);q.identity();vel.set(0,0,-spd);thr=t;FM.reset();FM.fuel=0.6;onGround=false;gearOn=false;flapLvl=0;fl=0;if(clean){rkN=6;bmN=2}axes();autoTrim(spd)};
+  const level=(h,t,clean)=>{start(h,150,t,clean);for(let k=0;k<45;k++){autoTrim(FM.ias||150);run(2,0);pos.y=h;vel.y=0}return Math.round(FM.ias*3.6)};
   const climb=(h,clean)=>{let best=-99;for(const a of [0.1,0.15,0.2,0.26]){start(h,140,1,clean);run(40,a);const y0=pos.y;run(15,a);best=Math.max(best,(pos.y-y0)/15)}return Math.round(best*10)/10};
   out.climb_clean_m_s=climb(300,true);out.climb_loaded_m_s=climb(300,false);
   out.top_300m_kmh_ias=level(300,1,true);out.cruise65_kmh=level(300,0.65,true);out.cruise80_kmh=level(300,0.8,true);out.cruise90_kmh=level(300,0.9,true);

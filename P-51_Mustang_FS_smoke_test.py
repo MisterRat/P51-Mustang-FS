@@ -241,7 +241,7 @@ with sync_playwright() as p:
       FM.opt.wind=false;FM.opt.turb=false;
       o.ui=[document.getElementById('hcOn')!==null,document.querySelectorAll('#hcList input').length,[...document.querySelectorAll('#hcList input')].every(i=>i.disabled)];
       const run=(t)=>{for(let i=0;i<t*120;i++){if(crashed)break;step(1/120)}};
-      const sky=(spd,t)=>{reset();paused=true;pos.set(0,3000,0);q.identity();vel.set(0,0,-spd);thr=t;pad.p=pad.r=pad.y=0;s.p=s.r=s.y=0;FM.reset();onGround=false;axes()};
+      const sky=(spd,t)=>{reset();paused=true;pos.set(0,3000,0);q.identity();vel.set(0,0,-spd);thr=t;pad.p=pad.r=pad.y=0;s.p=s.r=s.y=0;FM.reset();autoTrim(spd);onGround=false;axes()};
       const yawOnRoll=()=>{reset();paused=true;thr=1;pad.p=pad.r=pad.y=0;run(5);return new THREE.Euler().setFromQuaternion(q,'YXZ').y};
       o.yawOff=yawOnRoll();
       document.getElementById('hcOn').click();
@@ -277,7 +277,7 @@ with sync_playwright() as p:
       document.getElementById('hcOn').click();
       o.masterOff=[FM.on,FM.use('torque'),power(0.5)];o.yawBack=yawOnRoll();
       reset();paused=false;return o}""")
-    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 15 and hc["ui"][2], str(hc["ui"]))
+    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 16 and hc["ui"][2], str(hc["ui"]))
     check("hardcore: master switch enables the options and is saved", hc["uiOn"] == [True, True, True], str(hc["uiOn"]))
     check("hardcore: torque swings the nose left on the take-off roll (only when on)", abs(hc["yawOff"]) < 1e-6 and hc["yawOn"] > 0.05 and abs(hc["yawTorqueOff"]) < 1e-6, str([hc["yawOff"], hc["yawOn"], hc["yawTorqueOff"]]))
     check("hardcore: stall with rudder held spins; opposite rudder + stick forward recovers", hc["spin"] and hc["recovered"], str([hc["spin"], hc["recovered"]]))
@@ -532,6 +532,23 @@ with sync_playwright() as p:
     check("wind: the ILS picks the runway end facing into the wind (north wind: runway 36)", pg.evaluate("()=>ILS.show&&ILS.end===0"))
     pg.evaluate("()=>{ILS.free=false;FM.on=false;Object.keys(FM.opt).forEach(k=>FM.opt[k]=true);WX.setWx(window.__wx0);reset()}")
     pg.evaluate("()=>{ILS.free=false;reset()}")
+    tr = pg.evaluate("""()=>{
+      const o={};
+      FM.on=true;FM.opt.trim=true;reset();crashed=false;
+      TRIM.e=0;trimUpd(1,1,0,0);o.up=TRIM.e;trimUpd(10,-1,0,0);o.dn=TRIM.e;trimUpd(10,0,1,0);o.r=TRIM.r;trimUpd(10,0,0,1);o.a=TRIM.a;
+      trimUpd(100,1,1,1);o.max=[TRIM.e,TRIM.r,TRIM.a];
+      ACT.trimC&&ACT.trimC();o.ctr=[TRIM.e,TRIM.r,TRIM.a];
+      FM.opt.trim=false;TRIM.e=0;trimUpd(1,1,0,0);o.off=TRIM.e;
+      FM.opt.trim=true;FM.on=false;TRIM.e=0;trimUpd(1,1,0,0);o.casual=TRIM.e;
+      FM.on=true;FM.opt.trim=true;TRIM.e=1;TRIM.r=-1;TRIM.a=1;
+      return o}""")
+    pg.wait_for_timeout(600)
+    tr.update(pg.evaluate("""()=>{const o={};o.tabs=[elevTabs[0].rotation.x,rudTab.rotation.y,ailTab?ailTab.rotation.x:0];FM.on=false;return o}"""))
+    pg.wait_for_timeout(600)
+    tr.update(pg.evaluate("""()=>({tabsOff:[elevTabs[0].rotation.x,rudTab.rotation.y]})"""))
+    check("trim: keys move elevator, rudder and aileron trim and clamp at full travel", tr["up"] > 0.2 and tr["dn"] < 0 and tr["r"] > 0 and tr["a"] > 0 and tr["max"] == [1, 1, 1], str(tr))
+    check("trim: centre-all resets, and it does nothing with the option or Hardcore off", tr["ctr"] == [0, 0, 0] and tr["off"] == 0 and tr["casual"] == 0, str(tr))
+    check("trim: the tabs on the aircraft deflect in Hardcore and sit flat otherwise", abs(tr["tabs"][0]) > 0.1 and abs(tr["tabs"][1]) > 0.1 and abs(tr["tabs"][2]) > 0.1 and tr["tabsOff"] == [0, 0], str(tr))
     check("still no errors at the end", not errors, "; ".join(errors[-2:]))
     pg.close()  # two software-rendered pages at once are too slow; the desktop page is finished
     # ---- phone layout: a saved layout that pushes the top bar off screen is repaired so the pause button (and Exit) stays reachable
