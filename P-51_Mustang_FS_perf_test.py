@@ -3,7 +3,7 @@
 
 Runs the simulator's own physics step headless (no real-time wait) and prints the numbers that
 the About page compares with the real P-51D: sea-level climb rate (clean and loaded), top speed
-and cruise speeds at 300 m, and the indicated top speed at 7,600 m.
+and cruise speeds at 300 m, the indicated top speed at 7,600 m, and the engine-off glide ratio at 175 mph (real: about 14.8).
 
 Usage:  python3 P-51_Mustang_FS_perf_test.py [hc|std|both] [html path]
         hc   = Hardcore mode (real-performance options on)    std = standard arcade mode
@@ -40,6 +40,11 @@ JS = """(mode)=>{
   out.climb_clean_m_s=climb(300,true);out.climb_loaded_m_s=climb(300,false);
   out.top_300m_kmh_ias=level(300,1,true);out.cruise65_kmh=level(300,0.65,true);out.cruise80_kmh=level(300,0.8,true);out.cruise90_kmh=level(300,0.9,true);
   out.top_7600m_kmh_ias=level(7600,1,true);
+  /* glide: engine at idle, attitude held fixed, 90 s to settle, then 30 s measured; interpolated to 175 mph indicated */
+  const glide=(deg)=>{start(2000,75,0,true);thr=0;const qa=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),deg*Math.PI/180);let p0=null;
+    for(let i=0;i<120*90;i++){q.copy(qa);pad.p=pad.r=pad.y=0;step(1/120);FM.eT=0;q.copy(qa);if(i===120*60)p0=pos.clone()}
+    const dy=p0.y-pos.y;return [FM.ias/0.44704,Math.hypot(pos.x-p0.x,pos.z-p0.z)/dy]};
+  {const a=glide(0),b=glide(2);out.glide_ratio_175mph=Math.round((a[1]+(b[1]-a[1])*(175-a[0])/(b[0]-a[0]))*10)/10}
   return out}"""
 
 def main():
