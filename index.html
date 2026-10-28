@@ -353,7 +353,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Redline</td><td>505 mph (808 km/h) up to 5,000 ft; lower higher up</td><td>800 km/h, buffet from 755 km/h. <b>Hardcore mode:</b> the limit is the same indicated speed low down and Mach 0.75 higher up, so it falls with altitude</td><td class="m-ok">Close</td></tr>
 <tr><td>Climb rate</td><td>about 16 m/s (3,200 ft/min) at sea level</td><td>Standard mode: about 17.8 m/s clean and 16.7 m/s with the rockets and bombs loaded (slightly high). <b>Hardcore mode:</b> about 16.5 m/s clean and 15 m/s loaded at sea level, falling to about two-thirds of that at 7,600 m and to zero at the service ceiling</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Service ceiling</td><td>12,800 m (41,900 ft)</td><td>Standard mode: no limit, performance does not change with height. <b>Hardcore mode:</b> air density, supercharger power and induced drag take the climb rate to zero at about 12,000 m</td><td class="m-ok">Close in Hardcore mode</td></tr>
-<tr><td>Takeoff</td><td>roughly 350&ndash;450 m ground roll, rotate near 160 km/h</td><td>Standard mode: about 430 m and 17&ndash;18 s with 10&deg; flaps; rotate at 160, lift off at about 170 km/h at the real 12&deg; ground attitude. Hardcore mode with full fuel, engine torque and take-off trim: about 460 m and 18 s</td><td class="m-ok">Close</td></tr>
+<tr><td>Takeoff</td><td>roughly 350&ndash;450 m ground roll, rotate near 160 km/h</td><td>Standard mode: about 450 m and 18 s with 10&deg; flaps; rotate at 160, lift off at about 174 km/h at the real 12&deg; ground attitude. Hardcore mode with full fuel, engine torque and take-off trim: about 410 m and 17 s</td><td class="m-ok">Close</td></tr>
 <tr><td>Load limits</td><td>Structure rated +8 G / &minus;4 G at design weight, with lower limits at high speed and weight</td><td>Standard mode: the plane simply cannot pull more than about +7 G / &minus;3.5 G; you start to black out above about 4.5 G sustained. <b>Hardcore mode:</b> +8 / &minus;4 G at 8,000 lb, scaled down with weight and 15% lower above 400 mph indicated; overstress bends the airframe (lasting until repaired) and about 1.5 times the limit breaks the wing</td><td class="m-ok">Close in Hardcore mode</td></tr>
 <tr><td>Inverted flight</td><td>Limited to about 10 seconds (oil scavenging)</td><td>Engine cuts after 10 s inverted</td><td class="m-ok">Close</td></tr>
 <tr><td>Guns</td><td>Six .50 cal Brownings, about 1,880 rounds (400 inboard, 270 outboard), about 800 rounds/min each, muzzle velocity about 890 m/s</td><td>Six guns, 1,840 rounds (380 inboard, 270 outboard), 800 rounds/min each, 880 m/s, bullets drop under gravity, converge at 350 m</td><td class="m-ok">Close</td></tr>
@@ -559,7 +559,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '3.60';
+const VERSION = '3.61';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -13365,7 +13365,9 @@ function step(dt) {
   if (gF > 4.5) blk = Math.min(1, blk + (gF - 4.5) * 0.25 * dt);
   else blk = Math.max(0, blk - 0.5 * dt);
   const acc = SC.acc.set(0, -9.8, 0);
-  acc.addScaledVector(up, lift);
+  /* on the wheels the lift acts straight up: tilted back with the nose-up attitude it would act as a brake on the take-off roll (the induced drag already covers that) */
+  if (onGround) acc.y += lift * up.y;
+  else acc.addScaledVector(up, lift);
   acc.addScaledVector(right, -vl.x * 1.5);
   acc.addScaledVector(
     fwd,
