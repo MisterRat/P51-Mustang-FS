@@ -37,6 +37,13 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #cmp canvas{display:block;width:min(44vw,560px);height:auto}
 #bd{position:fixed;display:none;width:38px;height:38px;border:2px solid #ff9f0a;pointer-events:none}
 #bd.off{border:0;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:22px solid #ff9f0a}
+#aim{position:fixed;display:none;width:56px;height:56px;border:3px solid #55ff88;border-radius:50%;box-shadow:0 0 12px #55ff88,inset 0 0 8px #55ff88;pointer-events:none;z-index:6}
+#aim::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#55ff88}
+#aim.on{background:rgba(85,255,136,.28)}
+#aim.off{border:0;border-radius:0;box-shadow:none;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:26px solid #55ff88;filter:drop-shadow(0 0 5px #55ff88)}
+#aim.off::after{display:none}
+#aimt{position:fixed;display:none;transform:translate(-50%,0);margin-top:36px;color:#55ff88;font-size:13px;font-weight:800;text-shadow:0 0 3px #000,0 0 6px #000;pointer-events:none;white-space:nowrap;z-index:6}
+#aim.off+#aimt{margin-top:32px}
 #bdt{position:fixed;display:none;transform:translate(-50%,0);margin-top:26px;color:#ff9f0a;font-size:12px;font-weight:700;text-shadow:0 0 3px #000;pointer-events:none;white-space:nowrap}
 #lead{position:fixed;display:none;width:22px;height:22px;margin:-11px;border:2px solid #ff9f0a;border-radius:50%;pointer-events:none}
 #blk{position:fixed;inset:0;pointer-events:none;display:none}
@@ -92,7 +99,7 @@ body.mob #ils canvas{width:84px;height:84px}
 #ph select{font:inherit;font-size:12px}
 #ph .dim{opacity:.7;font-size:11px}
 #ph.min .more{display:none}
-body.phHide .p:not(#ph),body.phHide #cross,body.phHide #fd,body.phHide #fpm,body.phHide #ccip,body.phHide #bd,body.phHide #bdt,body.phHide #lead,body.phHide #flash{visibility:hidden!important}
+body.phHide .p:not(#ph),body.phHide #cross,body.phHide #fd,body.phHide #fpm,body.phHide #ccip,body.phHide #aim,body.phHide #aimt,body.phHide #bd,body.phHide #bdt,body.phHide #lead,body.phHide #flash{visibility:hidden!important}
 #phFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:29;transition:opacity .3s}
 #cross{position:fixed;left:50%;top:50%;width:26px;height:26px;margin:-13px;border:1.5px solid rgba(255,230,120,.85);border-radius:50%;pointer-events:none;display:none}
 #cross:after{content:'';position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px;border-radius:50%;background:rgba(255,230,120,.95)}
@@ -255,7 +262,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="hp" id="hpBody"></div>
 <div class="hf" style="margin-top:4px">Land &amp; stop (throttle idle) to repair and rearm.<br>Takeoff: full throttle, at ~190 km/h ease back.</div></div>
 <div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
-<div id="flash"></div><div id="blk"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
+<div id="flash"></div><div id="blk"></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
 <div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
 <div class="p" id="coach"><div id="coachT"></div><div id="coachH"></div><div id="coachS"></div></div>
@@ -9808,6 +9815,8 @@ function aeroTgt() {
     closing: rel.dot(dir) * 3.6,
     his: e.v.length() * 3.6,
     asp: Math.acos(Math.max(-1, Math.min(1, e.fwd.dot(dir.clone().negate())))) * 57.3,
+    side: fwd.clone().cross(dir).y > 0 ? 'left' : 'right',
+    elev: (Math.asin(Math.max(-1, Math.min(1, dir.y))) - Math.asin(Math.max(-1, Math.min(1, fwd.y)))) * 57.3 /* + = he is above your nose */,
     cl: (() => {
       const tb = dir.clone().applyQuaternion(q.clone().invert());
       return (Math.round((Math.atan2(tb.x, -tb.z) * 57.3) / 30) + 12) % 12 || 12;
@@ -10105,34 +10114,46 @@ const AERO_DEF = {
       return 'Wingover done: heading reversed to within ' + c.R(he) + ' deg, ' + c.R(dh) + ' m from your start height, slowest ' + c.R(A.topKmh) + ' km/h. Score ' + sc + '/100.';
     },
   },
-  /* ---- Low yo-yo: you are in lag behind a turning target: drop below his turn, gain speed, cut across, then rise onto his tail ---- */
+  /* ---- Low yo-yo: you are behind a turning target and cannot close by turning flat: dive below him to gain speed, then pull up onto his tail ---- */
   lowyoyo: {
     drone: true,
     steps: [
       {
-        t: 'Read the fight',
+        t: 'Dive to build speed',
         txt: (c, A) =>
-          'The drone (do not shoot it) is turning left. You are behind him and outside his turn: if you just pull flat toward him you stay in lag and bleed speed.\nThe low yo-yo: roll and pull your nose DOWN, below his turn plane, to gain speed.' + (A.hc ? '\nHardcore: you lose energy faster (real drag), so keep full throttle and do not bleed your speed in a flat chase.' : ''),
-        hint: (c, A) => (A.tgt ? ['He is ' + c.R(A.tgt.d) + ' m away at your ' + A.tgt.cl + " o'clock, " + c.R(Math.abs(A.tgt.dy)) + ' m ' + (A.tgt.dy >= 0 ? 'above' : 'below') + '. Start the dive.', 'warn'] : ['Drone gone: press Enter.', 'bad']),
-        done: (c, A) => A.tgt && A.tgt.dy > 60 && c.pitch < -5,
+          'GOAL: end up close behind the drone (inside 450 m), nose pointed at him, at his height. Do NOT shoot him.\nThe drone (follow the marker) is circling left, and the same speed as you. If you just turn flat you never catch him.\nSTEP: push the stick FORWARD so the nose goes about 15 degrees below the horizon. Keep the wings level and the throttle full.' +
+          (A.hc ? '\nHardcore: drag takes your energy, so full throttle and a clean dive matter more.' : ''),
+        hint: (c, A) => [
+          'Nose ' + c.R(c.pitch) + ' deg (want about -15), speed ' + c.R(c.kmh) + ' km/h. ' + (c.pitch > -6 ? 'Push the stick forward.' : c.pitch < -25 ? 'Too steep: ease back a little.' : 'Good, hold it.'),
+          c.pitch < -6 && c.pitch > -25 ? 'ok' : 'warn',
+        ],
+        done: (c, A) => A.tgt && A.tgt.dy > 40 && c.pitch < -5,
       },
       {
-        t: 'Dive and cut the corner',
-        txt: (c, A) =>
-          'Dive about 15 to 25 degrees below him while you keep the turn going toward him. The speed climbs; you are turning inside his path now.' +
-          (A.hc ? '\nHardcore: you pick up less speed per metre of dive (more drag), so dive a little longer and keep the throttle up.' : ''),
-        hint: (c, A) => (A.tgt ? ['Range ' + c.R(A.tgt.d) + ' m, closing ' + c.R(A.tgt.closing) + ' km/h, you are ' + c.R(A.tgt.dy) + ' m below him, speed ' + c.R(c.kmh) + '. Angle off ' + c.R(A.tgt.ata) + ' deg.', A.tgt.d < 700 ? 'ok' : 'warn'] : ['', 'warn']),
+        t: 'Turn toward him',
+        txt: () =>
+          'Keep the nose a little below the horizon and bank TOWARD the drone (use A or D) so you cut across his circle. Your speed is building: that is the point.\nWatch the drone marker: when he is under 700 m away, go to the next step.',
+        hint: (c, A) => {
+          const T = A.tgt;
+          if (!T) return ['', 'warn'];
+          return [
+            'He is ' + (T.ata < 15 ? 'dead ahead' : 'on your ' + T.side) + ' (' + T.cl + " o'clock), " + c.R(T.d) + ' m, ' + c.R(Math.abs(T.dy)) + ' m ' + (T.dy >= 0 ? 'above' : 'below') + ' you. ' + (T.ata > 15 ? 'Bank ' + T.side + ' to point at him.' : 'Nose on him: good.') + ' Speed ' + c.R(c.kmh) + '.',
+            T.ata > 25 ? 'warn' : 'ok',
+          ];
+        },
         done: (c, A) => A.tgt && A.tgt.d < 700,
       },
       {
-        t: 'Zoom up behind him',
-        txt: () => 'Now pull up smoothly into his plane and bring the nose onto him. Use your extra speed to climb. Do not overshoot: stay out of 150 m.',
-        hint: (c, A) =>
-          A.tgt
-            ? A.tgt.d < 150
-              ? ['TOO CLOSE (' + c.R(A.tgt.d) + ' m): ease off, you are overshooting.', 'bad']
-              : ['Range ' + c.R(A.tgt.d) + ' m, angle off ' + c.R(A.tgt.ata) + ', height diff ' + c.R(A.tgt.dy) + ' m. Aim: inside 450 m, nose within 12 deg, level with him.', A.tgt.d < 450 && A.tgt.ata < 12 && Math.abs(A.tgt.dy) < 50 ? 'ok' : 'warn']
-            : ['', 'warn'],
+        t: 'Pull up onto his tail',
+        txt: () =>
+          'Now pull the stick BACK smoothly to bring the nose up onto the drone, and fly the marker to the middle of the screen. Use your extra speed to climb up to his height.\nYou win when you are inside 450 m, nose within 12 degrees of him, at his height, for 1 second. Do not get closer than 150 m or you have overshot.',
+        hint: (c, A) => {
+          const T = A.tgt;
+          if (!T) return ['', 'warn'];
+          if (T.d < 150) return ['TOO CLOSE (' + c.R(T.d) + ' m): you are overshooting. Pull up and throttle back.', 'bad'];
+          const adv = T.ata < 12 ? 'Nose on him.' : T.elev > 0 ? 'Nose is ' + c.R(T.elev) + ' deg too LOW: pull back.' : 'Nose is ' + c.R(-T.elev) + ' deg too HIGH: ease forward.';
+          return ['Range ' + c.R(T.d) + ' m (need under 450). ' + adv + ' Height diff ' + c.R(T.dy) + ' m.', T.d < 450 && T.ata < 12 && Math.abs(T.dy) < 50 ? 'ok' : 'warn'];
+        },
         done: (c, A) => A.hold >= 1,
       },
     ],
@@ -10142,34 +10163,48 @@ const AERO_DEF = {
       return 'Low yo-yo done: on his tail in ' + fmtT(trn.t) + ', closest approach ' + c.R(A.minRange) + ' m, speed ' + c.R(c.kmh) + ' km/h. Score ' + sc + '/100.';
     },
   },
-  /* ---- High yo-yo: you are closing too fast and would overshoot: pitch up out of his plane, trade speed for height, then roll over and drop behind him ---- */
+  /* ---- High yo-yo: you are closing too fast and would overshoot: pull up out of his plane to trade speed for height, then drop onto his tail ---- */
   highyoyo: {
     drone: true,
     steps: [
       {
-        t: 'Read the fight',
+        t: 'Pull up',
         txt: (c, A) =>
-          'The drone (do not shoot it) is turning left. You are much faster than he is, close behind. If you follow his turn you will overshoot and end up in front of him.\nThe high yo-yo: pull your nose UP out of his turn plane to trade the extra speed for height.' + (A.hc ? '\nHardcore: pull up smoothly (about 3 to 4 G): the thin air and drag bleed the speed quickly, and torque yaws you left as you slow.' : ''),
-        hint: (c, A) => (A.tgt ? ['He is ' + c.R(A.tgt.d) + ' m away, closing at ' + c.R(A.tgt.closing) + ' km/h. Pull up now.', A.tgt.closing > 60 ? 'warn' : 'ok'] : ['Drone gone: press Enter.', 'bad']),
+          'GOAL: end up close behind the drone (inside 450 m), nose pointed at him, at his height. Do NOT shoot him.\nYou are much faster than him: fly straight at him and you shoot past and he is behind YOU.\nSTEP: pull the stick BACK to climb at about 20 to 30 degrees, wings level. Your extra speed turns into height.' +
+          (A.hc ? '\nHardcore: pull smoothly (3 to 4 G); the thin air and drag bleed your speed quickly.' : ''),
+        hint: (c, A) => {
+          const T = A.tgt;
+          return [
+            'Nose ' + c.R(c.pitch) + ' deg (want 20 to 30), speed ' + c.R(c.kmh) + '. ' + (c.pitch < 12 ? 'Pull the stick back.' : c.pitch > 40 ? 'Too steep: ease forward.' : 'Good, hold it.') + (T ? ' He is ' + c.R(T.d) + ' m ahead.' : ''),
+            c.pitch > 12 && c.pitch < 40 ? 'ok' : 'warn',
+          ];
+        },
         done: (c, A) => A.tgt && A.tgt.dy < -60 && c.pitch > 4,
       },
       {
-        t: 'Climb and roll toward him',
+        t: 'Climb above him',
         txt: (c, A) =>
-          'Keep climbing so the extra speed turns into height, and roll your wings toward him so the nose follows his turn. Watch him over your shoulder: keep him in sight.' +
-          (A.hc ? '\nHardcore: do not over-pull; the thin air and drag bleed the speed quickly. Stay above 250 km/h.' : '\nStay above 220 km/h.'),
-        hint: (c, A) => (A.tgt ? ['Range ' + c.R(A.tgt.d) + ' m, closing ' + c.R(A.tgt.closing) + ' km/h, you are ' + c.R(-A.tgt.dy) + ' m above him, speed ' + c.R(c.kmh) + '.', c.kmh < (A.hc ? 250 : 220) ? 'bad' : 'ok'] : ['', 'warn']),
-        done: (c, A) => A.tgt && (A.tgt.dy < -140 || A.tgt.closing < 20),
+          'Keep climbing until you are about 150 m ABOVE him, then ease the nose over. Bank a little toward him (A or D) so he stays in view.\nKeep your speed up: ' +
+          (A.hc ? 'above 250' : 'above 220') +
+          ' km/h. If it falls below that, ease the nose down.',
+        hint: (c, A) => {
+          const T = A.tgt;
+          if (!T) return ['', 'warn'];
+          return ['You are ' + c.R(-T.dy) + ' m above him (want 150). He is ' + (T.ata < 15 ? 'ahead' : 'on your ' + T.side) + ', ' + c.R(T.d) + ' m. Speed ' + c.R(c.kmh) + '.', c.kmh < (A.hc ? 250 : 220) ? 'bad' : 'ok'];
+        },
+        done: (c, A) => A.tgt && (A.tgt.dy < -120 || A.tgt.closing < 20),
       },
       {
         t: 'Drop onto his tail',
-        txt: () => 'Roll over toward him and let the nose fall onto his tail: you arrive behind him, close, with the speed under control. Stay out of 150 m.',
-        hint: (c, A) =>
-          A.tgt
-            ? A.tgt.d < 150
-              ? ['TOO CLOSE (' + c.R(A.tgt.d) + ' m): ease off, you are overshooting.', 'bad']
-              : ['Range ' + c.R(A.tgt.d) + ' m, angle off ' + c.R(A.tgt.ata) + ', height diff ' + c.R(A.tgt.dy) + ' m. Aim: inside 450 m, nose within 12 deg, level with him.', A.tgt.d < 450 && A.tgt.ata < 12 && Math.abs(A.tgt.dy) < 50 ? 'ok' : 'warn']
-            : ['', 'warn'],
+        txt: () =>
+          'Now roll toward him and push the stick FORWARD gently so the nose drops onto the drone; fly the marker to the middle of the screen. Reduce the throttle a little so you do not overshoot.\nYou win when you are inside 450 m, nose within 12 degrees of him, at his height, for 1 second. Closer than 150 m means you overshot.',
+        hint: (c, A) => {
+          const T = A.tgt;
+          if (!T) return ['', 'warn'];
+          if (T.d < 150) return ['TOO CLOSE (' + c.R(T.d) + ' m): you are overshooting. Throttle back and climb.', 'bad'];
+          const adv = T.ata < 12 ? 'Nose on him.' : T.elev > 0 ? 'Nose is ' + c.R(T.elev) + ' deg too LOW: pull back.' : 'Nose is ' + c.R(-T.elev) + ' deg too HIGH: push forward.';
+          return ['Range ' + c.R(T.d) + ' m (need under 450). ' + adv + ' Height diff ' + c.R(T.dy) + ' m.', T.d < 450 && T.ata < 12 && Math.abs(T.dy) < 50 ? 'ok' : 'warn'];
+        },
         done: (c, A) => A.hold >= 1,
       },
     ],
@@ -10180,6 +10215,95 @@ const AERO_DEF = {
     },
   },
 };
+/* the green aim target: where the nose should point right now. Put the white reticle on it. */
+function aeroAim(m, A) {
+  const H = A.h0,
+    rt = new V().crossVectors(H, UPV).normalize(),
+    arc = (d) => H.clone().multiplyScalar(Math.cos(d / 57.3)).addScaledVector(UPV, Math.sin(d / 57.3)),
+    turn = (psi, pit) =>
+      H.clone().multiplyScalar(Math.cos(psi / 57.3)).addScaledVector(rt, Math.sin(psi / 57.3)).multiplyScalar(Math.cos(pit / 57.3)).addScaledVector(UPV, Math.sin(pit / 57.3)),
+    st = trn.step,
+    lev = arc(0);
+  let dir = lev,
+    lab = 'HOLD THE NOSE LEVEL';
+  if (m === 'immelmann') {
+    if (st === 0) lab = 'LEVEL, FULL POWER, GET THE SPEED';
+    else if (st <= 2) (dir = arc(Math.min(180, Math.max(A.loop, 0) + 35))), (lab = 'PULL: FOLLOW THE GREEN TARGET ROUND');
+    else (dir = arc(180)), (lab = 'ROLL UPRIGHT, NOSE TO THE HORIZON');
+  } else if (m === 'splits') {
+    if (st === 0) lab = 'LEVEL, THROTTLE CLOSED';
+    else if (st === 1) lab = 'ROLL ONTO YOUR BACK';
+    else if (st === 2) (dir = arc(Math.max(-180, A.loop - 35))), (lab = 'PULL: FOLLOW THE GREEN TARGET DOWN AND ROUND');
+    else (dir = arc(-180)), (lab = 'LEVEL OUT HERE');
+  } else if (m === 'barrel') {
+    if (st === 0) lab = 'LEVEL, GET THE SPEED';
+    else if (st === 1) (dir = arc(20)), (lab = 'NOSE UP TO HERE');
+    else if (st === 2) {
+      const f = ((A.roll + 55 * (A.dir || 1)) / 57.3),
+        ctr = arc(8);
+      dir = ctr.addScaledVector(rt, Math.sin(f) * 0.25).addScaledVector(UPV, Math.cos(f) * 0.25);
+      lab = 'ROLL: KEEP THE NOSE ON THE TARGET AS IT CIRCLES';
+    } else lab = 'ROLL OUT, NOSE LEVEL';
+  } else if (m === 'wingover') {
+    const sg = Math.sign(A.dh || A.bank || 1);
+    if (st === 0) lab = 'LEVEL, FULL POWER';
+    else if (st === 1) (dir = turn(40 * sg, 30)), (lab = 'CLIMBING TURN: NOSE HERE');
+    else if (st === 2) (dir = turn(Math.min(180, Math.abs(A.dh) + 40) * sg, -8)), (lab = 'KEEP TURNING, LET THE NOSE FALL TO HERE');
+    else (dir = turn(180 * sg, 0)), (lab = 'ROLL OUT ON THE REVERSE HEADING');
+  } else {
+    const T = A.tgt;
+    if (!T) return null;
+    const hf = new V(fwd.x, 0, fwd.z).normalize(),
+      e = T.e,
+      lead = e.p.clone().addScaledVector(e.v, T.d / Math.max(vel.length(), 100)),
+      low = m === 'lowyoyo',
+      toward = (pt) => pt.sub(pos).normalize();
+    if (low) {
+      if (st === 0) (dir = hf.clone().multiplyScalar(Math.cos(0.26)).addScaledVector(UPV, -Math.sin(0.26))), (lab = 'PUSH THE NOSE DOWN TO HERE');
+      else if (st === 1) (dir = toward(lead.clone().add(new V(0, -120, 0)))), (lab = 'TURN TOWARD HIM: NOSE ON THE TARGET');
+      else (dir = toward(lead)), (lab = 'PULL UP: PUT THE RETICLE ON THE TARGET');
+    } else {
+      if (st === 0) (dir = hf.clone().multiplyScalar(Math.cos(0.44)).addScaledVector(UPV, Math.sin(0.44))), (lab = 'PULL THE NOSE UP TO HERE');
+      else if (st === 1) (dir = toward(lead.clone().add(new V(0, 170, 0)))), (lab = 'CLIMB TO HERE, ABOVE HIM');
+      else (dir = toward(lead)), (lab = 'DROP ONTO HIM: PUT THE RETICLE ON THE TARGET');
+    }
+  }
+  return { dir: dir.normalize(), lab };
+}
+const aimE = $$('aim'),
+  aimT = $$('aimt');
+function drawAim() {
+  const A = trn.a,
+    ok = A && A.aim && AERO[trn.mode] && !crashed && started && !trn.done && !paused;
+  if (!ok) {
+    aimE.style.display = aimT.style.display = 'none';
+    return;
+  }
+  const d = A.aim.dir,
+    pr = pos.clone().addScaledVector(d, 3000).project(cam),
+    behind = pr.z > 1;
+  let x = pr.x,
+    y = pr.y;
+  if (behind) {
+    x = -x;
+    y = -y;
+  }
+  const off = behind || Math.abs(x) > 0.9 || Math.abs(y) > 0.84;
+  if (off) {
+    const m = Math.max(Math.abs(x) / 0.9, Math.abs(y) / 0.84, 1e-3);
+    x /= m;
+    y /= m;
+  }
+  const px = (x * 0.5 + 0.5) * innerWidth,
+    py = (1 - (y * 0.5 + 0.5)) * innerHeight,
+    on = !off && fwd.dot(d) > 0.9986; /* within 3 degrees */
+  aimE.style.display = aimT.style.display = 'block';
+  aimE.className = off ? 'off' : on ? 'on' : '';
+  aimE.style.left = aimT.style.left = px + 'px';
+  aimE.style.top = aimT.style.top = py + 'px';
+  aimE.style.transform = 'translate(-50%,-50%)' + (off ? ' rotate(' + Math.atan2(x, y) + 'rad)' : '');
+  aimT.textContent = A.aim.lab + (on ? '  \u2713' : '');
+}
 function aeroRun(c, m) {
   const def = AERO_DEF[m],
     A = trn.a;
@@ -10203,6 +10327,7 @@ function aeroRun(c, m) {
     note(AERO[m].name + ' COMPLETE');
     return;
   }
+  A.aim = aeroAim(m, A);
   const st = def.steps[trn.step],
     bad = def.fail(c, A);
   trn.title = 'Step ' + (trn.step + 1) + '/' + def.steps.length + ': ' + st.t;
@@ -11124,6 +11249,7 @@ function drawCcip() {
 }
 function drawGuide() {
   drawCcip();
+  drawAim();
   const on = guide.on && trn.mode !== 'free' && guide.pts.length > 1 && !crashed && started && !trn.done;
   const fd = $$('fd'),
     fpm = $$('fpm');
