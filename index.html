@@ -9835,6 +9835,8 @@ function aeroTick(c, def) {
     A.dh = 0;
     A.dir = 0;
     A.y0 = pos.y;
+    A.entK = 0;
+    A.gPk = 0;
     A.maxG = 0;
     A.minG = 9;
     A.minKmh = 1e9;
@@ -9859,11 +9861,43 @@ function aeroTick(c, def) {
     const hv = fwd.x * A.h0.x + fwd.z * A.h0.z;
     if (trn.step === 0) A.pl = Math.atan2(fwd.y, hv) * 57.3;
   }
+  if (trn.step === 1 && !A.entK) A.entK = c.kmh;
+  if (trn.step >= 1 && A.loop < 60) A.gPk = Math.max(A.gPk || 0, gF);
+  if (stalled && !A.wasSt && trn.step >= 1) {
+    A.pm = true;
+    A.pmT = 20;
+    A.pmG = gF;
+    A.pmThr = thr;
+    A.pmTxt = aeroStallReport(c, A);
+  }
+  A.wasSt = stalled;
+  if (A.pmT > 0) A.pmT -= c.dt;
   A.pb = bank;
   A.ph = hdg;
   A.bank = bank;
   A.hdg = hdg;
   if (!A.dir && Math.abs(A.roll) > 25) A.dir = Math.sign(A.roll);
+}
+/* energy check for a half loop: speed needed now to reach the top, ignoring drag (so it is a minimum) */
+function aeroNeed(A) {
+  const v = Math.max(vel.length(), 1),
+    th = Math.max(0, Math.min(180, A.loop)) / 57.3,
+    R = (v * v) / (9.8 * Math.max(gF, 2.5)),
+    vtop = A.hc ? 58 : 50,
+    need = Math.sqrt(vtop * vtop + 2 * 9.8 * R * (1 + Math.cos(th))),
+    k = FM.ias / v;
+  return { need: need * k * 3.6, have: FM.ias * 3.6 };
+}
+function aeroStallReport(c, A) {
+  const need = A.hc ? 650 : 520,
+    hi = A.hc ? 5.8 : 5,
+    why = [];
+  if (A.entK < need * 0.94) why.push('you entered at ' + c.R(A.entK) + ' km/h, you need ' + need + '+ (all your energy comes from entry speed)');
+  if (A.pmG > hi - 0.5) why.push('you were pulling ' + A.pmG.toFixed(1) + ' G at only ' + c.R(c.kmh) + ' km/h: the stall speed rises with the square root of G, so a hard pull at low speed stalls the wing');
+  if (A.pmThr < 0.9) why.push('the throttle was at ' + c.R(A.pmThr * 100) + '%, not full');
+  if (A.gPk < 2.5) why.push('your early pull was only ' + A.gPk.toFixed(1) + ' G: a lazy pull makes a huge loop and uses up the speed climbing');
+  if (!why.length) why.push('the speed ran out before the top; start the pull earlier and a little harder, or enter faster');
+  return 'STALL at ' + c.R(c.kmh) + ' km/h, ' + c.R(Math.max(0, A.loop)) + ' deg into the loop, ' + A.pmG.toFixed(1) + ' G: ' + why.join('; ') + '.\nTo recover: stick forward (nose to the horizon), then try again with Enter.';
 }
 const AERO_DEF = {
   /* ---- Immelmann: a half loop up, then a half roll to upright, going the other way ---- */
@@ -9893,6 +9927,9 @@ const AERO_DEF = {
           const hi = A.hc ? 5.8 : 5,
             lo = A.hc ? 3.5 : 2.5;
           if (Math.abs(A.bank) > 20 && A.loop < 80) return ['Wings level! Bank ' + c.R(Math.abs(A.bank)) + ' deg: use the ailerons.', 'warn'];
+          const E = aeroNeed(A);
+          if (buffet > 0.05) return ['Wing buffeting: close to the stall at ' + c.R(c.kmh) + ' km/h and ' + gF.toFixed(1) + ' G. Ease the stick a little.', 'bad'];
+          if (A.loop > 25 && E.have < E.need * 0.9) return ['NOT ENOUGH SPEED for the top: ' + c.R(E.have) + ' km/h now, about ' + c.R(E.need) + ' needed here. Do not keep pulling: you will stall. Roll wings level, nose to the horizon, press Enter and enter faster.', 'bad'];
           if (gF > hi) return ['G ' + gF.toFixed(1) + ': too hard, ease off or you bleed all your speed.', 'bad'];
           if (gF < lo && A.loop < 40) return ['G ' + gF.toFixed(1) + ': pull harder, a lazy pull makes a huge loop.', 'warn'];
           return ['G ' + gF.toFixed(1) + ', nose ' + c.R(c.pitch) + ' deg, speed ' + c.R(c.kmh) + '. Good.', 'ok'];
@@ -9907,9 +9944,11 @@ const AERO_DEF = {
           ' km/h, or the wing will stall.' +
           (A.hc ? '\nHardcore: ease the pull as the speed drops, and add right rudder.' : ''),
         hint: (c, A) =>
-          c.kmh < (A.hc ? 170 : 140)
-            ? ['Speed ' + c.R(c.kmh) + ': too slow! Ease the stick and let the nose fall.', 'bad']
-            : ['Speed ' + c.R(c.kmh) + ' km/h, loop ' + c.R(A.loop) + ' of 180 deg. Pull the nose down toward the horizon behind you.', 'ok'],
+          buffet > 0.05
+            ? ['Wing buffeting at ' + c.R(c.kmh) + ' km/h: relax the stick NOW (it is the stall warning) and keep the wings level.', 'bad']
+            : c.kmh < (A.hc ? 170 : 140)
+              ? ['Speed ' + c.R(c.kmh) + ': too slow! Ease the stick and let the nose fall.', 'bad']
+              : ['Speed ' + c.R(c.kmh) + ' km/h, loop ' + c.R(A.loop) + ' of 180 deg. Keep the pull smooth: relax it a little as the speed falls.', 'ok'],
         done: (c, A) => A.loop >= 150 && Math.abs(A.bank) > 100,
       },
       {
@@ -10155,6 +10194,8 @@ function aeroRun(c, m) {
       if (trn.step < 2 && T.d < 110) A.minRange = Math.min(A.minRange, T.d);
     }
   }
+  /* after a stall and recovery you are back in the Get set step until the speed is right again */
+  if (m === 'immelmann' && trn.step === 1 && A.loop < 15 && !stalled && c.kmh < (A.hc ? 650 : 520) * 0.85) trn.step = 0;
   while (trn.step < def.steps.length && def.steps[trn.step].done(c, A)) trn.step++;
   if (trn.step >= def.steps.length) {
     trn.done = true;
@@ -10173,7 +10214,11 @@ function aeroRun(c, m) {
     h = 'LOW: ' + c.R(c.agl) + ' m above the ground!';
     l = 'bad';
   }
-  c.T0(st.txt(c, A) + (A.hc ? '' : ''), h, l);
+  if (A.pm && A.pmT > 0) {
+    c.T0(A.pmTxt, h, 'bad');
+    return;
+  }
+  c.T0(st.txt(c, A), h, l);
 }
 Object.keys(AERO_DEF).forEach((m) => {
   TRAINERS[m] = (c) => aeroRun(c, m);
