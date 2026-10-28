@@ -331,6 +331,19 @@ with sync_playwright() as p:
         pg.wait_for_timeout(2500)
         check(f"mission '{name}' runs", not errors, "; ".join(errors[-2:]))
 
+    # ---- aerobatic trainers: each starts at its entry height, coaches differently in Hardcore, the yo-yos spawn a drone
+    ae = pg.evaluate("""()=>{const o={},ms=['barrel','immelmann','splits','wingover','lowyoyo','highyoyo'],txt={};
+      for(const hc of [false,true]){FM.on=hc;for(const m of ms){const i=MENU.findIndex(x=>x[0]===m);menuPick(i);paused=false;
+        for(let k=0;k<30;k++){step(1/60);updEnemies(1/60);updTrainer(1/60)}
+        txt[m+hc]=document.getElementById('coachS').textContent;
+        o[m+hc]=[trn.mode===m,Math.round(pos.y),EN.filter(e=>e.drone).length,document.getElementById('coach').style.display,trn.step]}}
+      FM.on=false;return {o,diff:ms.map(m=>txt[m+false]!==txt[m+true])}}""")
+    ae_ok = all(v[0] and v[3] == "block" for v in ae["o"].values())
+    check("aero trainers: all six start in the mission menu and show coaching", ae_ok, str(ae["o"]))
+    check("aero trainers: coaching text differs between Standard and Hardcore for every maneuver", all(ae["diff"]), str(ae["diff"]))
+    check("aero trainers: only the two yo-yo trainers spawn the scripted drone", all((v[2] == 1) == (k[:-4 if k.endswith("true") else -5] in ("lowyoyo", "highyoyo")) for k, v in ae["o"].items()), str(ae["o"]))
+    pg.evaluate("()=>{FM.on=false;menuPick(0)}")
+
     shared = pg.evaluate("()=>['jeep','supply','tanker','apc','tank','truck','warehouse','hq','bunker','hangar','fuel'].every(t=>VM.make(t,SP[t].s)===VM.make(t,SP[t].s))")
     check("one shared geometry per vehicle/building type", shared)
     dead = pg.evaluate("()=>{const t=mkT('jeep',0,0,0,'veh');killT(t);return t.m.scale.y<.5}")

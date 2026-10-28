@@ -436,6 +436,12 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Dogfight trainer</td><td>Shoot down 3 bandits. The coach gives the bandit's clock position, range and relative height, and says whether you are attacking or defending. Hull heals and ammunition resupplies between kills.</td></tr>
 <tr><td>Convoy strafing</td><td>One convoy at a time drives from the depot to the base: a jeep, supply trucks, a tanker and an APC. A path leads you in behind the rear vehicle and follows the road; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
 <tr><td>Building bombing</td><td>Destroy the 11 depot and base buildings. A path takes you level at 900 m, then into a 25&deg; dive. The red IMPACT circle shows where a bomb would land; the coach says GET READY and then RELEASE NOW. Ordnance resupplies a few seconds after you use it all.</td></tr>
+<tr><td>Barrel roll</td><td>Pull the nose up, then corkscrew around an imaginary barrel ahead with a steady roll and a light pull the whole way. Scored for heading error, height change and keeping the G above zero. Hardcore mode: enter faster and use rudder for the torque.</td></tr>
+<tr><td>Immelmann turn</td><td>Half loop up, then a half roll to level: you leave heading the other way and higher. Standard mode: about 520 km/h and 3.5 to 4.5 G. <b>Hardcore mode: about 650 km/h, 4.5 to 5.5 G, right rudder as the speed bleeds off, and watch the stall at the top.</b></td></tr>
+<tr><td>Split S</td><td>Roll onto your back and pull through a half loop down: the fastest way to reverse course and lose height. Start 2,400 m up with the throttle closed; it needs about 1,000 m. Hardcore mode: watch the speed and the G limit.</td></tr>
+<tr><td>Wingover</td><td>A climbing turn that trades speed for height, a pause with the nose falling through the horizon, then a diving turn back to your start height on the reverse heading.</td></tr>
+<tr><td>Low yo-yo</td><td>Against a scripted drone that turns left and never fires: you are in lag behind his turn, so dive below him to gain speed, cut across, then zoom up onto his tail inside 450 m without overshooting. Hardcore mode: you lose energy faster, so keep full power.</td></tr>
+<tr><td>High yo-yo</td><td>The drone is slower than you: you would overshoot, so pull up out of his turn plane, trade the speed for height, then roll over and drop behind him. Hardcore mode: pull up smoothly and keep the speed above 250 km/h.</td></tr>
 </table>
 <div class="cols">
 <div><h2>Takeoff</h2><ol>
@@ -559,7 +565,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.0';
+const VERSION = '4.1';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -8195,6 +8201,16 @@ function updEnemies(dt) {
         EN.splice(i, 1);
         continue;
       }
+    } else if (e.drone) {
+      /* trainer drone: a steady level left turn at constant speed, never fires, cannot be hurt */
+      const om = (9.8 * Math.tan(0.6)) / Math.max(e.sp, 30);
+      e.yaw = (e.yaw || 0) + om * dt;
+      e.fwd.set(-Math.sin(e.yaw), 0, -Math.cos(e.yaw));
+      e.q.setFromAxisAngle(UPV, e.yaw).multiply(new Q().setFromAxisAngle(new V(0, 0, 1), 0.6));
+      e.v.copy(e.fwd).multiplyScalar(e.sp);
+      e.p.addScaledVector(e.v, dt);
+      e.p.y = e.alt;
+      e.prop.rotation.z += dt * 70;
     } else {
       e.fwd.set(0, 0, -1).applyQuaternion(e.q);
       const toP = pos.clone().sub(e.p),
@@ -8955,6 +8971,12 @@ const TRN_NAMES = {
   dogfight: 'DOGFIGHT TRAINER',
   convoy: 'CONVOY STRAFING',
   bomb: 'BUILDING BOMBING',
+  barrel: 'BARREL ROLL TRAINER',
+  immelmann: 'IMMELMANN TRAINER',
+  splits: 'SPLIT S TRAINER',
+  wingover: 'WINGOVER TRAINER',
+  lowyoyo: 'LOW YO-YO TRAINER',
+  highyoyo: 'HIGH YO-YO TRAINER',
 };
 function placeAt(x, y, z, tx, tz, spd) {
   const dx = tx - x,
@@ -8995,6 +9017,7 @@ function trainerReset() {
     spawn: 2,
     res: 0,
   });
+  trn.a = null;
   guide.plan = null;
   guide.pts = [];
   guide.marks = [];
@@ -9018,6 +9041,7 @@ function trainerReset() {
     const tg = ROADC.getTangentAt(0);
     placeAt(DEPOT[0] - tg.x * 1900, 600, DEPOT[1] - tg.z * 1900, DEPOT[0], DEPOT[1], 110);
   } else if (m === 'bomb') placeAt(BASE[0] - 2200, 700, BASE[1] + 1800, BASE[0], BASE[1], 120);
+  else if (AERO[m]) aeroStart(m);
   coachHide();
 }
 const coachEl = $$('coach'),
@@ -9684,6 +9708,477 @@ const TRAINERS = {
     T0(txt + '\n' + ord, h, l);
   },
 };
+/* ---------- aerobatic and positioning trainers ----------
+   Barrel roll, Immelmann, split S, wingover (attitude coaching) and low / high yo-yo (against a scripted drone).
+   Each one is a list of steps: a title, what to do (adapted for Hardcore mode: more speed, more G, torque), a live hint, and a test for
+   moving on. The coach reads pitch, bank, G, speed and the heading change; the yo-yos also read range, angle off and height. */
+const AERO = {
+  barrel: { name: 'BARREL ROLL', alt: 1800, std: 420, hc: 470 },
+  immelmann: { name: 'IMMELMANN TURN', alt: 1800, std: 520, hc: 650 },
+  splits: { name: 'SPLIT S', alt: 2400, std: 320, hc: 340 },
+  wingover: { name: 'WINGOVER', alt: 1800, std: 460, hc: 520 },
+  lowyoyo: { name: 'LOW YO-YO', alt: 1500, std: 400, hc: 430 },
+  highyoyo: { name: 'HIGH YO-YO', alt: 1500, std: 500, hc: 540 },
+};
+const wrap180 = (a) => ((((a + 180) % 360) + 360) % 360) - 180;
+function aeroNew(m) {
+  return {
+    m,
+    hc: FM.on,
+    init: false,
+    h0: new V(0, 0, -1),
+    hdg0: 0,
+    pb: 0,
+    ph: 0,
+    roll: 0,
+    loop: 0,
+    dh: 0,
+    maxG: 0,
+    minG: 9,
+    minKmh: 1e9,
+    maxKmh: 0,
+    minAgl: 1e9,
+    topKmh: 0,
+    y0: 0,
+    hold: 0,
+    minRange: 1e9,
+    dir: 0,
+    bank: 0,
+    hdg: 0,
+    tgt: null,
+  };
+}
+function aeroStart(m) {
+  const d = AERO[m],
+    kmh = FM.on ? d.hc : d.std,
+    o = { sig: 1, a: 340.3, ps: 1 };
+  if (FM.use('alt')) atmos(d.alt, o);
+  placeAt(0, d.alt, 0, 0, -100000, kmh / 3.6 / Math.sqrt(o.sig));
+  thr = 1;
+  trn.a = aeroNew(m);
+  if (m === 'lowyoyo' || m === 'highyoyo') {
+    /* the drone flies a steady level turn to the left, ahead of you; you start behind it */
+    const low = m === 'lowyoyo',
+      b = buildEnemy(),
+      kms = low ? (FM.on ? 430 : 400) : FM.on ? 430 : 390;
+    const dp = new V(low ? -300 : -60, pos.y, low ? -1500 : -1250);
+    Object.assign(b, {
+      p: dp.clone(),
+      fwd: new V(0, 0, -1),
+      sp: kms / 3.6,
+      hp: 1e9,
+      dying: false,
+      t: 0,
+      ev: 0,
+      side: -1,
+      dive: false,
+      bank: 0,
+      fireT: 0,
+      bt: 0,
+      tr: 0,
+      v: null,
+      drone: true,
+      alt: pos.y,
+    });
+    const f0 = b.fwd,
+      r0 = new V().crossVectors(f0, UPV).normalize(),
+      u0 = new V().crossVectors(r0, f0);
+    m4.makeBasis(r0, u0, f0.clone().negate());
+    b.q = new Q().setFromRotationMatrix(m4);
+    b.v = f0.clone().multiplyScalar(b.sp);
+    b.ctl = { p: 0, r: 0 };
+    b.g.position.copy(dp);
+    scene.add(b.g);
+    EN.push(b);
+  }
+}
+/* geometry of the drone as the pilot sees it */
+function aeroTgt() {
+  const e = EN.find((x) => x.drone && !x.dying);
+  if (!e) return null;
+  const to = e.p.clone().sub(pos),
+    d = Math.max(1, to.length()),
+    dir = to.clone().divideScalar(d),
+    rel = vel.clone().sub(e.v);
+  return {
+    e,
+    d,
+    ata: Math.acos(Math.max(-1, Math.min(1, fwd.dot(dir)))) * 57.3,
+    dy: e.p.y - pos.y /* + = he is above you */,
+    closing: rel.dot(dir) * 3.6,
+    his: e.v.length() * 3.6,
+    asp: Math.acos(Math.max(-1, Math.min(1, e.fwd.dot(dir.clone().negate())))) * 57.3,
+    cl: (() => {
+      const tb = dir.clone().applyQuaternion(q.clone().invert());
+      return (Math.round((Math.atan2(tb.x, -tb.z) * 57.3) / 30) + 12) % 12 || 12;
+    })(),
+  };
+}
+/* one frame of measurements shared by all of them */
+function aeroTick(c, def) {
+  const A = trn.a;
+  const bank = Math.atan2(-right.y, up.y) * 57.3,
+    hdg = Math.atan2(fwd.x, -fwd.z) * 57.3;
+  if (!A.init) {
+    A.init = true;
+    A.pb = bank;
+    A.ph = hdg;
+    A.y0 = pos.y;
+  }
+  /* until the first real step the reference heading follows you, so the loop angle is measured along your own track */
+  if (trn.step === 0) {
+    const hl = Math.hypot(fwd.x, fwd.z) || 1;
+    A.h0.set(fwd.x / hl, 0, fwd.z / hl);
+    A.hdg0 = hdg;
+    A.roll = 0;
+    A.loop = 0;
+    A.dh = 0;
+    A.dir = 0;
+    A.y0 = pos.y;
+    A.maxG = 0;
+    A.minG = 9;
+    A.minKmh = 1e9;
+    A.maxKmh = 0;
+    A.minAgl = 1e9;
+    A.topKmh = 0;
+  } else {
+    const hv = fwd.x * A.h0.x + fwd.z * A.h0.z,
+      ph = Math.atan2(fwd.y, hv) * 57.3;
+    A.loop += wrap180(ph - A.pl);
+    A.pl = ph;
+    A.roll += wrap180(bank - A.pb);
+    A.dh += wrap180(hdg - A.ph);
+    A.maxG = Math.max(A.maxG, gF);
+    A.minG = Math.min(A.minG, gF);
+    A.minKmh = Math.min(A.minKmh, c.kmh);
+    A.maxKmh = Math.max(A.maxKmh, c.kmh);
+    A.minAgl = Math.min(A.minAgl, c.agl);
+    if (A.loop > 60 || Math.abs(A.roll) > 60) A.topKmh = A.topKmh ? Math.min(A.topKmh, c.kmh) : c.kmh;
+  }
+  {
+    const hv = fwd.x * A.h0.x + fwd.z * A.h0.z;
+    if (trn.step === 0) A.pl = Math.atan2(fwd.y, hv) * 57.3;
+  }
+  A.pb = bank;
+  A.ph = hdg;
+  A.bank = bank;
+  A.hdg = hdg;
+  if (!A.dir && Math.abs(A.roll) > 25) A.dir = Math.sign(A.roll);
+}
+const AERO_DEF = {
+  /* ---- Immelmann: a half loop up, then a half roll to upright, going the other way ---- */
+  immelmann: {
+    steps: [
+      {
+        t: 'Get set',
+        txt: (c, A) =>
+          'Wings level, nose on the horizon, full throttle. You need about ' +
+          (A.hc ? 650 : 520) +
+          ' km/h to get over the top' +
+          (A.hc ? '. In Hardcore the real drag and thinner air bleed your speed faster, so come in faster than in Standard mode.' : '.'),
+        hint: (c, A) => [
+          'Speed ' + c.R(c.kmh) + ' km/h (want ' + (A.hc ? 650 : 520) + '+). ' + (thr < 0.95 ? 'Full throttle: hold Shift.' : 'Level: pitch ' + c.R(c.pitch) + '.'),
+          c.kmh > (A.hc ? 600 : 480) && thr > 0.9 ? 'ok' : 'warn',
+        ],
+        done: (c, A) => Math.abs(c.pitch) < 6 && Math.abs(A.bank) < 12 && c.kmh > (A.hc ? 600 : 480) && thr > 0.9,
+      },
+      {
+        t: 'Pull up',
+        txt: (c, A) =>
+          'Pull the stick back firmly and smoothly (' +
+          (A.hc ? '4.5 to 5.5' : '3.5 to 4.5') +
+          ' G), wings level. The nose swings up through the vertical.' +
+          (A.hc ? '\nKeep a touch of right rudder: torque will try to swing the nose left as the speed falls.' : ''),
+        hint: (c, A) => {
+          const hi = A.hc ? 5.8 : 5,
+            lo = A.hc ? 3.5 : 2.5;
+          if (Math.abs(A.bank) > 20 && A.loop < 80) return ['Wings level! Bank ' + c.R(Math.abs(A.bank)) + ' deg: use the ailerons.', 'warn'];
+          if (gF > hi) return ['G ' + gF.toFixed(1) + ': too hard, ease off or you bleed all your speed.', 'bad'];
+          if (gF < lo && A.loop < 40) return ['G ' + gF.toFixed(1) + ': pull harder, a lazy pull makes a huge loop.', 'warn'];
+          return ['G ' + gF.toFixed(1) + ', nose ' + c.R(c.pitch) + ' deg, speed ' + c.R(c.kmh) + '. Good.', 'ok'];
+        },
+        done: (c, A) => A.loop >= 85,
+      },
+      {
+        t: 'Over the top',
+        txt: (c, A) =>
+          'Keep pulling past the vertical. The horizon appears upside down. Do NOT let the speed drop below about ' +
+          (A.hc ? '180' : '150') +
+          ' km/h, or the wing will stall.' +
+          (A.hc ? '\nHardcore: ease the pull as the speed drops, and add right rudder.' : ''),
+        hint: (c, A) =>
+          c.kmh < (A.hc ? 170 : 140)
+            ? ['Speed ' + c.R(c.kmh) + ': too slow! Ease the stick and let the nose fall.', 'bad']
+            : ['Speed ' + c.R(c.kmh) + ' km/h, loop ' + c.R(A.loop) + ' of 180 deg. Pull the nose down toward the horizon behind you.', 'ok'],
+        done: (c, A) => A.loop >= 150 && Math.abs(A.bank) > 100,
+      },
+      {
+        t: 'Roll upright',
+        txt: () =>
+          'Nose near the horizon, upside down: roll to wings level with the ailerons (left or right), and relax the back pressure while you roll.',
+        hint: (c, A) => ['Bank ' + c.R(Math.abs(A.bank)) + ' deg from level. Roll with A / D (or the right stick).', 'ok'],
+        done: (c, A) => Math.abs(A.bank) < 25,
+      },
+      {
+        t: 'Level off',
+        txt: () => 'Wings level: ease the nose onto the horizon and settle. You are now heading the other way.',
+        hint: (c, A) => ['Nose ' + c.R(c.pitch) + ' deg, heading change ' + c.R(Math.abs(wrap180(A.hdg - A.hdg0))) + ' deg.', 'ok'],
+        done: (c, A) => Math.abs(c.pitch) < 10 && Math.abs(A.bank) < 15 && Math.abs(wrap180(A.hdg - A.hdg0)) > 140,
+      },
+    ],
+    fail: (c, A) => (stalled && A.loop > 40 && A.loop < 170 && c.kmh < 140 ? 'STALLED over the top. Release the back pressure and let the nose fall, then try again (Enter). Next time enter faster or pull a little harder early on.' : ''),
+    finish: (c, A) => {
+      const he = Math.abs(180 - Math.abs(wrap180(A.hdg - A.hdg0))),
+        sc = Math.max(0, Math.round(100 - he * 1.5 - Math.max(0, (A.hc ? 175 : 150) - A.topKmh) * 0.3 - Math.max(0, A.maxG - (A.hc ? 6 : 5)) * 10));
+      return 'Immelmann done: heading reversed to within ' + c.R(he) + ' deg, slowest speed ' + c.R(A.topKmh) + ' km/h, peak ' + A.maxG.toFixed(1) + ' G, height gained ' + c.R(pos.y - A.y0) + ' m. Score ' + sc + '/100.';
+    },
+  },
+  /* ---- Split S: roll onto your back, then pull through a half loop downward ---- */
+  splits: {
+    steps: [
+      {
+        t: 'Get set',
+        txt: (c, A) =>
+          'Level at about ' + (A.hc ? 340 : 320) + ' km/h with the throttle CLOSED (the dive gives you plenty of speed). You are 2,400 m up: the manoeuvre needs about 1,000 m.',
+        hint: (c, A) => ['Speed ' + c.R(c.kmh) + ' km/h, throttle ' + c.R(thr * 100) + '%. ' + (thr > 0.25 ? 'Close the throttle: hold Ctrl.' : 'Good.'), thr > 0.25 ? 'warn' : 'ok'],
+        done: (c, A) => thr < 0.25 && Math.abs(c.pitch) < 6 && Math.abs(A.bank) < 12,
+      },
+      {
+        t: 'Roll onto your back',
+        txt: () => 'Roll the aircraft upside down with the ailerons and stop there, wings level, inverted. Do not pull yet.',
+        hint: (c, A) => ['Bank ' + c.R(Math.abs(A.bank)) + ' deg (want 180). Nose ' + c.R(c.pitch) + ' deg.', Math.abs(A.bank) > 150 ? 'ok' : 'warn'],
+        done: (c, A) => Math.abs(A.bank) > 150,
+      },
+      {
+        t: 'Pull through',
+        txt: (c, A) =>
+          'Pull the stick back (' +
+          (A.hc ? '4 to 5' : '3 to 4') +
+          ' G): the nose falls through the vertical toward the ground. The speed will climb fast: keep the wings level and keep pulling steadily.' +
+          (A.hc ? '\nHardcore: do not exceed 750 km/h indicated, and watch the G limit (+8 at normal weight).' : ''),
+        hint: (c, A) => {
+          const vmax = A.hc ? 700 : 760;
+          if (c.agl < 500) return ['LOW: ' + c.R(c.agl) + ' m above the ground. PULL harder!', 'bad'];
+          if (c.kmh > vmax) return ['Speed ' + c.R(c.kmh) + ': getting fast, keep pulling.', 'bad'];
+          if (gF < 1.5 && Math.abs(c.pitch) < 80) return ['G ' + gF.toFixed(1) + ': pull harder, the dive is steepening.', 'warn'];
+          return ['G ' + gF.toFixed(1) + ', nose ' + c.R(c.pitch) + ' deg, speed ' + c.R(c.kmh) + ', height ' + c.R(c.agl) + ' m.', 'ok'];
+        },
+        done: (c, A) => A.loop <= -150,
+      },
+      {
+        t: 'Level out',
+        txt: () => 'Almost round: ease the back pressure, roll the wings level if needed, and bring the nose to the horizon. Add power when you are level.',
+        hint: (c, A) => ['Nose ' + c.R(c.pitch) + ' deg, height ' + c.R(c.agl) + ' m, speed ' + c.R(c.kmh) + '.', 'ok'],
+        done: (c, A) => Math.abs(c.pitch) < 10 && Math.abs(A.bank) < 20,
+      },
+    ],
+    fail: (c, A) => (A.maxKmh > (A.hc ? 780 : 820) ? 'OVERSPEED: ' + c.R(A.maxKmh) + ' km/h. You started the pull too late or too soft.' : ''),
+    finish: (c, A) => {
+      const he = Math.abs(180 - Math.abs(wrap180(A.hdg - A.hdg0))),
+        lost = A.y0 - pos.y,
+        sc = Math.max(0, Math.round(100 - he * 1.5 - Math.max(0, lost - 1000) * 0.05 - Math.max(0, A.maxKmh - 650) * 0.15 - Math.max(0, A.maxG - (A.hc ? 6 : 5)) * 10));
+      return 'Split S done: heading reversed to within ' + c.R(he) + ' deg, ' + c.R(lost) + ' m lost, top speed ' + c.R(A.maxKmh) + ' km/h, peak ' + A.maxG.toFixed(1) + ' G. Score ' + sc + '/100.';
+    },
+  },
+  /* ---- Barrel roll: a corkscrew around an imaginary barrel in front of you ---- */
+  barrel: {
+    steps: [
+      {
+        t: 'Get set',
+        txt: (c, A) => 'Wings level, nose on the horizon, about ' + (A.hc ? 470 : 420) + ' km/h. Pick the direction you will roll (left or right).',
+        hint: (c, A) => ['Speed ' + c.R(c.kmh) + ' km/h. Nose ' + c.R(c.pitch) + ', bank ' + c.R(A.bank) + '.', 'ok'],
+        done: (c, A) => Math.abs(c.pitch) < 6 && Math.abs(A.bank) < 12 && c.kmh > (A.hc ? 420 : 370),
+      },
+      {
+        t: 'Nose up',
+        txt: (c, A) => 'Pull the nose up about 20 degrees above the horizon. Then start to roll while keeping a little back pressure.' + (A.hc ? '\nHardcore: the real drag bleeds your speed in the climb, so do not go above 20 degrees, and keep the throttle at full power.' : ''),
+        hint: (c, A) => ['Nose ' + c.R(c.pitch) + ' deg (want 20), speed ' + c.R(c.kmh) + '.', c.pitch > 12 ? 'ok' : 'warn'],
+        done: (c, A) => c.pitch > 12 || Math.abs(A.bank) > 30,
+      },
+      {
+        t: 'Roll around the barrel',
+        txt: (c, A) =>
+          'Roll steadily with the ailerons, holding a gentle pull: the nose should trace a circle around a point ahead. Upside down the nose should be near the horizon; keep the G above zero (a light pull the whole way).' +
+          (A.hc ? '\nHardcore: the engine torque helps one direction and fights the other; use a little rudder to keep the ball centred.' : ''),
+        hint: (c, A) => {
+          if (gF < 0.3 && Math.abs(A.roll) > 70) return ['G ' + gF.toFixed(1) + ': pull back a little more as you go over the top.', 'warn'];
+          if (gF > 4) return ['G ' + gF.toFixed(1) + ': too hard, ease off.', 'bad'];
+          if (c.kmh < (A.hc ? 220 : 190)) return ['Speed ' + c.R(c.kmh) + ': too slow, let the nose drop.', 'bad'];
+          return ['Rolled ' + c.R(Math.abs(A.roll)) + ' of 360 deg. G ' + gF.toFixed(1) + ', speed ' + c.R(c.kmh) + '.', 'ok'];
+        },
+        done: (c, A) => Math.abs(A.roll) >= 330,
+      },
+      {
+        t: 'Roll out',
+        txt: () => 'Finish the roll with wings level on your original heading, nose on the horizon.',
+        hint: (c, A) => ['Heading error ' + c.R(Math.abs(wrap180(A.hdg - A.hdg0))) + ' deg, nose ' + c.R(c.pitch) + '.', 'ok'],
+        done: (c, A) => Math.abs(A.bank) < 15 && Math.abs(c.pitch) < 12,
+      },
+    ],
+    fail: (c, A) => (stalled && trn.step >= 1 ? 'STALLED. Release the stick, let the nose fall, and try again (Enter).' : ''),
+    finish: (c, A) => {
+      const he = Math.abs(wrap180(A.hdg - A.hdg0)),
+        dh = Math.abs(pos.y - A.y0),
+        sc = Math.max(0, Math.round(100 - he * 2 - dh * 0.1 - Math.max(0, 0.3 - A.minG) * 40));
+      return 'Barrel roll done: back on heading to within ' + c.R(he) + ' deg and ' + c.R(dh) + ' m of your start height, lowest G ' + A.minG.toFixed(1) + ', slowest ' + c.R(A.minKmh) + ' km/h. Score ' + sc + '/100.';
+    },
+  },
+  /* ---- Wingover: a climbing turn that stalls the nose over, then a diving turn back to the start height ---- */
+  wingover: {
+    steps: [
+      {
+        t: 'Get set',
+        txt: (c, A) => 'Wings level, nose on the horizon, about ' + (A.hc ? 520 : 460) + ' km/h, full throttle.',
+        hint: (c, A) => ['Speed ' + c.R(c.kmh) + ' km/h.', c.kmh > (A.hc ? 470 : 410) ? 'ok' : 'warn'],
+        done: (c, A) => Math.abs(c.pitch) < 6 && Math.abs(A.bank) < 12 && c.kmh > (A.hc ? 470 : 410) && thr > 0.9,
+      },
+      {
+        t: 'Climbing turn',
+        txt: (c, A) => 'Start a climbing turn to the left or right: pull up and roll into the turn together. Let the bank build to 60 or 70 degrees as the nose climbs to about 30 degrees.' + (A.hc ? '\nHardcore: the speed falls faster than in Standard mode; keep full power and use a little right rudder.' : ''),
+        hint: (c, A) => ['Nose ' + c.R(c.pitch) + ', bank ' + c.R(Math.abs(A.bank)) + ', heading change ' + c.R(Math.abs(A.dh)) + ' deg.', c.pitch > 20 && Math.abs(A.bank) > 40 ? 'ok' : 'warn'],
+        done: (c, A) => c.pitch > 20 && Math.abs(A.bank) > 40,
+      },
+      {
+        t: 'Over the top',
+        txt: (c, A) =>
+          'Keep the turn going: as the speed falls the nose will drop through the horizon while you are banked about 80 to 90 degrees. Keep the stick light and keep turning. Hold the speed above ' +
+          (A.hc ? '200' : '170') +
+          ' km/h.' +
+          (A.hc ? '\nHardcore: add right rudder as the speed drops; torque pulls the nose left.' : ''),
+        hint: (c, A) =>
+          c.kmh < (A.hc ? 190 : 160)
+            ? ['Speed ' + c.R(c.kmh) + ': too slow, let the nose fall.', 'bad']
+            : ['Heading change ' + c.R(Math.abs(A.dh)) + ' of 180. Speed ' + c.R(c.kmh) + ', nose ' + c.R(c.pitch) + '.', 'ok'],
+        done: (c, A) => Math.abs(A.dh) >= 80 && c.pitch < 5,
+      },
+      {
+        t: 'Down and round',
+        txt: () => 'The nose is falling and the speed will build again. Keep turning, and begin to roll the wings level and ease the nose up as your heading nears the reverse of where you started.',
+        hint: (c, A) => ['Heading change ' + c.R(Math.abs(A.dh)) + ' of 180 deg. Height ' + c.R(pos.y - A.y0) + ' m from the start. Speed ' + c.R(c.kmh) + '.', 'ok'],
+        done: (c, A) => Math.abs(A.dh) >= 160 && Math.abs(A.bank) < 20 && Math.abs(c.pitch) < 12,
+      },
+    ],
+    fail: (c, A) => (stalled && trn.step >= 1 ? 'STALLED. Release the stick, let the nose fall, and try again (Enter).' : ''),
+    finish: (c, A) => {
+      const he = Math.abs(180 - Math.abs(A.dh)),
+        dh = Math.abs(pos.y - A.y0),
+        sc = Math.max(0, Math.round(100 - he * 1.2 - dh * 0.1 - Math.max(0, (A.hc ? 190 : 160) - A.topKmh) * 0.3));
+      return 'Wingover done: heading reversed to within ' + c.R(he) + ' deg, ' + c.R(dh) + ' m from your start height, slowest ' + c.R(A.topKmh) + ' km/h. Score ' + sc + '/100.';
+    },
+  },
+  /* ---- Low yo-yo: you are in lag behind a turning target: drop below his turn, gain speed, cut across, then rise onto his tail ---- */
+  lowyoyo: {
+    drone: true,
+    steps: [
+      {
+        t: 'Read the fight',
+        txt: (c, A) =>
+          'The drone (do not shoot it) is turning left. You are behind him and outside his turn: if you just pull flat toward him you stay in lag and bleed speed.\nThe low yo-yo: roll and pull your nose DOWN, below his turn plane, to gain speed.' + (A.hc ? '\nHardcore: you lose energy faster (real drag), so keep full throttle and do not bleed your speed in a flat chase.' : ''),
+        hint: (c, A) => (A.tgt ? ['He is ' + c.R(A.tgt.d) + ' m away at your ' + A.tgt.cl + " o'clock, " + c.R(Math.abs(A.tgt.dy)) + ' m ' + (A.tgt.dy >= 0 ? 'above' : 'below') + '. Start the dive.', 'warn'] : ['Drone gone: press Enter.', 'bad']),
+        done: (c, A) => A.tgt && A.tgt.dy > 60 && c.pitch < -5,
+      },
+      {
+        t: 'Dive and cut the corner',
+        txt: (c, A) =>
+          'Dive about 15 to 25 degrees below him while you keep the turn going toward him. The speed climbs; you are turning inside his path now.' +
+          (A.hc ? '\nHardcore: you pick up less speed per metre of dive (more drag), so dive a little longer and keep the throttle up.' : ''),
+        hint: (c, A) => (A.tgt ? ['Range ' + c.R(A.tgt.d) + ' m, closing ' + c.R(A.tgt.closing) + ' km/h, you are ' + c.R(A.tgt.dy) + ' m below him, speed ' + c.R(c.kmh) + '. Angle off ' + c.R(A.tgt.ata) + ' deg.', A.tgt.d < 700 ? 'ok' : 'warn'] : ['', 'warn']),
+        done: (c, A) => A.tgt && A.tgt.d < 700,
+      },
+      {
+        t: 'Zoom up behind him',
+        txt: () => 'Now pull up smoothly into his plane and bring the nose onto him. Use your extra speed to climb. Do not overshoot: stay out of 150 m.',
+        hint: (c, A) =>
+          A.tgt
+            ? A.tgt.d < 150
+              ? ['TOO CLOSE (' + c.R(A.tgt.d) + ' m): ease off, you are overshooting.', 'bad']
+              : ['Range ' + c.R(A.tgt.d) + ' m, angle off ' + c.R(A.tgt.ata) + ', height diff ' + c.R(A.tgt.dy) + ' m. Aim: inside 450 m, nose within 12 deg, level with him.', A.tgt.d < 450 && A.tgt.ata < 12 && Math.abs(A.tgt.dy) < 50 ? 'ok' : 'warn']
+            : ['', 'warn'],
+        done: (c, A) => A.hold >= 1,
+      },
+    ],
+    fail: (c, A) => (A.tgt && A.tgt.d > 2600 ? 'He got away. Try again (Enter).' : ''),
+    finish: (c, A) => {
+      const sc = Math.max(0, Math.round(100 - Math.max(0, 150 - A.minRange) * 0.5 - Math.max(0, trn.t - 50) * 0.8));
+      return 'Low yo-yo done: on his tail in ' + fmtT(trn.t) + ', closest approach ' + c.R(A.minRange) + ' m, speed ' + c.R(c.kmh) + ' km/h. Score ' + sc + '/100.';
+    },
+  },
+  /* ---- High yo-yo: you are closing too fast and would overshoot: pitch up out of his plane, trade speed for height, then roll over and drop behind him ---- */
+  highyoyo: {
+    drone: true,
+    steps: [
+      {
+        t: 'Read the fight',
+        txt: (c, A) =>
+          'The drone (do not shoot it) is turning left. You are much faster than he is, close behind. If you follow his turn you will overshoot and end up in front of him.\nThe high yo-yo: pull your nose UP out of his turn plane to trade the extra speed for height.' + (A.hc ? '\nHardcore: pull up smoothly (about 3 to 4 G): the thin air and drag bleed the speed quickly, and torque yaws you left as you slow.' : ''),
+        hint: (c, A) => (A.tgt ? ['He is ' + c.R(A.tgt.d) + ' m away, closing at ' + c.R(A.tgt.closing) + ' km/h. Pull up now.', A.tgt.closing > 60 ? 'warn' : 'ok'] : ['Drone gone: press Enter.', 'bad']),
+        done: (c, A) => A.tgt && A.tgt.dy < -60 && c.pitch > 4,
+      },
+      {
+        t: 'Climb and roll toward him',
+        txt: (c, A) =>
+          'Keep climbing so the extra speed turns into height, and roll your wings toward him so the nose follows his turn. Watch him over your shoulder: keep him in sight.' +
+          (A.hc ? '\nHardcore: do not over-pull; the thin air and drag bleed the speed quickly. Stay above 250 km/h.' : '\nStay above 220 km/h.'),
+        hint: (c, A) => (A.tgt ? ['Range ' + c.R(A.tgt.d) + ' m, closing ' + c.R(A.tgt.closing) + ' km/h, you are ' + c.R(-A.tgt.dy) + ' m above him, speed ' + c.R(c.kmh) + '.', c.kmh < (A.hc ? 250 : 220) ? 'bad' : 'ok'] : ['', 'warn']),
+        done: (c, A) => A.tgt && (A.tgt.dy < -140 || A.tgt.closing < 20),
+      },
+      {
+        t: 'Drop onto his tail',
+        txt: () => 'Roll over toward him and let the nose fall onto his tail: you arrive behind him, close, with the speed under control. Stay out of 150 m.',
+        hint: (c, A) =>
+          A.tgt
+            ? A.tgt.d < 150
+              ? ['TOO CLOSE (' + c.R(A.tgt.d) + ' m): ease off, you are overshooting.', 'bad']
+              : ['Range ' + c.R(A.tgt.d) + ' m, angle off ' + c.R(A.tgt.ata) + ', height diff ' + c.R(A.tgt.dy) + ' m. Aim: inside 450 m, nose within 12 deg, level with him.', A.tgt.d < 450 && A.tgt.ata < 12 && Math.abs(A.tgt.dy) < 50 ? 'ok' : 'warn']
+            : ['', 'warn'],
+        done: (c, A) => A.hold >= 1,
+      },
+    ],
+    fail: (c, A) => (A.tgt && A.tgt.d > 2600 ? 'He got away. Try again (Enter).' : ''),
+    finish: (c, A) => {
+      const sc = Math.max(0, Math.round(100 - Math.max(0, 150 - A.minRange) * 0.5 - Math.max(0, trn.t - 50) * 0.8));
+      return 'High yo-yo done: on his tail in ' + fmtT(trn.t) + ', closest approach ' + c.R(A.minRange) + ' m, speed ' + c.R(c.kmh) + ' km/h. Score ' + sc + '/100.';
+    },
+  },
+};
+function aeroRun(c, m) {
+  const def = AERO_DEF[m],
+    A = trn.a;
+  if (!A || A.m !== m) return;
+  aeroTick(c, def);
+  if (def.drone) {
+    A.tgt = aeroTgt();
+    if (A.tgt) {
+      A.minRange = Math.min(A.minRange, A.tgt.d);
+      const T = A.tgt;
+      A.hold = trn.step >= 2 && T.d < 450 && T.d > 120 && T.ata < 12 && Math.abs(T.dy) < 50 ? A.hold + c.dt : 0;
+      if (trn.step < 2 && T.d < 110) A.minRange = Math.min(A.minRange, T.d);
+    }
+  }
+  while (trn.step < def.steps.length && def.steps[trn.step].done(c, A)) trn.step++;
+  if (trn.step >= def.steps.length) {
+    trn.done = true;
+    trn.sum = def.finish(c, A);
+    note(AERO[m].name + ' COMPLETE');
+    return;
+  }
+  const st = def.steps[trn.step],
+    bad = def.fail(c, A);
+  trn.title = 'Step ' + (trn.step + 1) + '/' + def.steps.length + ': ' + st.t;
+  let [h, l] = st.hint(c, A);
+  if (bad) {
+    h = bad;
+    l = 'bad';
+  } else if (c.agl < 350 && trn.step > 0 && !c.gnd) {
+    h = 'LOW: ' + c.R(c.agl) + ' m above the ground!';
+    l = 'bad';
+  }
+  c.T0(st.txt(c, A) + (A.hc ? '' : ''), h, l);
+}
+Object.keys(AERO_DEF).forEach((m) => {
+  TRAINERS[m] = (c) => aeroRun(c, m);
+});
+
 /* ---------- flight-path guidance: a Dubins path (turn radius from the plane's own speed and a 35 deg bank) joined to a final line with its own dive/glide angle ---------- */
 const mod2 = (a) => {
   a %= Math.PI * 2;
@@ -10710,6 +11205,12 @@ const MENU = [
   ['dogfight', 'Dogfight Trainer', 'Shoot down 3 bandits (difficulty: keys 1/2/3 or R3).'],
   ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base.'],
   ['bomb', 'Building Bombing', 'Destroy the depot and base buildings. Ordnance resupplies itself.'],
+  ['barrel', 'Barrel Roll', 'A coached corkscrew roll around a point ahead. Scored.'],
+  ['immelmann', 'Immelmann Turn', 'Half loop up, half roll to level: reverse course and gain height. Hardcore needs more speed.'],
+  ['splits', 'Split S', 'Roll inverted and pull through a half loop down. Needs height.'],
+  ['wingover', 'Wingover', 'Climbing turn over the top and a diving turn back: reverse course at the same height.'],
+  ['lowyoyo', 'Low Yo-Yo', 'Dive below a turning target to gain speed, then zoom up onto his tail.'],
+  ['highyoyo', 'High Yo-Yo', 'Pull up out of a turn plane to bleed a speed excess, then drop onto his tail.'],
 ];
 let menuOpen = false,
   menuSel = 0; /* menuOpen = the pause popup is showing its Missions tab */
