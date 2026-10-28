@@ -33,6 +33,9 @@ by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://di
 
 ![The coast and runway](screenshots/coast.jpg)
 
+## Built from the original documents
+The aircraft is modelled on the real P-51D. We built the airframe and tuned the flight model against our copies of the original factory blueprints (the three-view general arrangement with its area table, the fuselage stations, the wing, tail and landing gear drawings) and the P-51D flight-characteristics manual (stall speeds, flap and redline limits, load factors, glide and approach speeds). We matched them as closely as the documents and a browser game allow: dimensions, areas and stations follow the drawings, and the performance is checked against the published figures with a repeatable test (`P-51_Mustang_FS_perf_test.py`). It is a game, so a few things stay approximate. The About page lists every item, what the real aircraft does, what this simulator does, and how close it is.
+
 ## Hardcore mode (optional)
 Open **Settings** and use the master switch, then pick what you want. Each option has its own switch:
 engine gauges and overheating, fuel and weight and balance, air density and the supercharger, damage, and weather effects such as **wind, turbulence, wet runways (hydroplaning) and icing**. The About page compares the sim against the real P-51D and marks what each option brings closer.
