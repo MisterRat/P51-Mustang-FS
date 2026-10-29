@@ -53,6 +53,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #bdt{position:fixed;display:none;transform:translate(-50%,0);margin-top:26px;color:#ff9f0a;font-size:12px;font-weight:700;text-shadow:0 0 3px #000;pointer-events:none;white-space:nowrap}
 #lead{position:fixed;display:none;width:22px;height:22px;margin:-11px;border:2px solid #ff9f0a;border-radius:50%;pointer-events:none}
 #blk{position:fixed;inset:0;pointer-events:none;display:none}
+#dazzle{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(rgba(255,255,255,.96),rgba(225,238,255,.6) 55%,rgba(200,220,255,.3))}
 #flash{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(transparent 45%,rgba(255,0,0,.55))}
 #start #dl button{margin:6px 4px 0;padding:6px 12px;font:inherit;font-size:13px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:6px;cursor:pointer}
 #start #dl button.on{background:var(--acc);color:#221;border-color:var(--acc)}
@@ -268,7 +269,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="hp" id="hpBody"></div>
 <div class="hf" style="margin-top:4px">Land &amp; stop (throttle idle) to repair and rearm.<br>Takeoff: full throttle, at ~190 km/h ease back.</div></div>
 <div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
-<div id="flash"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="rplW"><div id="rplWt"></div><div style="font-size:12px;opacity:.7;margin-top:6px">Esc = skip</div></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
+<div id="flash"></div><div id="dazzle"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="rplW"><div id="rplWt"></div><div style="font-size:12px;opacity:.7;margin-top:6px">Esc = skip</div></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
 <div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
 <div class="p" id="coach"><div id="coachT"></div><div id="coachH"></div><div id="coachS"></div></div>
@@ -330,6 +331,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="note">The wind, gusts, turbulence, wet runway and icing only act in Hardcore mode (Hardcore page). The runway points north and south.</div>
 <label style="display:block;margin:4px 0"><input type="checkbox" id="wxFlow" style="accent-color:#ffb43a"> Time passes (one hour per real minute) <span id="wxClock" style="opacity:.7"></span></label>
 <h3>BATTLE DAMAGE</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="dmgOn" style="accent-color:#ffb43a"> Battle damage: hits can hurt the engine, wings, tail, fuel tank and hydraulics, with smoke and fire</label>
+<h3>GROUND FIRE</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="aaOn" style="accent-color:#ffb43a"> Ground fire: each enemy base has two Type 96 25 mm anti-aircraft guns and two searchlights (guns fire in free flight, convoy and bombing; the lights sweep and lock on at night). Your own airfield has a 3.7-inch gun and a searchlight for show</label>
 <h3>SOUND</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="sndOn" style="accent-color:#ffb43a"> Sound (U switches it on and off)</label>
 <label style="display:block;margin:4px 0">Volume <input type="range" id="sndVol" min="0" max="100" style="width:min(260px,60vw);vertical-align:middle;accent-color:#ffb43a"> <span id="sndVolV"></span></label>
 <label style="display:block;margin:4px 0">Engine &amp; Wind <input type="range" id="engVol" min="0" max="100" style="width:min(260px,60vw);vertical-align:middle;accent-color:#ffb43a"> <span id="engVolV"></span></label>
@@ -443,7 +445,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="sub">Missions, cockpit warnings, weapons and enemy difficulty</div>
 <h2>Missions &amp; trainers (the Missions tab, or press M)</h2>
 <table class="t2">
-<tr><td>Free flight</td><td>Fly anywhere. A convoy runs on the road every few minutes, with ground targets scattered about. No guide path. Convoy messages only appear on the convoy mission.</td></tr>
+<tr><td>Free flight</td><td>Fly anywhere. A convoy runs on the road every few minutes, with ground targets scattered about, and both enemy bases have anti-aircraft guns and searchlights. No guide path. Convoy messages only appear on the convoy mission.</td></tr>
 <tr><td>Takeoff trainer</td><td>Coached steps from the runway to a safe climb. A green ring shows the line a hidden pilot flew in this same aircraft: put the white flight-path marker in it. Your liftoff speed is scored at the end.</td></tr>
 <tr><td>Landing trainer</td><td>You start on the downwind leg of the circuit and must slow down, lower gear and flaps, turn base and final, fly the glide slope, flare and brake. The green ring follows the pilot's recorded landing. Scored for sink rate, speed and centerline.</td></tr>
 <tr><td>Convoy strafing</td><td>One convoy at a time drives from the depot to the base: a jeep, supply trucks, a tanker and an APC. You start about 4.5 km out so there is time to line up. The green ring leads you in along the pilot's line behind the rear vehicle; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
@@ -508,6 +510,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Bombs</td><td>Two 230 kg (500 lb), released with Z / X / the BOMB button. A bomb keeps your speed and falls for about 5 seconds. The blast reaches 75 m and does less damage with distance.</td></tr>
 <tr><td>Weight</td><td>Bombs and rockets add weight and raise the stall speed; it drops as you use them.</td></tr>
 <tr><td>Resupply</td><td>Land and stop with the throttle at idle: about 4 seconds to repair, rearm and (in Hardcore mode) refuel. The trainers also top up ammunition and hull for you.</td></tr>
+<tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>150 cm searchlights</b>. The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres. A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the crews hear you for several seconds) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you. Jink out of the beam to lose it. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -578,7 +581,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.4';
+const VERSION = '4.5';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -907,6 +910,14 @@ const SND = {
   bomb() {
     this.burst(700, 200, 0.15, 0.3);
     this.tone(1500, 380, 3.6, 0.04, 'sine', 0.15);
+  },
+  flak(p) {
+    const d = p.distanceTo(pos),
+      v = Math.min(0.22, 0.26 / (1 + d / 350)),
+      dl = Math.min(3, d / 340);
+    if (v < 0.01) return;
+    this.burst(1500, 260, 0.09, v, 1, 'lowpass', dl);
+    this.burst(5200, 1800, 0.04, v * 0.5, 2, 'bandpass', dl);
   },
   hit() {
     this.burst(3200, 1200, 0.09, 0.3, 2, 'bandpass');
@@ -7395,7 +7406,7 @@ function killT(t) {
   explode(t.c.clone().add(new V(0, t.s1 * 0.5, 0)), t.type == 'fuel' ? 16 : t.type == 'hangar' ? 20 : 9);
   if (t.type == 'fuel' || t.type == 'tanker') blast(t.c, t.type == 'fuel' ? 22 : 14, 40);
   if (t.kind !== 'veh' || trn.mode === 'convoy')
-    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : 'TARGET DESTROYED');
+    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : t.type == 'aa25' ? 'FLAK GUN DESTROYED' : t.type == 'sl150' ? 'SEARCHLIGHT DESTROYED' : 'TARGET DESTROYED');
 }
 function blast(p, R, dmg) {
   EN.forEach((e) => {
@@ -7641,6 +7652,10 @@ function resetWeapons() {
   BM.length = 0;
   FX.forEach((f) => scene.remove(f.s));
   FX.length = 0;
+  try {
+    AA.bl.length = 0; /* shells in flight, and the gun crews start fresh */
+    AA.gun.forEach((g) => ((g.acq = 0), (g.mag = 30), (g.rl = 0)));
+  } catch (e) {}
   T.forEach((t) => {
     t.dead = false;
     t.hp = t.hp0;
@@ -7814,12 +7829,12 @@ function eFire(e, dist) {
   });
 }
 /* the player is hit: hull damage, and (with battle damage on) one system is hurt */
-function playerHit() {
-  php -= DIFF.dmg;
+function playerHit(k, sysP) {
+  php -= DIFF.dmg * (k || 1);
   hitF = 0.9;
   buzz(35);
   SND.hit();
-  if (DM.on) {
+  if (DM.on && (sysP == null || Math.random() < sysP)) {
     const r = Math.random(),
       d = 0.18 + Math.random() * 0.2,
       up = (k) => (DM[k] = Math.min(1, DM[k] + d));
@@ -8889,6 +8904,520 @@ const BLD = [];
   const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }));
   scene.add(m);
   csTree(m);
+}
+
+/* ---------- ground fire (Settings > Ground fire): each base has two Type 96 25 mm twin AA guns and two 150 cm searchlights ----------
+   The guns fire at you in free flight, convoy and bombing. At night they only fire when a searchlight has you (or you are close).
+   The lights sweep at night and lock on, and the second light is cued onto the first one's target. Guns and lights are targets. */
+const AA = {
+  on: true,
+  gun: [],
+  lamp: [],
+  bl: [] /* shells in flight */,
+  fg: [] /* the airfield's 3.7-inch gun: scenery */,
+  lit: 0,
+  dz: 0,
+  msgT: 0,
+  fT: 0,
+  t: 0,
+  load() {
+    this.on = store.get('p51aa', true) !== false;
+  },
+};
+AA.load();
+{
+  const { part, bx, cyl, sph } = GX,
+    Z = Math.PI / 2,
+    G0 = -1.5; /* the group origin is 1.5 m above the ground (so killT can squash it like a building) */
+  const build = (P) => new GX.Acc().add(P, GX.xf(0, G0, 0, 0, 1)).geometry();
+  const raw = (P) => new GX.Acc().add(P).geometry(); /* parts of the moving heads are placed on their own pivots */
+  const lam = () => new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 });
+  const bags = (P, r, n, a0, a1, layers) => {
+    for (let L = 0; L < layers; L++)
+      for (let i = 0; i < n; i++) {
+        const a = a0 + ((i + L * 0.5) / n) * (a1 - a0);
+        P.push(part(bx(1.5, 0.45, 0.62), L ? 0x7d7452 : 0x8a8058, Math.cos(a) * r, 0.55 + L * 0.42, Math.sin(a) * r, 0, -a - Z));
+      }
+  };
+  /* ----- Type 96 25 mm twin mount ----- */
+  const gunPit = () => {
+    const P = [part(cyl(4.7, 4.9, 0.35, 24), 0x4d432d, 0, 0.15, 0), part(cyl(0.5, 0.65, 0.95, 10), 0x3d4038, 0, 0.8, 0)];
+    bags(P, 3.8, 18, 0, Math.PI * 2, 2);
+    for (let i = 0; i < 3; i++) {
+      const a = i * 2.094 + 0.5;
+      P.push(part(bx(0.25, 0.18, 1.9), 0x3d4038, Math.cos(a) * 0.95, 0.4, Math.sin(a) * 0.95, 0, Z - a));
+    }
+    P.push(
+      part(bx(0.7, 0.4, 0.45), 0x4a5035, 2.1, 0.55, -1.4, 0, 0.4),
+      part(bx(0.7, 0.4, 0.45), 0x4a5035, 2.45, 0.55, -0.6, 0, 0.2),
+      part(bx(0.7, 0.4, 0.45), 0x3e4430, 2.3, 0.95, -1.0, 0, 0.3),
+      part(bx(0.5, 0.3, 0.8), 0x6b5a3a, -2.4, 0.5, 1.2, 0, 0.5) /* spare magazines */,
+    );
+    return build(P);
+  };
+  const gunTurret = () => {
+    const P = [
+      part(bx(1.7, 0.3, 1.0), 0x4b5238, 0, 0.15, 0),
+      part(bx(0.2, 0.95, 0.95), 0x4b5238, 0.65, 0.7, 0.05),
+      part(bx(0.2, 0.95, 0.95), 0x4b5238, -0.65, 0.7, 0.05),
+      part(bx(0.45, 0.08, 0.42), 0x2a2c26, -1.25, 0.3, -0.75),
+      part(bx(0.45, 0.08, 0.42), 0x2a2c26, 1.25, 0.3, -0.75),
+      part(bx(0.06, 0.4, 0.06), 0x33352e, -1.25, 0.1, -0.75),
+      part(bx(0.06, 0.4, 0.06), 0x33352e, 1.25, 0.1, -0.75),
+      part(bx(0.5, 0.06, 0.8), 0x33352e, -1.0, 0.3, -0.45),
+      part(bx(0.5, 0.06, 0.8), 0x33352e, 1.0, 0.3, -0.45),
+      part(cyl(0.22, 0.22, 0.07, 12), 0x1d1d1d, -1.0, 0.75, -0.1, 0, 0, Z) /* hand wheels */,
+      part(cyl(0.22, 0.22, 0.07, 12), 0x1d1d1d, 1.0, 0.75, -0.1, 0, 0, Z),
+      part(cyl(0.04, 0.04, 0.8, 8), 0x1a1a1a, -0.45, 1.25, 0.2, Z), /* sight tube */
+      part(bx(0.12, 0.2, 0.12), 0x1a1a1a, -0.45, 1.1, -0.15),
+    ];
+    return raw(P);
+  };
+  const gunBarrels = () => {
+    const P = [part(bx(0.9, 0.4, 1.2), 0x464b36, 0, 0, 0.25), part(bx(0.55, 0.5, 0.6), 0x3a4030, 0, 0, -0.35)];
+    for (const s of [-1, 1]) {
+      P.push(
+        part(cyl(0.062, 0.062, 2.45, 10), 0x1c1c1c, s * 0.2, 0, 1.85, Z),
+        part(cyl(0.1, 0.1, 0.95, 10), 0x2c2f28, s * 0.2, 0, 1.0, Z) /* jacket */,
+        part(cyl(0.1, 0.075, 0.3, 10), 0x121212, s * 0.2, 0, 3.15, Z) /* flash hider */,
+        part(bx(0.2, 0.27, 0.64), 0x2f3526, s * 0.2, 0.36, 0.3) /* curved top magazine */,
+        part(bx(0.2, 0.22, 0.4), 0x2f3526, s * 0.2, 0.46, -0.1, 0.5),
+      );
+    }
+    return raw(P);
+  };
+  /* ----- 150 cm searchlight on its carriage ----- */
+  const lampBase = () => {
+    const P = [part(cyl(3.3, 3.5, 0.3, 20), 0x4d432d, 0, 0.13, 0), part(bx(2.0, 0.25, 1.7), 0x4b5238, 0, 0.85, 0), part(cyl(0.38, 0.5, 0.9, 12), 0x3d4038, 0, 1.4, 0)];
+    for (const s of [-1, 1]) P.push(part(cyl(0.52, 0.52, 0.17, 14), 0x16171a, s * 1.15, 0.52, -0.2, 0, 0, Z));
+    P.push(
+      part(bx(0.16, 0.16, 2.0), 0x3d4038, 0, 0.75, -1.8) /* drawbar */,
+      part(bx(1.6, 0.9, 0.95), 0x58603f, 2.3, 0.6, 0.6) /* generator */,
+      part(cyl(0.06, 0.06, 0.7, 8), 0x1d1d1d, 2.7, 1.3, 0.6),
+      part(bx(0.5, 0.35, 0.4), 0x3e4430, -2.2, 0.4, 0.8),
+    );
+    bags(P, 3.0, 11, Math.PI * 0.05, Math.PI * 0.95, 2);
+    return build(P);
+  };
+  const lampYoke = () => raw([part(bx(0.18, 1.1, 0.45), 0x4b5238, 1.0, 0.35, 0), part(bx(0.18, 1.1, 0.45), 0x4b5238, -1.0, 0.35, 0), part(bx(2.2, 0.2, 0.5), 0x3d4038, 0, -0.2, 0)]);
+  const lampDrum = () =>
+    raw([
+      part(cyl(0.88, 0.88, 1.25, 20), 0x5e6450, 0, 0, 0.1, Z),
+      part(cyl(0.62, 0.88, 0.55, 20), 0x4f5442, 0, 0, -0.75, Z),
+      part(cyl(0.93, 0.93, 0.14, 20), 0x20221d, 0, 0, 0.74, Z),
+      part(cyl(0.13, 0.13, 2.05, 8), 0x2a2c26, 0, 0, 0, 0, 0, Z),
+      part(bx(0.4, 0.25, 0.4), 0x33352e, 0, 0.95, -0.3),
+    ]);
+  const glowTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d'),
+      r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    r.addColorStop(0, 'rgba(255,255,255,1)');
+    r.addColorStop(0.25, 'rgba(210,230,255,.55)');
+    r.addColorStop(1, 'rgba(180,210,255,0)');
+    g.fillStyle = r;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  })();
+  const beamGeo = (L, rFar) => {
+    const g = new THREE.CylinderGeometry(rFar, 0.7, L, 20, 8, true);
+    g.translate(0, L / 2, 0);
+    g.rotateX(Z);
+    const p = g.attributes.position,
+      col = new Float32Array(p.count * 3);
+    for (let i = 0; i < p.count; i++) {
+      const k = Math.pow(Math.max(0, 1 - p.getZ(i) / L), 1.25);
+      col[i * 3] = k * 0.82;
+      col[i * 3 + 1] = k * 0.9;
+      col[i * 3 + 2] = k;
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    return g;
+  };
+  const LB = 6500;
+  const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum() };
+  const MAT = lam();
+  const mk = (g) => {
+    const m = new THREE.Mesh(g, MAT);
+    return m;
+  };
+  const addT = (grp, type, hp, r) => {
+    const e = { m: grp, lit: null, c: grp.position, r, hp, hp0: hp, type, dead: false, s1: 3, col: 0x4a5035, kind: 'aa' };
+    T.push(e);
+    return e;
+  };
+  const gun = (cx, cz, rx, rz, yaw0) => {
+    const x = cx + rx,
+      z = cz + rz,
+      grp = new THREE.Group();
+    grp.position.set(x, H(x, z) + 1.5, z);
+    grp.add(mk(GEOM.pit));
+    const tur = new THREE.Group();
+    tur.position.set(0, 1.25 + G0, 0);
+    tur.add(mk(GEOM.tur));
+    const bar = new THREE.Group();
+    bar.position.set(0, 0.65, 0);
+    bar.add(mk(GEOM.bar));
+    tur.add(bar);
+    grp.add(tur);
+    scene.add(grp);
+    const t = addT(grp, 'aa25', 40, 4.5);
+    AA.gun.push({
+      t, grp, tur, bar, x, z, bias: new V(0, 0, 0), yaw: yaw0, pit: 0.5, acq: 0, mag: 30, rl: 0, cd: 0, side: 1, rec: 0, snd: 0, v: new V(0, 0, 0),
+      piv: new V(x, H(x, z) + 1.5 + 0.4 + 0, z),
+    });
+  };
+  const lamp = (cx, cz, rx, rz, home, fr) => {
+    const x = cx + rx,
+      z = cz + rz,
+      grp = new THREE.Group();
+    grp.position.set(x, H(x, z) + 1.5, z);
+    grp.add(mk(GEOM.lb));
+    const head = new THREE.Group();
+    head.position.set(0, 2.1 + G0, 0);
+    head.add(mk(GEOM.ly));
+    const pit = new THREE.Group();
+    pit.rotation.order = 'YXZ';
+    pit.add(mk(GEOM.ld));
+    const lens = new THREE.Mesh(new THREE.CircleGeometry(0.8, 18), new THREE.MeshBasicMaterial({ color: 0x8c9bb0 }));
+    lens.position.z = 0.82;
+    pit.add(lens);
+    head.add(pit);
+    head.rotation.order = 'YXZ';
+    grp.add(head);
+    scene.add(grp);
+    /* the beam: three nested additive cones, brighter on the axis */
+    const beam = new THREE.Group();
+    beam.rotation.order = 'YXZ';
+    const R = LB * Math.tan(0.0245);
+    [[1, 0.075], [0.62, 0.085], [0.3, 0.1]].forEach((k) => {
+      const m = new THREE.Mesh(
+        beamGeo(LB, R * k[0]),
+        new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: k[1], blending: THREE.AdditiveBlending, depthWrite: false, side: 2, fog: false }),
+      );
+      m.frustumCulled = false;
+      beam.add(m);
+    });
+    beam.visible = false;
+    scene.add(beam);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+    glow.scale.set(26, 26, 1);
+    glow.visible = false;
+    scene.add(glow);
+    const t = fr ? { dead: false } : addT(grp, 'sl150', 16, 3);
+    AA.lamp.push({
+      fr: !!fr, t, grp, head, pit, lens, beam, glow, x, z, home, yaw: home, el: 0.8, wy: home, we: 0.8, mode: 'search', lost: 0, cue: 0, lit: false, on: false,
+      p: new V(x, H(x, z) + 1.5 + 0.6, z),
+    });
+  };
+
+  /* ----- QF 3.7-inch heavy AA gun (the home airfield's own battery) ----- */
+  const pit37 = () => {
+    const P = [part(cyl(5.2, 5.4, 0.3, 24), 0x5a5238, 0, 0.12, 0), part(cyl(0.55, 0.7, 0.8, 12), 0x4d513c, 0, 0.7, 0)];
+    bags(P, 4.5, 22, 0, Math.PI * 2, 2);
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI * 0.5 + 0.4; /* the cruciform platform with its four outriggers */
+      P.push(part(bx(0.34, 0.2, 2.9), 0x4d513c, Math.cos(a) * 1.5, 0.4, Math.sin(a) * 1.5, 0, Z - a), part(cyl(0.14, 0.14, 0.4, 8), 0x2a2c26, Math.cos(a) * 2.9, 0.35, Math.sin(a) * 2.9));
+    }
+    P.push(part(bx(1.1, 0.8, 0.6), 0x6e6a48, 2.9, 0.5, 1.9, 0, 0.3), part(bx(1.1, 0.8, 0.6), 0x6e6a48, 3.0, 0.5, 1.1, 0, 0.1), part(bx(0.5, 0.35, 0.9), 0x5b6046, -3.0, 0.45, -1.5, 0, 0.5));
+    for (let i = 0; i < 5; i++) P.push(part(cyl(0.12, 0.12, 0.9, 8), 0xb59a4c, -2.6 + i * 0.28, 0.5, 2.7, 0, 0, Z)); /* shells ready to hand */
+    return build(P);
+  };
+  const tur37 = () =>
+    raw([
+      part(cyl(0.9, 1.0, 0.35, 16), 0x4d513c, 0, 0.15, 0),
+      part(bx(0.25, 1.1, 1.3), 0x5b6046, 0.85, 0.75, 0.1),
+      part(bx(0.25, 1.1, 1.3), 0x5b6046, -0.85, 0.75, 0.1),
+      part(bx(2.3, 1.15, 0.07), 0x5f6448, 0, 1.25, 1.0) /* shield */,
+      part(bx(0.5, 0.07, 0.45), 0x2a2c26, -1.4, 0.55, -0.55),
+      part(bx(0.5, 0.07, 0.45), 0x2a2c26, 1.4, 0.55, -0.55),
+      part(cyl(0.05, 0.05, 0.55, 8), 0x1a1a1a, -1.4, 0.3, -0.55),
+      part(cyl(0.05, 0.05, 0.55, 8), 0x1a1a1a, 1.4, 0.3, -0.55),
+      part(cyl(0.25, 0.25, 0.08, 12), 0x1d1d1d, -1.05, 1.05, -0.3, 0, 0, Z),
+      part(cyl(0.25, 0.25, 0.08, 12), 0x1d1d1d, 1.05, 1.05, -0.3, 0, 0, Z),
+      part(bx(0.5, 0.4, 0.5), 0x33352e, 1.3, 1.3, -0.2) /* fuze setter */,
+    ]);
+  const bar37 = () =>
+    raw([
+      part(bx(1.0, 0.55, 1.4), 0x464b36, 0, 0, 0.2),
+      part(bx(0.55, 0.5, 0.7), 0x383c2d, 0, 0.05, -0.65) /* breech */,
+      part(cyl(0.085, 0.07, 4.4, 12), 0x1c1c1c, 0, 0.05, 2.7, Z),
+      part(cyl(0.13, 0.13, 1.7, 10), 0x2c2f28, 0, 0.05, 1.2, Z),
+      part(cyl(0.11, 0.11, 1.3, 10), 0x2c2f28, 0, -0.38, 0.9, Z) /* recoil cylinder */,
+      part(cyl(0.11, 0.09, 0.4, 10), 0x121212, 0, 0.05, 5.0, Z) /* muzzle */,
+      part(bx(0.5, 0.06, 0.8), 0x2a2c26, 0, -0.3, -0.2) /* loading tray */,
+    ]);
+  GEOM.p37 = pit37();
+  GEOM.t37 = tur37();
+  GEOM.b37 = bar37();
+  const fgun = (x, z, yaw0) => {
+    const grp = new THREE.Group();
+    grp.position.set(x, H(x, z) + 1.5, z);
+    grp.add(mk(GEOM.p37));
+    const tur = new THREE.Group();
+    tur.position.set(0, 1.1 + G0, 0);
+    tur.add(mk(GEOM.t37));
+    const bar = new THREE.Group();
+    bar.position.set(0, 1.05, 0);
+    bar.add(mk(GEOM.b37));
+    tur.add(bar);
+    grp.add(tur);
+    scene.add(grp);
+    AA.fg.push({ grp, tur, bar, x, z, yaw: yaw0, pit: 0.6, acq: 0, cd: 2, rec: 0, piv: null });
+  };
+  const D = DEPOT,
+    B = BASE;
+  gun(D[0], D[1], -146, 72, 0.6);
+  gun(D[0], D[1], -18, -78, 0.6);
+  gun(B[0], B[1], -28, -75, 0.4);
+  gun(B[0], B[1], 128, 88, 0.4);
+  lamp(D[0], D[1], -148, -62, 1.4);
+  lamp(D[0], D[1], 3, 97, 1.0);
+  lamp(B[0], B[1], -34, 40, 1.9);
+  lamp(B[0], B[1], 134, -85, 2.4);
+  /* the player's airfield: a 3.7-inch gun behind the hangars and a searchlight beside the line-up, both on our side, for show only */
+  fgun(-168, 100, 0.8);
+  lamp(0, 0, -218, 372, 0.3, true);
+}
+const _aaF = new V(),
+  _aaR = new V(),
+  _aaU = new V();
+function aaDir(y, e, o) {
+  return o.set(Math.sin(y) * Math.cos(e), Math.sin(e), Math.cos(y) * Math.cos(e));
+}
+function aaWrap(d) {
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d < -Math.PI) d += 2 * Math.PI;
+  return d;
+}
+function aaSlew(a, b, r, dt) {
+  const d = aaWrap(b - a);
+  return a + Math.max(-r * dt, Math.min(r * dt, d));
+}
+const abPos = new Float32Array(200 * 6),
+  abGeo = new THREE.BufferGeometry();
+abGeo.setAttribute('position', new THREE.BufferAttribute(abPos, 3));
+abGeo.setDrawRange(0, 0);
+const abLines = new THREE.LineSegments(abGeo, new THREE.LineBasicMaterial({ color: 0xffb860, fog: false }));
+abLines.frustumCulled = false;
+scene.add(abLines);
+/* switch ground fire on or off: the beams, shells and glare go with it */
+AA.apply = function () {
+  if (!this.on) {
+    this.bl.length = 0;
+    abGeo.setDrawRange(0, 0);
+    this.lamp.forEach((L) => {
+      L.beam.visible = false;
+      L.glow.visible = false;
+      L.lens.material.color.set(0x8c9bb0);
+      L.lit = false;
+      L.mode = 'search';
+    });
+    this.lit = 0;
+    this.dz = 0;
+    const d = document.getElementById('dazzle');
+    if (d) d.style.opacity = 0;
+  }
+};
+/* during a replay or while paused nothing moves: just keep the beams and glare off the screen */
+AA.hide = function () {
+  this.bl.length = 0;
+  abGeo.setDrawRange(0, 0);
+  this.lamp.forEach((L) => {
+    L.beam.visible = false;
+    L.glow.visible = false;
+  });
+  const d = document.getElementById('dazzle');
+  if (d) d.style.opacity = 0;
+};
+function updAA(dt) {
+  if (!AA.on) return;
+  AA.t += dt;
+  AA.msgT = Math.max(0, AA.msgT - dt);
+  AA.fT = Math.max(0, AA.fT - dt);
+  const night = WX.lt || 0,
+    hot = started && !crashed && !RPL.busy && (trn.mode === 'free' || trn.mode === 'convoy' || trn.mode === 'bomb');
+  /* ----- searchlights ----- */
+  let dzT = 0,
+    litAny = 0;
+  const trk = AA.lamp.some((L) => L.mode === 'track' && L.on);
+  for (const L of AA.lamp) {
+    L.on = !L.t.dead && night > 0.3;
+    L.lit = false;
+    if (!L.on) {
+      L.beam.visible = false;
+      L.glow.visible = false;
+      L.lens.material.color.set(0x8c9bb0);
+      continue;
+    }
+    const dx = pos.x - L.p.x,
+      dy = pos.y - L.p.y,
+      dz = pos.z - L.p.z,
+      hd = Math.hypot(dx, dz),
+      R = Math.hypot(hd, dy),
+      elP = Math.atan2(dy, hd),
+      yawP = Math.atan2(dx, dz);
+    aaDir(L.yaw, L.el, _aaF);
+    const ang = R > 1 ? Math.acos(Math.max(-1, Math.min(1, (_aaF.x * dx + _aaF.y * dy + _aaF.z * dz) / R))) : 9,
+      cue = !L.fr && hot && R < 6500 && elP > 0.1; /* the airfield's own light only sweeps for show */
+    if (L.mode === 'search') {
+      /* the beam crossing you, or the sound locators giving the crews a bearing once you have been in earshot for a few seconds */
+      if (cue && R < 4800) L.cue += dt * (trk ? 2 : 1);
+      else L.cue = Math.max(0, L.cue - dt);
+      if (cue && (ang < 0.07 || L.cue > 5)) {
+        L.mode = 'track';
+        L.lost = 0;
+      }
+    }
+    if (L.mode === 'track') {
+      if (!cue || ang > 0.14) L.lost += dt;
+      else L.lost = Math.max(0, L.lost - dt);
+      if (!cue || L.lost > 2.5) {
+        L.mode = 'search';
+        L.cue = 0;
+        L.wy = L.yaw;
+        L.we = L.el;
+      } else {
+        const tl = 0.3,
+          px = dx + vel.x * tl,
+          py = dy + vel.y * tl,
+          pz = dz + vel.z * tl;
+        L.yaw = aaSlew(L.yaw, Math.atan2(px, pz), 0.75, dt);
+        L.el = Math.max(0.12, Math.min(1.5, aaSlew(L.el, Math.atan2(py, Math.hypot(px, pz)), 0.75, dt)));
+      }
+    }
+    if (L.mode === 'search') {
+      if (Math.abs(aaWrap(L.wy - L.yaw)) < 0.05 && Math.abs(L.we - L.el) < 0.05) {
+        L.wy = L.home + (Math.random() - 0.5) * 2.6;
+        L.we = 0.45 + Math.random() * 0.8;
+      }
+      L.yaw = aaSlew(L.yaw, L.wy, 0.22, dt);
+      L.el = aaSlew(L.el, L.we, 0.16, dt);
+    }
+    aaDir(L.yaw, L.el, _aaF);
+    L.head.rotation.y = L.yaw;
+    L.pit.rotation.x = -L.el;
+    L.beam.rotation.set(-L.el, L.yaw, 0);
+    L.beam.position.set(L.p.x, L.p.y + 0.5, L.p.z).addScaledVector(_aaF, 1.0);
+    L.beam.visible = true;
+    const bm = Math.min(1, (night - 0.3) / 0.4);
+    L.beam.children.forEach((m, i) => (m.material.opacity = [0.075, 0.085, 0.1][i] * bm));
+    L.glow.position.copy(L.beam.position);
+    L.glow.visible = true;
+    L.glow.material.opacity = bm;
+    L.lens.material.color.set(0xeaf6ff);
+    /* is the beam on you? */
+    aaDir(L.yaw, L.el, _aaF);
+    const ang2 = R > 1 ? Math.acos(Math.max(-1, Math.min(1, (_aaF.x * dx + _aaF.y * dy + _aaF.z * dz) / R))) : 9;
+    if (!L.fr && hot && R < 6500 && ang2 < 0.03) {
+      L.lit = true;
+      litAny++;
+      dzT = Math.max(dzT, (1 - ang2 / 0.03) * Math.min(1, 2200 / R));
+    }
+  }
+  AA.lit = litAny;
+  if (hot && litAny && AA.msgT <= 0) {
+    note('SEARCHLIGHT: YOU ARE ILLUMINATED');
+    AA.msgT = 12;
+  }
+  AA.dz += (dzT - AA.dz) * Math.min(1, 6 * dt);
+  const dzE = document.getElementById('dazzle');
+  if (dzE) dzE.style.opacity = AA.dz * 0.55;
+  /* ----- guns ----- */
+  const dmgS = 0.009 + DIFF.spread * 0.12;
+  for (const g of AA.gun) {
+    const dead = g.t.dead;
+    let can = false,
+      R = 1e9;
+    const dx = pos.x - g.piv.x,
+      dy = pos.y - g.piv.y,
+      dz = pos.z - g.piv.z;
+    if (!dead) {
+      R = Math.hypot(dx, dy, dz);
+      can = hot && R < 2800 && pos.y > H(pos.x, pos.z) + 2 && (night < 0.35 || litAny > 0 || R < 800);
+      g.v.lerp(vel, Math.min(1, 1.3 * dt));
+      const tt = R / 860,
+        ax = dx + g.v.x * tt * 0.9,
+        ay = dy + g.v.y * tt * 0.9 + 4.9 * tt * tt,
+        az = dz + g.v.z * tt * 0.9,
+        wy = Math.atan2(ax, az),
+        we = Math.atan2(ay, Math.hypot(ax, az));
+      if (can) {
+        g.acq += dt;
+        g.yaw = aaSlew(g.yaw, wy, 0.9, dt);
+        g.pit = Math.max(0.02, Math.min(1.45, aaSlew(g.pit, we, 0.7, dt)));
+      } else {
+        g.acq = Math.max(0, g.acq - 2 * dt);
+        g.pit = aaSlew(g.pit, 0.55, 0.3, dt);
+      }
+      const err = Math.hypot(aaWrap(wy - g.yaw) * Math.cos(g.pit), we - g.pit);
+      g.rec = Math.max(0, g.rec - dt * 6);
+      g.rl = Math.max(0, g.rl - dt);
+      if (g.mag <= 0 && g.rl <= 0) g.mag = 30;
+      if (can && g.acq > 1.0 && err < 0.07 && g.rl <= 0) {
+        g.cd -= dt;
+        while (g.cd <= 0 && g.mag > 0) {
+          g.cd += 0.25;
+          g.mag--;
+          g.side = -g.side;
+          aaDir(g.yaw, g.pit, _aaF);
+          _aaR.set(Math.cos(g.yaw), 0, -Math.sin(g.yaw));
+          _aaU.crossVectors(_aaR, _aaF).normalize();
+          const s = dmgS * (0.7 + R / 1200) + 16 / Math.max(R, 150) /* a floor of about 16 m: shell flight time, hand-cranked traverse and the crew's own guesswork */,
+            gz = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2,
+            sg = g.bias,
+            d = _aaF.clone().addScaledVector(_aaR, gz() * s + sg.x * 0.012).addScaledVector(_aaU, gz() * s + sg.y * 0.012).normalize(),
+            mp = g.piv.clone().addScaledVector(_aaF, 3.3).addScaledVector(_aaR, g.side * 0.2);
+          if (AA.bl.length < 190) AA.bl.push({ p: mp, v: d.multiplyScalar(880), t: 0 });
+          fxAdd(mp, 0xffd890, 1.3, 3.8, 0.07, 0, true);
+          g.rec = 1;
+        }
+        if (g.mag <= 0) {
+          g.rl = 3;
+          g.bias.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, 0); /* each fresh magazine: the crew's estimate of speed and range is a little off */
+        }
+        if (AA.fT <= 0 && R < 3000) {
+          note('GROUND FIRE!');
+          AA.fT = 14;
+        }
+        if ((g.snd -= dt) <= 0) {
+          g.snd = 0.16;
+          SND.flak(g.piv);
+        }
+      }
+    }
+    g.tur.rotation.y = g.yaw;
+    g.bar.rotation.x = -g.pit;
+    g.bar.position.z = -0.12 * g.rec;
+  }
+  /* ----- shells ----- */
+  for (let i = AA.bl.length - 1; i >= 0; i--) {
+    const b = AA.bl[i],
+      a = b.p.clone();
+    b.t += dt;
+    b.v.y -= 9.8 * dt;
+    b.p.addScaledVector(b.v, dt);
+    let dead = b.t > 3.6 || b.p.y < H(b.p.x, b.p.z);
+    if (!dead && hot && a.distanceToSquared(pos) < 6400 && segHit(a, b.p, pos, 6.5)) {
+      dead = true;
+      playerHit(2, 0.4);
+    }
+    if (dead && b.t > 3.5 && Math.random() < 0.3) fxAdd(b.p, 0x555555, 2, 7, 1.2, 0, false);
+    if (dead) AA.bl.splice(i, 1);
+  }
+  for (let i = 0; i < AA.bl.length; i++) {
+    const b = AA.bl[i],
+      o = i * 6;
+    abPos[o] = b.p.x;
+    abPos[o + 1] = b.p.y;
+    abPos[o + 2] = b.p.z;
+    abPos[o + 3] = b.p.x - b.v.x * 0.06;
+    abPos[o + 4] = b.p.y - b.v.y * 0.06;
+    abPos[o + 5] = b.p.z - b.v.z * 0.06;
+  }
+  abGeo.setDrawRange(0, AA.bl.length * 2);
+  abGeo.attributes.position.needsUpdate = true;
 }
 
 /* convoy: one at a time, timed */
@@ -12640,11 +13169,11 @@ function updGuide(dt) {
 
 /* mission menu */
 const MENU = [
-  ['free', 'Free Flight', 'Fly around. A convoy runs on the road, with ground targets scattered about.'],
+  ['free', 'Free Flight', 'Fly around. A convoy runs on the road, with ground targets, flak guns and searchlights.'],
   ['takeoff', 'Takeoff Trainer', 'Step-by-step coaching from the runway to a safe climb.'],
   ['landing', 'Landing Trainer', 'Start on approach: gear, flaps, flare and stop. Scored.'],
-  ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base.'],
-  ['bomb', 'Building Bombing', 'Destroy the depot and base buildings. Ordnance resupplies itself.'],
+  ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base, under flak (Settings > Ground fire).'],
+  ['bomb', 'Building Bombing', 'Destroy the depot and base buildings under flak (Settings > Ground fire). Ordnance resupplies itself.'],
   ['barrel', 'Barrel Roll', 'A coached corkscrew roll around a point ahead. Scored.'],
   ['immelmann', 'Immelmann Turn', 'Half loop up, half roll to level: reverse course and gain height. Hardcore needs more speed.'],
   ['splits', 'Split S', 'Roll inverted and pull through a half loop down. Needs height.'],
@@ -12782,6 +13311,7 @@ function drawMinimap() {
   if (trn.mode === 'free')
     T.forEach((q) => {
       if (q.kind === 'st' && !q.dead) sq(q.c.x, q.c.z, 3.5, '#ff5a4a');
+      else if (q.kind === 'aa' && !q.dead) sq(q.c.x, q.c.z, 3, '#ff4ad8');
     });
   CV.list.forEach((v) => {
     if (!v.dead) {
@@ -13888,6 +14418,13 @@ $$('dmgOn').onchange = (e) => {
   store.set('p51dmg', DM.on);
   if (!DM.on) DM.reset();
   note('BATTLE DAMAGE ' + (DM.on ? 'ON' : 'OFF'));
+};
+$$('aaOn').checked = AA.on;
+$$('aaOn').onchange = (e) => {
+  AA.on = e.target.checked;
+  store.set('p51aa', AA.on);
+  AA.apply();
+  note('GROUND FIRE ' + (AA.on ? 'ON' : 'OFF'));
 };
 $$('pmBail').onclick = () => {
   pauseMenu(false);
@@ -16968,7 +17505,8 @@ function frame(now) {
     updConvoy(dt);
     updTrainer(dt);
     updGuide(dt);
-  }
+    updAA(dt);
+  } else if (RPL.on) AA.hide();
   gear.visible = gearOn;
   pa += dt * (8 + thr * 80);
   prop.rotation.z = pa;

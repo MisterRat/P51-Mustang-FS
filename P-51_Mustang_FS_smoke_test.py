@@ -594,6 +594,31 @@ with sync_playwright() as p:
     ae3 = pg.evaluate("""()=>{for(let k=0;k<20;k++){step(1/60);updEnemies(1/60);updTrainer(1/60);updGuide(1/60);if(guide.pts.length>1)guideState(1/60)}drawGuide();drawAim();
       return {n:PP.out?PP.out.length:0,ok:PP.ok,ring:ringShown(),aimHidden:document.getElementById('aim').style.display==='none',fd:document.getElementById('fd').style.display,txt:document.getElementById('coachS').textContent.includes('green ring')}}""")
     check("maneuver trainers: the pilot is recorded, the green ring replaces the old aim target, and the coach points at the ring", ae3["n"] > 50 and ae3["ok"] and ae3["ring"] and ae3["aimHidden"] and ae3["fd"] == "block" and ae3["txt"], str(ae3))
+    # ---- ground fire: Type 96 AA guns and 150 cm searchlights at both bases, the airfield's 3.7-inch gun for show
+    pg.evaluate("()=>{paused=false;trn.mode='free';PP.off=true;reset()}"); pg.wait_for_timeout(300)
+    check("ground fire: two guns and two searchlights at each base, shootable", pg.evaluate("()=>AA.gun.length===4&&AA.lamp.filter(l=>!l.fr).length===4&&T.filter(t=>t.kind==='aa').length===8&&AA.gun.slice(0,2).every(g=>Math.hypot(g.x-DEPOT[0],g.z-DEPOT[1])<250)&&AA.gun.slice(2).every(g=>Math.hypot(g.x-BASE[0],g.z-BASE[1])<250)"))
+    check("ground fire: the airfield has a 3.7-inch gun and a searchlight for show (not targets)", pg.evaluate("()=>AA.fg.length===1&&AA.lamp.filter(l=>l.fr).length===1&&T.every(t=>t.kind!=='aa'||t.m!==AA.fg[0].grp)"))
+    check("ground fire: Settings switch is saved and on by default", pg.evaluate("()=>$$('aaOn').checked===true&&AA.on===true"))
+    r = pg.evaluate("""()=>{
+      paused=true; started=true; const g=AA.gun[0]; placeAt(g.x-1500,150,g.z+300,g.x,g.z,110); const v0=vel.clone(); php=100;
+      let shots=0; for(let i=0;i<60*16;i++){ pos.addScaledVector(v0,1/60); vel.copy(v0); const b0=AA.bl.length; updAA(1/60); if(AA.bl.length>b0) shots++; }
+      return [shots, AA.bl.length, g.mag]}""")
+    check("ground fire: a gun fires tracer at you as you fly in", r[0] > 20, f"{r[0]} shells")
+    pg.evaluate("()=>{AA.on=false;AA.apply()}")
+    r = pg.evaluate("""()=>{ const g=AA.gun[0]; placeAt(g.x-800,150,g.z+100,g.x,g.z,110); const v0=vel.clone(); AA.bl.length=0;
+      for(let i=0;i<60*8;i++){ pos.addScaledVector(v0,1/60); vel.copy(v0); updAA(1/60);} return AA.bl.length}""")
+    check("ground fire: with the switch off nothing fires", r == 0)
+    pg.evaluate("()=>{AA.on=true}")
+    r = pg.evaluate("""()=>{ trn.mode='takeoff'; const g=AA.gun[0]; placeAt(g.x-800,150,g.z+100,g.x,g.z,110); const v0=vel.clone(); AA.bl.length=0;
+      for(let i=0;i<60*8;i++){ pos.addScaledVector(v0,1/60); vel.copy(v0); updAA(1/60);} const n=AA.bl.length; trn.mode='free'; return n}""")
+    check("ground fire: training missions other than convoy and bombing are not shot at", r == 0)
+    pg.evaluate("()=>{const t=T.find(t=>t.type==='aa25');damage(t,999)}")
+    check("ground fire: a destroyed gun stops firing and is flattened", pg.evaluate("()=>{const g=AA.gun[0];const t=AA.gun[0].t;return t.dead&&t.m.scale.y<0.5}"))
+    pg.evaluate("()=>{WX.setTime('night')}"); pg.wait_for_timeout(2500)
+    check("ground fire: at night the searchlights light their beams", pg.evaluate("()=>AA.lamp.filter(l=>!l.t.dead).every(l=>{updAA(1/60);return l.beam.visible})"))
+    pg.evaluate("()=>{WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
+    check("ground fire: reset repairs the guns", pg.evaluate("()=>AA.gun.every(g=>!g.t.dead)"))
+
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
     check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))
     pg.evaluate("()=>{PP.off=true}")
