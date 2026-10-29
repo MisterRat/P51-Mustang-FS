@@ -342,11 +342,16 @@ with sync_playwright() as p:
     check("aero trainers: all six start in the mission menu and show coaching", ae_ok, str(ae["o"]))
     check("aero trainers: coaching text differs between Standard and Hardcore for every maneuver", all(ae["diff"]), str(ae["diff"]))
     check("aero trainers: only the two yo-yo trainers spawn the scripted drone", all((v[2] == 1) == (k[:-4 if k.endswith("true") else -5] in ("lowyoyo", "highyoyo")) for k, v in ae["o"].items()), str(ae["o"]))
-    rpl = pg.evaluate("""()=>{FM.on=false;const i=MENU.findIndex(x=>x[0]==='takeoff');menuPick(i);paused=false;thr=1;
+    pg.evaluate("""()=>{FM.on=false;const i=MENU.findIndex(x=>x[0]==='takeoff');menuPick(i);paused=false;thr=1;
       for(let k=0;k<240;k++){step(1/60);updTrainer(1/60);updGuide(1/60);FM.eT=0}
-      trn.done=true;trn.sum='x';updTrainer(0.01);const av=rpAvail();rpStart();const on=RPL.on&&document.getElementById('rpl').style.display==='block';
-      const ghost=rpG.ghostP.g.visible;rpStop();return {av,on,ghost,off:!RPL.on&&document.getElementById('rpl').style.display==='none'&&plane.visible}}""")
-    check("replay: a finished mission offers a replay that starts with the path and ghost, and exits cleanly", rpl["av"] and rpl["on"] and rpl["ghost"] and rpl["off"], str(rpl))
+      trn.done=true;trn.sum='x';updTrainer(0.01);window.__av=rpAvail();rpStart();window.__busy=RPL.busy}""")
+    for _ in range(90):
+        pg.wait_for_timeout(1000)
+        if not pg.evaluate("()=>RPL.busy"):
+            break
+    rpl = pg.evaluate("""()=>{const av=window.__av;const on=RPL.on&&document.getElementById('rpl').style.display==='block';
+      const ghost=rpG.ghostP.g.visible&&!!RPL.ideal;rpStop();return {av,on,ghost,busy:window.__busy,off:!RPL.on&&document.getElementById('rpl').style.display==='none'&&plane.visible}}""")
+    check("replay: a finished mission runs the sim pilot, then opens a replay with both paths and a ghost, and exits cleanly", rpl["av"] and rpl["busy"] and rpl["on"] and rpl["ghost"] and rpl["off"], str(rpl))
     pg.evaluate("()=>{FM.on=false;menuPick(0)}")
 
     shared = pg.evaluate("()=>['jeep','supply','tanker','apc','tank','truck','warehouse','hq','bunker','hangar','fuel'].every(t=>VM.make(t,SP[t].s)===VM.make(t,SP[t].s))")

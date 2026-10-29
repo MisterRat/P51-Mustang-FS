@@ -41,6 +41,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #rpl button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:5px 10px;margin:4px 3px 0;font:600 12px system-ui,sans-serif;cursor:pointer}
 #rpl input{width:100%;margin:6px 0 0}
 #rplT{font-size:12px;letter-spacing:.06em;margin-bottom:3px}
+#rplW{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);color:#fff;font:600 17px system-ui,sans-serif;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
 #rplX{position:fixed;left:12px;top:64px;width:min(400px,44vw);display:none;background:rgba(10,18,28,.84);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:9px 12px;color:#fff;font:500 13px/1.45 system-ui,sans-serif;z-index:20;text-align:left}
 #aim{position:fixed;display:none;width:56px;height:56px;border:3px solid #55ff88;border-radius:50%;box-shadow:0 0 12px #55ff88,inset 0 0 8px #55ff88;pointer-events:none;z-index:6}
 #aim::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#55ff88}
@@ -267,7 +268,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="hp" id="hpBody"></div>
 <div class="hf" style="margin-top:4px">Land &amp; stop (throttle idle) to repair and rearm.<br>Takeoff: full throttle, at ~190 km/h ease back.</div></div>
 <div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
-<div id="flash"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
+<div id="flash"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="rplW"><div id="rplWt"></div><div style="font-size:12px;opacity:.7;margin-top:6px">Esc = skip</div></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
 <div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
 <div class="p" id="coach"><div id="coachT"></div><div id="coachH"></div><div id="coachS"></div></div>
@@ -448,7 +449,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Dogfight trainer</td><td>Shoot down 3 bandits. The coach gives the bandit's clock position, range and relative height, and says whether you are attacking or defending. Hull heals and ammunition resupplies between kills.</td></tr>
 <tr><td>Convoy strafing</td><td>One convoy at a time drives from the depot to the base: a jeep, supply trucks, a tanker and an APC. A path leads you in behind the rear vehicle and follows the road; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
 <tr><td>Building bombing</td><td>Destroy the 11 depot and base buildings. A path takes you level at 900 m, then into a 25&deg; dive. The red IMPACT circle shows where a bomb would land; the coach says GET READY and then RELEASE NOW. Ordnance resupplies a few seconds after you use it all.</td></tr>
-<tr><td>Replay (every mission)</td><td>When a mission is finished (or after a crash, press <b>\\</b>) an outside camera replays the flight: <b>orange</b> is your path. On the six maneuver trainers <b>green</b> is the best path for the same entry, with a ghost aircraft flying it, and the red marker shows the biggest gap with notes on where to improve. On the other missions green is the guide route and grey is the bandit. Buttons and a slider pause, scrub, slow down and change the camera (Side, Top, Behind).</td></tr>
+<tr><td>Replay (every mission)</td><td>When a mission is finished (or after a crash, press <b>\\</b>) an outside camera replays the flight: <b>orange</b> is your path. On the six maneuver trainers <b>green</b> is the best path flown by the sim's own flight model from your entry speed and attitude (a scripted pilot following the same green target, so it is always flyable), with a ghost aircraft flying it, and the red marker shows the biggest gap with notes on where to improve. On takeoff, landing, dogfight, bombing and convoy the sim pilot flies the whole mission with the same aircraft, flight model and weapons while a progress screen shows (Esc skips it), and green is the path it flew; if it cannot finish the mission no path is drawn rather than an unflyable one, and a partial result is labelled. Grey is the bandit. Buttons and a slider pause, scrub, slow down and change the camera (Side, Top, Behind).</td></tr>
 <tr><td>Barrel roll</td><td>Pull the nose up, then corkscrew around an imaginary barrel ahead with a steady roll and a light pull the whole way. Scored for heading error, height change and keeping the G above zero. Hardcore mode: enter faster and use rudder for the torque.</td></tr>
 <tr><td>Immelmann turn</td><td>Half loop up, then a half roll to level: you leave heading the other way and higher. Standard mode: about 520 km/h and 3.5 to 4.5 G. <b>Hardcore mode: about 650 km/h, 4.5 to 5.5 G, right rudder as the speed bleeds off, and watch the stall at the top.</b></td></tr>
 <tr><td>Split S</td><td>Roll onto your back and pull through a half loop down: the fastest way to reverse course and lose height. Start 2,400 m up with the throttle closed; it needs about 1,000 m. Hardcore mode: watch the speed and the G limit.</td></tr>
@@ -7744,7 +7745,7 @@ function spawnEnemy() {
     return;
   }
   const nw = performance.now();
-  if (nw - lastSpawn < 1500) return;
+  if (!RPL.sim && nw - lastSpawn < 1500) return;
   lastSpawn = nw;
   const f = new V(fwd.x, 0, fwd.z);
   if (f.lengthSq() < 1e-4) f.set(0, 0, -1);
@@ -9013,7 +9014,7 @@ function placeAt(x, y, z, tx, tz, spd) {
   cp.copy(pos).add(new V(0, 4, 14));
 }
 function trainerReset() {
-  if (RPL.on) rpStop();
+  if (RPL.on && !RPL.keep) rpStop();
   convoyClear();
   CV.st = 'idle';
   CV.tm = 8;
@@ -9032,6 +9033,7 @@ function trainerReset() {
     res: 0,
     rpAuto: 0,
     rpShown: false,
+    rpReady: false,
     rec: null,
     recEnd: false,
   });
@@ -9113,7 +9115,7 @@ function updTrainer(dt) {
     pitch = Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3,
     R = Math.round,
     flapDeg = ANG[flapLvl];
-  if (!AERO[m] && !crashed && !trn.done) rpRecGen(dt, false);
+  if (!AERO[m] && !crashed && !trn.done && !trn.recEnd) rpRecGen(dt, false);
   if (crashed) {
     if (!AERO[m] && trn.rec && !trn.recEnd) {
       trn.recEnd = true;
@@ -9461,7 +9463,7 @@ const TRAINERS = {
         'Touched down at ' +
         R(d.kmh) +
         ' km/h. Throttle idle, keep her straight (roll input steers) and hold B for the brakes.';
-      if (kmh <= 2 && gnd) {
+      if ((kmh <= 2 || vel.length() * 3.6 <= 2) && gnd) {
         const sc =
           d.sink < 2.5 && Math.abs(d.off) < 12 && d.kmh > 150 && d.kmh < 190
             ? 3
@@ -9585,13 +9587,20 @@ const TRAINERS = {
         '   Escaped: ' +
         CV.escaped;
     trn.title = 'Strafing runs';
+    if (CV.st === 'wreck' && !trn.rpReady && trn.rec && trn.rec.length > 4) {
+      trn.rpReady = true;
+      trn.sum = stats;
+      trn.recEnd = true;
+      rpRecGen(0, true);
+    }
     if (CV.st !== 'run' || !alive.length) {
       T0(
         (CV.st === 'wreck'
           ? 'Convoy finished. Next one in ' + Math.ceil(CV.tm + CV.gap) + ' s.'
           : 'Next convoy leaves the depot in ' + Math.ceil(CV.tm) + ' s.') +
           '\nPlan: approach from BEHIND, along the road, so the vehicles line up in your sights one after another.\n' +
-          stats,
+          stats +
+          (trn.rpReady ? '\n\\ = replay with the sim pilot\'s best path (restarts the mission)' : ''),
         'Follow the red T marker on the compass to the road.',
         '',
       );
@@ -10270,7 +10279,7 @@ function aeroAim(m, A) {
     else if (st === 2) {
       const f = ((A.roll + 55 * (A.dir || 1)) / 57.3),
         ctr = arc(8);
-      dir = ctr.addScaledVector(rt, Math.sin(f) * 0.25).addScaledVector(UPV, Math.cos(f) * 0.25);
+      dir = ctr.addScaledVector(rt, Math.sin(f) * 0.3).addScaledVector(UPV, Math.cos(f) * 0.3);
       lab = 'ROLL: KEEP THE NOSE ON THE TARGET AS IT CIRCLES';
     } else lab = 'ROLL OUT, NOSE LEVEL';
   } else if (m === 'wingover') {
@@ -10454,12 +10463,19 @@ function rpInit() {
 }
 /* recording, called every frame by aeroTick from the first real step */
 function rpRecord(c, A) {
-  if (trn.step < 1 || trn.done) return;
+  if ((trn.step < 1 && !AERO_DEF[trn.mode].drone) || trn.done) return;
+  if (AERO_DEF[trn.mode].drone && !A.tgt) return;
   if (!A.rec) {
     A.rec = [];
     A.rp0 = pos.clone();
     A.rH = A.h0.clone();
     A.rv0 = vel.length();
+    A.rvel = vel.clone();
+    A.rthr = thr;
+    {
+      const e0 = A.tgt && A.tgt.e;
+      if (e0) A.rE = { sp: e0.sp, alt: e0.alt, yaw: e0.yaw || 0 };
+    }
     A.rt0 = trn.t;
     A.rAcc = 1;
   }
@@ -10475,143 +10491,172 @@ function rpQ(f, u) {
   m4.makeBasis(r, uu, f.clone().negate());
   return new Q().setFromRotationMatrix(m4);
 }
-/* ideal path builder: arrays of {p,f,u} about 10 m apart */
-function rpIdeal(m, A) {
-  const H = A.rH.clone(),
-    rt = new V().crossVectors(H, UPV).normalize(),
-    p0 = A.rp0.clone(),
-    v0 = A.rv0,
-    hc = A.hc,
-    out = [],
-    sg = A.rSide || 1,
-    push = (p, f, u) => out.push({ p: p.clone(), f: f.clone().normalize(), u: u.clone().normalize() });
-  let p = p0.clone(),
-    f = H.clone(),
-    u = UPV.clone();
-  const straight = (len, rollA) => {
-    const n = Math.max(2, Math.round(len / 10)),
-      u0 = u.clone(),
-      ax = new V().crossVectors(f, u0);
-    for (let i = 1; i <= n; i++) {
-      const a = ((rollA || 0) * i) / n;
-      p = p.clone().addScaledVector(f, len / n);
-      push(p, f, u0.clone().multiplyScalar(Math.cos(a)).addScaledVector(ax, Math.sin(a)));
-    }
-    u = out[out.length - 1].u.clone();
+/* the best path is flown by the sim itself: a scripted pilot flies the same maneuver with the real flight model from YOUR starting
+   position, speed and attitude, following the same green aim target the player sees. Nothing is drawn that the aircraft cannot do. */
+function rpBotCtl(m, A2, hc) {
+  const bank = Math.atan2(-right.y, up.y) * 57.3,
+    pit = Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3,
+    st = trn.step,
+    cl = (x) => Math.max(-1, Math.min(1, x));
+  let p = 0,
+    r = 0,
+    th = 1;
+  const point = (gMax) => {
+    const a = A2.aim;
+    if (!a) return;
+    const tb = a.dir.clone().applyQuaternion(q.clone().invert()),
+      ang = Math.acos(Math.max(-1, Math.min(1, -tb.z))),
+      err = Math.atan2(tb.x, tb.y);
+    r = ang > 0.04 ? cl(err * 1.2) : cl(-bank * 0.02);
+    p = cl(Math.min(1, ang * 3) * Math.max(0, Math.cos(err)));
+    if (gF > gMax) p *= Math.max(0, 1 - (gF - gMax) * 0.5);
+    if (buffet > 0.05) p *= 0.5;
   };
-  const arc = (R, th, pull) => {
-    const n = Math.max(6, Math.round((R * th) / 10)),
-      f0 = f.clone(),
-      u0 = u.clone(),
-      c = pull ? p.clone().addScaledVector(u0, R) : p.clone().addScaledVector(u0, -R);
-    for (let i = 1; i <= n; i++) {
-      const a = (th * i) / n,
-        co = Math.cos(a),
-        si = Math.sin(a);
-      if (pull) {
-        const pp = c.clone().addScaledVector(u0, -R * co).addScaledVector(f0, R * si);
-        push(pp, f0.clone().multiplyScalar(co).addScaledVector(u0, si), u0.clone().multiplyScalar(co).addScaledVector(f0, -si));
-      } else {
-        const pp = c.clone().addScaledVector(u0, R * co).addScaledVector(f0, R * si);
-        push(pp, f0.clone().multiplyScalar(co).addScaledVector(u0, -si), u0.clone().multiplyScalar(co).addScaledVector(f0, si));
-      }
-    }
-    const l = out[out.length - 1];
-    p = l.p.clone();
-    f = l.f.clone();
-    u = l.u.clone();
-  };
-  push(p, f, u);
-  let kind = 'energy';
   if (m === 'immelmann') {
-    const G = hc ? 5 : 4,
-      R = Math.pow(v0 * 0.9, 2) / (9.8 * (G - 0.6));
-    A.rIdealG = G;
-    arc(R, Math.PI, true);
-    straight(250, Math.PI);
-    straight(250, 0);
+    const G = hc ? 5 : 4;
+    if (st === 0) p = cl(-pit * 0.1);
+    else if (st <= 2) p = cl(0.4 + 0.35 * (G - gF));
+    else if (st === 3) (p = cl(0.2 + 0.3 * (1.5 - gF))), (r = bank > 0 ? -1 : 1);
+    else (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
   } else if (m === 'splits') {
-    const G = hc ? 4.5 : 3.5,
-      R = Math.pow(v0 * 1.25, 2) / (9.8 * (G - 0.6));
-    A.rIdealG = G;
-    straight(150, Math.PI);
-    arc(R, Math.PI, true);
-    straight(250, 0);
+    const G = hc ? 4.5 : 3.5;
+    th = st >= 3 ? 0.8 : 0;
+    if (st === 0) (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
+    else if (st === 1) (r = bank >= 0 ? 1 : -1), (p = 0.05);
+    else if (st === 2) p = cl(0.5 + 0.3 * (G - gF));
+    else (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
   } else if (m === 'barrel') {
-    const r = 90,
-      L = v0 * 5.5,
-      N = 70,
-      c0 = p0.clone();
-    A.rIdealG = 1.8;
-    out.length = 0;
-    for (let i = 0; i <= N; i++) {
-      const ph = (2 * Math.PI * i) / N,
-        s = (L * i) / N,
-        pp = c0.clone().addScaledVector(H, s).addScaledVector(rt, sg * r * Math.sin(ph)).addScaledVector(UPV, r * (1 - Math.cos(ph))),
-        ctr = c0.clone().addScaledVector(H, s).addScaledVector(UPV, r),
-        pn = c0.clone().addScaledVector(H, s + L / N).addScaledVector(rt, sg * r * Math.sin(ph + 0.09)).addScaledVector(UPV, r * (1 - Math.cos(ph + 0.09)));
-      push(pp, pn.sub(pp), ctr.sub(pp));
-    }
-    for (let i = 0; i < out.length; i++) {
-      const o = out[i];
-      o.u.addScaledVector(o.f, -o.u.dot(o.f)).normalize();
-    }
-    kind = 'time';
+    const sg = A2.sg || 1;
+    if (st === 0) (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
+    else if (st === 1) p = cl((22 - pit) * 0.1);
+    else if (st === 2) (r = sg), (p = cl(0.25 + 0.15 * (1.2 - gF)));
+    else (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
   } else if (m === 'wingover') {
-    const v = v0 * 0.85,
-      Rp = (v * v) / (9.8 * Math.tan(1.05)),
-      Hup = Math.min(320, 0.26 * (v0 * v0) / 19.6),
-      N = 60;
-    A.rIdealG = 2.2;
-    out.length = 0;
-    const at = (ps) => p0.clone().addScaledVector(H, Rp * Math.sin(ps)).addScaledVector(rt, sg * Rp * (1 - Math.cos(ps))).addScaledVector(UPV, Hup * Math.sin(ps));
-    for (let i = 0; i <= N; i++) {
-      const ps = (Math.PI * i) / N,
-        pp = at(ps),
-        fw = at(ps + 0.03).sub(pp),
-        bank = 1.1 + 0.3 * Math.sin(ps),
-        tc = rt.clone().multiplyScalar(-sg * Math.cos(ps)).addScaledVector(H, -Math.sin(ps)).normalize(),
-        uu = UPV.clone().multiplyScalar(Math.cos(bank)).addScaledVector(tc, Math.sin(bank));
-      push(pp, fw, uu.addScaledVector(fw.clone().normalize(), -uu.dot(fw.clone().normalize())));
-    }
+    if (st === 0) (p = cl(-pit * 0.1)), (r = cl(-bank * 0.05));
+    else point(4.2);
   } else {
-    /* yo-yos: a chord to a point behind the drone's final position, with a dive (low) or a climb (high) in the middle */
-    const last = A.rec[A.rec.length - 1],
-      dF = new V(0, 0, -1).applyQuaternion(last.dq),
-      E = last.d.clone().addScaledVector(dF, -330),
-      amp = m === 'lowyoyo' ? -170 : 230,
-      n = Math.max(10, Math.round(p0.distanceTo(E) / 10));
-    A.rIdealG = 2;
-    out.length = 0;
-    const at = (t) => p0.clone().lerp(E, t).addScaledVector(UPV, amp * Math.sin(Math.PI * t));
-    for (let i = 0; i <= n; i++) {
-      const t = i / n,
-        pp = at(t),
-        fw = at(Math.min(1, t + 0.02)).sub(pp);
-      if (fw.lengthSq() < 1e-6) fw.copy(out[out.length - 1].f);
-      push(pp, fw, UPV);
-      const o = out[out.length - 1];
-      o.u.addScaledVector(o.f, -o.u.dot(o.f)).normalize();
+    const T = A2.tgt;
+    th = m === 'highyoyo' && T && T.d < 500 ? 0.6 : 1;
+    point(4.5);
+  }
+  return { p, r, th };
+}
+function rpSim(m, A) {
+  const rec0 = A.rec[0],
+    last = A.rec[A.rec.length - 1],
+    drone = !!AERO_DEF[m].drone,
+    sv = {
+      pos: pos.clone(),
+      vel: vel.clone(),
+      q: q.clone(),
+      thr,
+      s: Object.assign({}, s),
+      pad: { p: pad.p, r: pad.r, y: pad.y },
+      step: trn.step,
+      a: trn.a,
+      done: trn.done,
+      sum: trn.sum,
+      t: trn.t,
+      title: trn.title,
+      EN: EN.slice(),
+      crashed,
+      gF,
+      stalled,
+      buffet,
+      onGround,
+      eT: FM.eT,
+      fuel: FM.fuel,
+      wind: FM.opt.wind,
+      turb: FM.opt.turb,
+      trim: Object.assign({}, TRIM),
+      paused,
+    };
+  const out = [];
+  let ok = false;
+  try {
+    pos.copy(rec0.p);
+    q.copy(rec0.q);
+    vel.copy(A.rvel);
+    thr = A.rthr;
+    Object.assign(s, { p: 0, r: 0, y: 0 });
+    FM.opt.wind = false;
+    FM.opt.turb = false;
+    crashed = false;
+    onGround = false;
+    const A2 = aeroNew(m);
+    A2.hc = A.hc;
+    A2.sg = A.rSide || 1;
+    A2.dh = 0.001 * A2.sg;
+    trn.a = A2;
+    trn.step = 0;
+    trn.done = false;
+    trn.t = 0;
+    let e2 = null;
+    if (drone) {
+      const dF = new V(0, 0, -1).applyQuaternion(rec0.dq);
+      e2 = { drone: true, dying: false, p: rec0.d.clone(), q: rec0.dq.clone(), fwd: dF, v: dF.clone().multiplyScalar(A.rE.sp), sp: A.rE.sp, yaw: A.rE.yaw, alt: A.rE.alt };
+      EN.length = 0;
+      EN.push(e2);
     }
-    kind = 'time';
+    const dt = 1 / 60;
+    step(dt);
+    for (let i = 0; i < 3000 && !trn.done; i++) {
+      const c = { dt, kmh: (FM.ias || vel.length()) * 3.6, agl: pos.y - 2 - H(pos.x, pos.z), gnd: false, pitch: Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3, R: Math.round, T0: () => {}, name: '', footer: '', flapDeg: 0 };
+      if (e2) {
+        const om = (9.8 * Math.tan(0.6)) / Math.max(e2.sp, 30);
+        e2.yaw += om * dt;
+        e2.fwd.set(-Math.sin(e2.yaw), 0, -Math.cos(e2.yaw));
+        e2.q.setFromAxisAngle(UPV, e2.yaw).multiply(new Q().setFromAxisAngle(new V(0, 0, 1), 0.6));
+        e2.v.copy(e2.fwd).multiplyScalar(e2.sp);
+        e2.p.addScaledVector(e2.v, dt);
+        e2.p.y = e2.alt;
+      }
+      const ct = rpBotCtl(m, A2, A.hc);
+      pad.p = ct.p;
+      pad.r = ct.r;
+      thr = ct.th;
+      step(dt);
+      FM.eT = 0;
+      trn.t += dt;
+      aeroRun(c, m);
+      if (crashed) break;
+      if (i % 6 === 0) out.push({ p: pos.clone(), f: fwd.clone(), u: up.clone(), t: i * dt, v: vel.length(), d: e2 ? e2.p.clone() : null });
+    }
+    RPL.dbg = { st: trn.step, t: trn.t, crashed, T: trn.a.tgt && { d: trn.a.tgt.d, dy: trn.a.tgt.dy, ata: trn.a.tgt.ata, cl: trn.a.tgt.closing }, k: (FM.ias || 0) * 3.6, n: out.length };
+    ok = trn.done && !crashed;
+    if (ok) out.push({ p: pos.clone(), f: fwd.clone(), u: up.clone(), t: trn.t, v: vel.length(), d: e2 ? e2.p.clone() : null });
+  } catch (er) {
+    ok = false;
+    RPL.err = String(er && er.stack);
   }
-  /* timeline: loops and wingover trade speed for height; the others take the time the drone took */
-  let t = 0;
-  out[0].t = 0;
-  for (let i = 1; i < out.length; i++) {
-    const ds = out[i].p.distanceTo(out[i - 1].p),
-      v = kind === 'energy' ? Math.max(48, Math.sqrt(Math.max(0, v0 * v0 - 2 * 9.8 * (out[i].p.y - p0.y) * 0.9))) : v0;
-    out[i].v = v;
-    t += ds / v;
-    out[i].t = t;
-  }
-  out[0].v = v0;
-  if (kind === 'time') {
-    const T = A.rec[A.rec.length - 1].t,
-      k = T / Math.max(0.1, t);
-    out.forEach((o) => (o.t *= k));
-  }
-  return out;
+  pos.copy(sv.pos);
+  vel.copy(sv.vel);
+  q.copy(sv.q);
+  thr = sv.thr;
+  Object.assign(s, sv.s);
+  Object.assign(pad, sv.pad);
+  trn.step = sv.step;
+  trn.a = sv.a;
+  trn.done = sv.done;
+  trn.sum = sv.sum;
+  trn.t = sv.t;
+  trn.title = sv.title;
+  EN.length = 0;
+  sv.EN.forEach((e) => EN.push(e));
+  crashed = sv.crashed;
+  gF = sv.gF;
+  stalled = sv.stalled;
+  buffet = sv.buffet;
+  onGround = sv.onGround;
+  FM.eT = sv.eT;
+  FM.fuel = sv.fuel;
+  FM.opt.wind = sv.wind;
+  FM.opt.turb = sv.turb;
+  Object.assign(TRIM, sv.trim);
+  paused = sv.paused;
+  axes();
+  A.rIdealG = m === 'immelmann' ? (A.hc ? 5 : 4) : m === 'splits' ? (A.hc ? 4.5 : 3.5) : 3;
+  return ok && out.length > 5 ? out : null;
 }
 function rpSamp(arr, t, fn) {
   /* arr sorted by .t: returns interpolation info */
@@ -10633,15 +10678,40 @@ function rpBuild(m, A) {
   const last = rec[rec.length - 1],
     rt = new V().crossVectors(A.rH, UPV).normalize();
   A.rSide = Math.sign(A.dir || A.dh || 1) || 1;
-  const I = rpIdeal(m, A),
+  const I = rpSim(m, A),
     R = RPL;
+  R.gpl = null;
+  if (!I) {
+    R.rec = rec;
+    R.ideal = null;
+    R.A = A;
+    R.m = m;
+    R.T = last.t;
+    R.gap = null;
+    const pts = rec.map((s) => s.p),
+      mn = new V(1e9, 1e9, 1e9),
+      mx = new V(-1e9, -1e9, -1e9);
+    pts.forEach((p) => (mn.min(p), mx.max(p)));
+    R.ctr.copy(mn).add(mx).multiplyScalar(0.5);
+    R.rad = Math.max(120, mn.distanceTo(mx) * 0.5);
+    R.dist = R.rad * 1.75;
+    R.H = A.rH.clone();
+    R.rt = rt;
+    R.tips = [
+      'No best path is shown: the sim pilot could not complete this maneuver from your exact entry state (' + Math.round(rec[0].k) + ' km/h), so I will not draw a path the aircraft cannot fly.',
+      'You took ' + last.t.toFixed(1) + ' s, slowest ' + Math.round(Math.min(...rec.map((s) => s.k))) + ' km/h, peak ' + Math.max(...rec.map((s) => s.g)).toFixed(1) + ' G.',
+    ];
+    return true;
+  }
   R.rec = rec;
   R.ideal = I;
   R.A = A;
   R.m = m;
   R.T = Math.max(last.t, I[I.length - 1].t);
   /* the gap between the two paths */
-  const dev = rec.map((s) => {
+  const iEnd = I[I.length - 1].t + 1,
+    dev = rec.map((s) => {
+    if (s.t > iEnd) return { d: 0, j: I.length - 1 };
     let b = 1e9,
       bj = 0;
     for (let j = 0; j < I.length; j++) {
@@ -10685,6 +10755,7 @@ function rpTips(m, A, rec, I, R) {
     iLen = I.reduce((a, o, i) => (i ? a + o.p.distanceTo(I[i - 1].p) : 0), 0),
     ph = (x, d) => (x > 0 ? 'right' : 'left');
   t.push('Biggest gap from the best path: ' + R0(R.gap.d) + ' m, ' + R.gap.pct + '% of the way through (the red marker).');
+  t.push('The best path is flown by the sim itself from your entry state: ' + iT.toFixed(1) + ' s against your ' + T.toFixed(1) + ' s.');
   if (m === 'immelmann' || m === 'splits') {
     const hgt = m === 'immelmann' ? yPk : yMn,
       ihgt = m === 'immelmann' ? iPk : iMn,
@@ -10697,20 +10768,25 @@ function rpTips(m, A, rec, I, R) {
       ix = I[I.length - 1].v * 3.6 * 0 + 0;
     t.push('You started the pull at ' + R0(rec[0].k) + ' km/h and finished at ' + R0(ex) + ' km/h' + (m === 'immelmann' ? ' (slowest ' + R0(Math.min(...rec.map((s) => s.k))) + ').' : '.'));
   } else if (m === 'barrel') {
-    const lr = lat;
-    if (lr < 60) t.push('Your barrel was only ' + R0(lr) + ' m wide, the best path is about 90 m: roll while pulling a little, so the nose circles instead of just rolling in place.');
-    else if (lr > 140) t.push('Your barrel was ' + R0(lr) + ' m wide, the best path is about 90 m: use less pull while rolling.');
-    else t.push('Barrel size was good: ' + R0(lr) + ' m wide against about 90 m.');
+    const lr = lat,
+      il = Math.max(...I.map((o) => Math.abs(o.p.clone().sub(A.rp0).dot(rt)))),
+      ih = Math.max(...I.map((o) => o.p.y)) - y0;
+    if (lr < il * 0.65) t.push('Your barrel was only ' + R0(lr) + ' m wide, the best path is about ' + R0(il) + ' m: keep a little pull while rolling so the nose circles round the green target instead of just rolling in place.');
+    else if (lr > il * 1.5) t.push('Your barrel was ' + R0(lr) + ' m wide, the best path is about ' + R0(il) + ' m: use less pull while rolling.');
+    else t.push('Barrel size was good: ' + R0(lr) + ' m wide against about ' + R0(il) + ' m for the best path.');
+    t.push('You rose ' + R0(yPk) + ' m above the start (best path about ' + R0(ih) + ' m).');
     const endDy = rec[rec.length - 1].p.y - y0;
-    t.push('You finished ' + R0(Math.abs(endDy)) + ' m ' + (endDy >= 0 ? 'above' : 'below') + ' where you started (the best path finishes level). Lowest G ' + Math.min(...rec.map((s) => s.g)).toFixed(1) + '.');
+    t.push('You finished ' + R0(Math.abs(endDy)) + ' m ' + (endDy >= 0 ? 'above' : 'below') + ' where you started. Lowest G ' + Math.min(...rec.map((s) => s.g)).toFixed(1) + '.');
   } else if (m === 'wingover') {
     t.push('Your peak was ' + R0(yPk) + ' m above the start against about ' + R0(iPk) + ' m for the best path' + (yPk < iPk * 0.6 ? ': start the climbing turn harder and steeper.' : yPk > iPk * 1.5 ? ': too much climb, you lose speed.' : '.'));
     t.push('You took ' + T.toFixed(1) + ' s against about ' + iT.toFixed(1) + ' s, slowest speed ' + R0(Math.min(...rec.map((s) => s.k))) + ' km/h.');
   } else {
     const low = m === 'lowyoyo',
       dm = rec.map((s) => (s.d ? s.p.y - s.d.y : 0)),
+      idm = I.map((o) => (o.d ? o.p.y - o.d.y : 0)),
+      iext = low ? -Math.min(...idm) : Math.max(...idm),
       ext = low ? Math.min(...dm) : Math.max(...dm);
-    t.push(low ? 'Your dive went ' + R0(-ext) + ' m below him; the best path dips about 170 m.' : 'You climbed ' + R0(ext) + ' m above him; the best path climbs about 230 m.');
+    t.push(low ? 'Your dive went ' + R0(-ext) + ' m below him; the best path dips about ' + R0(iext) + ' m.' : 'You climbed ' + R0(ext) + ' m above him; the best path climbs about ' + R0(iext) + ' m.');
     t.push('Your path was ' + R0(len) + ' m long against about ' + R0(iLen) + ' m for the best path' + (len > iLen * 1.25 ? ': you flew too wide, cut across his turn earlier.' : '.'));
     t.push('You took ' + T.toFixed(1) + ' s. Closest approach ' + R0(A.minRange) + ' m.');
   }
@@ -10720,6 +10796,8 @@ function rpTips(m, A, rec, I, R) {
 function rpAvail() {
   const m = trn.mode,
     r = AERO[m] ? trn.a && trn.a.rec : trn.rec;
+  if (RPL.busy) return false;
+  if (!AERO[m] && RPL.mc && RPL.mc.m === m && !(r && r.length > 4) && trn.t < 10) return true; /* the mission was restarted: the last run can still be watched */
   return !!(r && r.length > 4 && m !== 'free');
 }
 function rpRecGen(dt, last) {
@@ -10743,33 +10821,43 @@ function rpRecGen(dt, last) {
   trn.rec.push({ t: trn.t - trn.rt0, p: pos.clone(), q: q.clone(), g: gF, k: (FM.ias || vel.length()) * 3.6, d: e ? e.p.clone() : null, dq: e ? e.q.clone() : null, gp });
 }
 function rpBuildGen(m) {
-  const rec = trn.rec;
-  if (!rec || rec.length < 5) return false;
-  const R = RPL,
+  const mc = RPL.mc;
+  if (!mc || mc.m !== m || !mc.rec || mc.rec.length < 5) return false;
+  const rec = mc.rec,
+    I = mc.ideal,
+    R = RPL,
     last = rec[rec.length - 1],
-    gpl = [];
-  rec.forEach((s) => {
-    if (s.gp && (!gpl.length || gpl[gpl.length - 1].distanceTo(s.gp) > 8)) gpl.push(s.gp);
-  });
+    R0 = Math.round;
   R.rec = rec;
-  R.ideal = null;
-  R.gpl = gpl.length > 3 ? gpl : null;
-  R.A = trn;
+  R.ideal = I;
+  R.gpl = null;
+  R.A = mc;
   R.m = m;
-  R.T = last.t;
-  let bi = -1,
-    bd = 0;
-  if (R.gpl)
-    rec.forEach((s, i) => {
-      if (!s.gp) return;
-      const d = s.p.distanceTo(s.gp);
-      if (d > bd) (bd = d), (bi = i);
+  R.T = Math.max(last.t, I ? I[I.length - 1].t : 0);
+  R.gap = null;
+  R.dev = null;
+  if (I && (m === 'takeoff' || m === 'landing')) {
+    /* same runway, same start: the gap between the two paths means something */
+    const iEnd = I[I.length - 1].t + 1;
+    let bi = -1,
+      bd = 0,
+      bj = 0;
+    rec.forEach((sm, i) => {
+      if (sm.t > iEnd) return;
+      let b = 1e9,
+        j0 = 0;
+      for (let j = 0; j < I.length; j += 2) {
+        const d = sm.p.distanceTo(I[j].p);
+        if (d < b) (b = d), (j0 = j);
+      }
+      if (b > bd) (bd = b), (bi = i), (bj = j0);
     });
-  R.gap = bi >= 0 ? { i: bi, d: bd, gi: rec[bi].gp, pct: Math.round((100 * rec[bi].t) / Math.max(0.1, last.t)) } : null;
-  const pts = rec.map((s) => s.p).concat(R.gpl || []);
+    if (bi >= 0) R.gap = { i: bi, d: bd, j: bj, pct: R0((100 * rec[bi].t) / Math.max(0.1, last.t)) };
+  }
+  const pts = rec.map((sm) => sm.p).concat(I ? I.map((o) => o.p) : []);
   const mn = new V(1e9, 1e9, 1e9),
     mx = new V(-1e9, -1e9, -1e9);
-  pts.forEach((p) => (mn.min(p), mx.max(p)));
+  pts.forEach((pp) => (mn.min(pp), mx.max(pp)));
   R.ctr.copy(mn).add(mx).multiplyScalar(0.5);
   R.rad = Math.max(150, mn.distanceTo(mx) * 0.5);
   R.dist = R.rad * 1.75;
@@ -10779,24 +10867,366 @@ function rpBuildGen(m) {
   R.H = f0.normalize();
   R.rt = new V().crossVectors(R.H, UPV).normalize();
   const t = [],
-    R0 = Math.round,
-    mxk = Math.max(...rec.map((s) => s.k)),
-    yMx = Math.max(...rec.map((s) => s.p.y)),
-    len = rec.reduce((a, s, i) => (i ? a + s.p.distanceTo(rec[i - 1].p) : 0), 0),
-    gMx = Math.max(...rec.map((s) => s.g));
-  t.push('Flight: ' + fmtT(last.t) + ', ' + (len / 1000).toFixed(1) + ' km, top speed ' + R0(mxk) + ' km/h, peak ' + gMx.toFixed(1) + ' G, highest ' + R0(yMx) + ' m.');
-  if (R.gap) t.push('Biggest gap from the green guide route: ' + R0(R.gap.d) + ' m, ' + R.gap.pct + '% of the way through (the red marker).');
-  else t.push('This mission has no set route, so there is no best path: orange is your flight' + (rec.some((s) => s.d) ? ', grey is the bandit.' : '.'));
+    stat = (arr, kf, gf) => ({
+      len: arr.reduce((a, o, i) => (i ? a + o.p.distanceTo(arr[i - 1].p) : 0), 0),
+      mxk: Math.max(...arr.map(kf)),
+      yMx: Math.max(...arr.map((o) => o.p.y)),
+      gMx: Math.max(...arr.map(gf)),
+      T: arr[arr.length - 1].t,
+    }),
+    me = stat(rec, (o) => o.k, (o) => o.g);
+  t.push('You: ' + fmtT(me.T) + ', ' + (me.len / 1000).toFixed(1) + ' km, top speed ' + R0(me.mxk) + ' km/h, peak ' + me.gMx.toFixed(1) + ' G, highest ' + R0(me.yMx) + ' m.');
+  if (mc.sum) t.push('Your result: ' + mc.sum.replace(/\n/g, ' '));
+  if (I) {
+    const si = stat(I, (o) => o.k, (o) => o.g);
+    t.push('Best (the sim pilot, same aircraft and flight model, same mission): ' + fmtT(si.T) + ', ' + (si.len / 1000).toFixed(1) + ' km, top speed ' + R0(si.mxk) + ' km/h, peak ' + si.gMx.toFixed(1) + ' G.');
+    if (mc.simSum) t.push('Best result: ' + mc.simSum.replace(/\n/g, ' '));
+    if (m === 'takeoff') {
+      const lift = (arr) => {
+        for (const o of arr) if (o.p.y - 2 - H(o.p.x, o.p.z) > 1.5) return o;
+        return null;
+      };
+      const a = lift(rec),
+        b = lift(I);
+      if (a && b) t.push('You left the ground after ' + a.t.toFixed(1) + ' s and ' + R0(420 - a.p.z) + ' m at ' + R0(a.k) + ' km/h; the sim pilot after ' + b.t.toFixed(1) + ' s and ' + R0(420 - b.p.z) + ' m at ' + R0(b.k) + ' km/h.');
+    }
+    if (R.gap) t.push('Biggest gap between the two paths: ' + R0(R.gap.d) + ' m, ' + R.gap.pct + '% of the way through (the red marker).');
+    if (me.T > si.T * 1.25) t.push('Your run took ' + R0((100 * (me.T - si.T)) / si.T) + '% longer than the sim pilot\'s: look for slack in the set-up, not just the finish.');
+    if (m === 'dogfight' || m === 'convoy' || m === 'bomb') t.push('Bandits, vehicles and wind are not identical in every run, so use the path for its shape: how the sim pilot positioned itself, not exact points.');
+  } else {
+    t.push('No best path is shown: ' + (mc.why || 'the sim pilot could not finish this mission') + ', so I will not draw a path the aircraft cannot fly. Orange is your flight' + (rec.some((o) => o.d) ? ', grey is the bandit.' : '.'));
+  }
   R.tips = t;
   return true;
 }
+/* ---------- the best path for the other missions: the sim pilot flies the whole mission ----------
+   The world is put back to the start of the mission, a scripted pilot flies it with the real flight model (the same physics, weapons and
+   bandits as you), following the same flight-director point the player sees, and its path is recorded. Then the mission restarts. */
+function rpMBot(m, S) {
+  const cl = (x) => Math.max(-1, Math.min(1, x)),
+    kmh = (FM.ias || vel.length()) * 3.6,
+    agl = pos.y - 2 - H(pos.x, pos.z),
+    pit = Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3,
+    bank = Math.atan2(-right.y, up.y) * 57.3,
+    psi = Math.atan2(-fwd.x, -fwd.z),
+    qi = q.clone().invert();
+  let p = 0,
+    r = 0,
+    y = 0,
+    th = thr;
+  pad.fire = false;
+  pad.brake = false;
+  /* follow a point: bank toward it in proportion to the bearing error, pull in proportion to the elevation error */
+  const follow = (tg, gMax, bk, isP) => {
+    const tb = tg.clone().sub(pos).applyQuaternion(qi),
+      br = Math.atan2(tb.x, -tb.z),
+      el = Math.atan2(tb.y, Math.hypot(tb.x, tb.z) * (tb.z < 0 ? 1 : -1)),
+      db = Math.max(-(bk || 50), Math.min(bk || 50, br * 57.3 * 1.6 - ((isP || tg === look) && guide.latErr !== undefined ? Math.max(-250, Math.min(250, guide.latErr)) * 0.1 : 0)));
+    r = cl((db - bank) * 0.04);
+    p = cl(el * 3 + (Math.abs(bank) / 57.3) * 0.25 * (Math.abs(bank) < 85 ? 1 : 0.3));
+    const gl0 = Math.min(gMax, Math.max(1.6, (kmh - 190) / 45));
+    if (isP || tg === look) {
+      /* fly the flight-path angle toward the point, not the nose (the nose sits well above the path at low speed) */
+      const dxz = Math.hypot(tg.x - pos.x, tg.z - pos.z) || 1,
+        gT = Math.atan2(tg.y - pos.y, dxz),
+        gam = Math.atan2(vel.y, Math.hypot(vel.x, vel.z));
+      p = cl((gT - gam) * 5 + (Math.abs(bank) < 85 ? Math.max(0, 1 / Math.cos((Math.abs(bank) / 57.3))  - gF) * 0.7 + (Math.abs(bank) / 57.3) * 0.12 : 0.1));
+      if (guide.vertErr !== undefined) p = cl(p - guide.vertErr * 0.004);
+      if (isP) {
+        /* load-factor control: hold the G the bank needs, plus what the climb or dive error asks for */
+        const bn = Math.min(Math.abs(bank), 75) / 57.3,
+          nzT = Math.max(0.3, Math.min(gl0, 1 / Math.cos(bn) + 4 * (gT - gam) - (guide.vertErr || 0) * 0.004));
+        p = cl((nzT - gF) * 0.5 + (nzT - 1) * 0.12);
+      }
+    }
+    const gl = Math.min(gMax, Math.max(1.6, (kmh - 190) / 45));
+    if (p > 0 && gF > gl) p *= Math.max(0, 1 - (gF - gl) * 0.9);
+    if (buffet > 0.05) p = Math.min(p, 0.1);
+    return { br, el, tb };
+  };
+  const hard = (tg, gMax) => {
+    const tb = tg.clone().sub(pos).applyQuaternion(qi),
+      ang = Math.acos(Math.max(-1, Math.min(1, -tb.z / Math.max(1, tb.length())))),
+      err = Math.atan2(tb.x, tb.y);
+    r = ang > 0.04 ? cl(err * 1.2) : cl(-bank * 0.02);
+    p = cl(Math.min(1, ang * 3) * Math.max(0, Math.cos(err)));
+    const gl = Math.min(gMax, Math.max(1.6, (kmh - 190) / 45));
+    if (gF > gl) p *= Math.max(0, 1 - (gF - gl) * 0.9);
+    if (buffet > 0.05) p = Math.min(p, 0.1);
+    return { ang, tb };
+  };
+  const look = guide.look && guide.pts.length > 1 ? new V(guide.look.x, guide.look.y, guide.look.z) : null;
+  /* a point on the guide route itself, further along than the soft aiming point (which is limited to gentle slopes) */
+  let plk = null;
+  if (guide.pts.length > 1) {
+    try {
+      const pr = projectOnPath(guide.pts),
+        lp = pathAt(guide.pts, pr.s + Math.max(120, vel.length() * 2.2));
+      plk = new V(lp.x, lp.y + 2, lp.z);
+    } catch (er) {}
+  }
+  const spd = (tgt) => (th = Math.max(0, Math.min(1, 0.45 + (tgt - kmh) * 0.02)));
+  if (m === 'takeoff') {
+    th = 1;
+    if (S.i < 3) flapLvl = Math.min(1, ANG.length - 1);
+    const psT = Math.max(-0.15, Math.min(0.15, pos.x * 0.004));
+    y = cl((psi - psT) * 3);
+    if (!onGround && agl > 1.6 && vel.y > 0) S.up = true;
+    if (!S.up) {
+      p = kmh >= 150 ? cl((16 - pit) * 0.25) : 0;
+    } else {
+      if (gearOn && agl > 12 && vel.y > 0) gearOn = false;
+      if (kmh >= 235 && !gearOn) flapLvl = 0;
+      const tp = Math.max(3, Math.min(10, 4 + (kmh - 205) * 0.1));
+      p = Math.max(-0.5, Math.min(0.5, (tp - pit) * 0.08));
+      if (buffet > 0.05) p = Math.min(p, 0);
+      r = cl(-bank * 0.05 - (psi - psT) * 1.2);
+    }
+  } else if (m === 'landing') {
+    const dist = pos.z - 600,
+      lim = FM.use('ops') ? 273 : 350;
+    if (!S.idle) {
+      th = 0;
+      if (thr < 0.12) S.idle = true;
+    }
+    if (onGround && trn.td) {
+      th = 0;
+      pad.brake = true;
+      y = cl((psi - Math.max(-0.15, Math.min(0.15, pos.x * 0.01))) * 3);
+      p = 0;
+      r = 0;
+    } else {
+      if (!gearOn && kmh < lim - 5) gearOn = true;
+      if (gearOn && flapLvl < 2 && kmh < 430 && S.i % 30 === 0) flapLvl++;
+      if (agl < 12 && dist < 350 && trn.appr && !onGround) {
+        th = kmh < 175 ? 0.3 : 0;
+        p = cl((7 - pit) * 0.1 + Math.max(0, -vel.y - 0.8) * 0.15);
+        const psT = Math.max(-0.08, Math.min(0.08, pos.x * 0.004)),
+          bt = Math.max(-10, Math.min(10, -pos.x * 0.1 + (psi - psT) * 57.3 * 0.8));
+        r = cl((bt - bank) * 0.05);
+        y = cl((psi - psT) * 3);
+      } else {
+        if (look) follow(look, 3.5, 40);
+        if (flapLvl >= 2) th = Math.max(0, Math.min(1, 0.35 + ((dist > 1500 ? 230 : 210) - kmh) * 0.02));
+        else if (gearOn) th = 0;
+        if (kmh < 185) {
+          p = Math.min(p, -0.1);
+          th = 1;
+        }
+      }
+    }
+  } else if (m === 'dogfight') {
+    th = 1;
+    const e = EN.find((x) => !x.dying);
+    if (e) {
+      const d = e.p.distanceTo(pos),
+        lead = e.p.clone().addScaledVector(e.v, Math.min(1.5, d / 800));
+      lead.y += 4.9 * Math.pow(Math.min(1.5, d / 800), 2);
+      const lo = agl < 550 ? 60 : 0;
+      if (kmh < 235 + lo) S.ext = true;
+      else if (kmh > 270 + lo) S.ext = false;
+      if (S.ext || buffet > 0.05) {
+        /* extend: wings level, trade a little height for speed */
+        r = cl(-bank * 0.05);
+        p = cl(((agl > 700 ? -7 : agl > 450 ? 0 : 2) - pit) * 0.06);
+        if (kmh < 215 && agl > 350) p = Math.min(p, -0.25);
+      } else {
+        hard(lead, 4.5);
+        if (agl < 900 && pit < -18) p = Math.max(p, 0.3);
+        const ang = Math.acos(Math.max(-1, Math.min(1, fwd.dot(lead.clone().sub(pos).normalize()))));
+        if (ang < 0.07 && d < 520) pad.fire = true;
+      }
+    } else {
+      r = cl(-bank * 0.05);
+      p = cl((2 - pit) * 0.05);
+    }
+  } else if (m === 'convoy') {
+    spd(400);
+    if (plk) follow(plk, 4.5, 55, true);
+    else if (look) follow(look, 4.5, 55);
+    const al = CV.list.filter((v) => !v.dead);
+    if (al.length && CV.st === 'run') {
+      let nv = al[0],
+        nd = 1e9;
+      for (const v of al) {
+        const dd = v.m.position.distanceTo(pos);
+        if (dd < nd) (nd = dd), (nv = v);
+      }
+      const to = nv.m.position.clone().sub(pos).normalize(),
+        ata = Math.acos(Math.max(-1, Math.min(1, fwd.dot(to)))) * 57.3;
+      if (nd < 1100 && ata < 35 && agl > 70) {
+        /* the attack: put the guns on the vehicle */
+        const av = nv.m.position.clone().add(new V(0, 2, 0)),
+          tbv = av.clone().sub(pos).applyQuaternion(qi),
+          elv = Math.atan2(tbv.y, Math.hypot(tbv.x, tbv.z) * (tbv.z < 0 ? 1 : -1)),
+          brv = Math.atan2(tbv.x, -tbv.z);
+        r = cl((Math.max(-35, Math.min(35, brv * 57.3 * 1.5)) - bank) * 0.04);
+        p = cl(elv * 2 + 0.03 + (1 / Math.cos(Math.min(Math.abs(bank), 60) / 57.3) - 1) * 0.15);
+        if (ata < 4.5 && nd < 560) pad.fire = true;
+      }
+    }
+    if (agl < 130 && vel.y < 0) p = 1;
+  } else if (m === 'bomb') {
+    spd(400);
+    if (plk) follow(plk, 4.5, 55, true);
+    else if (look) follow(look, 4.5, 55);
+    const left = BLD.filter((b) => !b.dead);
+    if (left.length) {
+      const tg = guide.tgt && !guide.tgt.dead && Math.hypot(guide.tgt.c.x - pos.x, guide.tgt.c.z - pos.z) > 600 ? guide.tgt : pickBldg(left),
+        td = Math.hypot(tg.c.x - pos.x, tg.c.z - pos.z),
+        vh = Math.hypot(vel.x, vel.z) || 1,
+        hx = vel.x / vh,
+        hz = vel.z / vh,
+        imp = bombImpact(),
+        ex = imp.x - tg.c.x,
+        ez = imp.z - tg.c.z,
+        along = ex * hx + ez * hz,
+        cross = -ex * hz + ez * hx;
+      if (Math.abs(cross) <= 30 && along >= -40 && along <= 8 && agl > 150 && td < 2400 && pit < -8 && S.i - (S.lastB || -999) > 40) {
+        dropBomb();
+        S.lastB = S.i;
+      }
+      if (agl < 260 && vel.y < 0) p = Math.max(p, 0.9);
+    }
+  }
+  if (m === 'dogfight' || m === 'convoy' || m === 'bomb') {
+    /* ground recovery: wings level, pull as hard as the wing allows, full power; looks ahead at the terrain too */
+    const sink = Math.max(0, -vel.y),
+      cl5 = pos.y - 2 + vel.y * 5 - H(pos.x + vel.x * 5, pos.z + vel.z * 5),
+      cl10 = pos.y - 2 + vel.y * 10 - H(pos.x + vel.x * 10, pos.z + vel.z * 10),
+      clr = Math.min(agl, cl5 + 40, cl10 + 80),
+      dog = m === 'dogfight';
+    if (clr < (dog ? 300 : 90) + (sink * sink) / 30) {
+      r = cl(-bank * 0.06);
+      const gl = Math.min(5, Math.max(1.6, (kmh - 190) / 45));
+      p = Math.abs(bank) < 70 ? (buffet > 0.02 ? 0 : gF < gl ? 1 : 0.25) : 0.1;
+      if (kmh < 200 && agl > 60) p = Math.min(p, 0.1);
+      th = 1;
+      pad.fire = false;
+    }
+  }
+  pad.p = p;
+  pad.r = r;
+  pad.y = y;
+  thr = th;
+}
+const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 240, bomb: 420 };
+function rpMissionStart() {
+  const m = trn.mode,
+    mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
+  if (m === 'convoy' && !mc.sum) mc.sum = trn.sum || '';
+  RPL.mc = mc;
+  RPL.busy = true;
+  RPL.on = true;
+  RPL.keep = true;
+  RPL.snd = SND.on;
+  SND.on = false;
+  coachHide();
+  reset();
+  started = true;
+  RPL.keep = false;
+  RPL.sim = { m, i: 0, out: [], t0: performance.now() };
+  $$('rplW').style.display = 'flex';
+  $$('rplWt').textContent = 'The sim pilot is flying this mission to find the best path...';
+  requestAnimationFrame(rpSimChunk);
+}
+function rpSimChunk() {
+  const S = RPL.sim;
+  if (!S) return;
+  const t0 = performance.now(),
+    dt = 1 / 60,
+    cap = RPM_CAP[S.m];
+  let fin = false;
+  while (performance.now() - t0 < 14 && !fin) {
+    rpMBot(S.m, S);
+    step(dt);
+    plane.position.copy(pos);
+    plane.quaternion.copy(q);
+    if (pad.fire || S.m === 'bomb') plane.updateMatrixWorld(true);
+    updWeapons(dt);
+    updEnemies(dt);
+    updChutists(dt);
+    updService(dt);
+    updConvoy(dt);
+    updTrainer(dt);
+    updGuide(dt);
+    if (guide.pts.length > 1) {
+      try {
+        guideState(dt);
+      } catch (er) {}
+    }
+    FM.eT = 0;
+    S.i++;
+    if (S.i % 6 === 0) {
+      const e = EN.find((x) => !x.dying);
+      S.out.push({ p: pos.clone(), f: fwd.clone(), u: up.clone(), t: S.i * dt, v: vel.length(), k: (FM.ias || vel.length()) * 3.6, g: gF, d: e ? e.p.clone() : null });
+    }
+    if (S.m === 'bomb' && RPL.mc.bn > 0 && BLD.filter((b) => b.dead).length >= RPL.mc.bn) trn.rpReady = true;
+    fin = trn.done || crashed || trn.rpReady || S.i * dt > cap;
+  }
+  $$('rplWt').textContent = 'The sim pilot is flying this mission to find the best path... ' + Math.round((100 * S.i * dt) / cap) + '%';
+  if (fin) rpSimEnd();
+  else requestAnimationFrame(rpSimChunk);
+}
+function rpSimCancel() {
+  if (!RPL.busy) return;
+  RPL.sim = null;
+  SND.on = RPL.snd;
+  RPL.mc = null;
+  RPL.keep = true;
+  reset();
+  started = true;
+  RPL.keep = false;
+  RPL.busy = false;
+  RPL.on = false;
+  $$('rplW').style.display = 'none';
+}
+function rpSimEnd() {
+  const S = RPL.sim,
+    mc = RPL.mc;
+  RPL.sim = null;
+  mc.ok = (trn.done || trn.rpReady) && !crashed;
+  mc.simSum = trn.sum || (S.m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed in ' + fmtT(S.i / 60) + '.' : '');
+  if (!mc.ok && !crashed && S.out.length > 5) {
+    /* did not finish in the time allowed: still show how far the sim pilot got, labelled as such */
+    const tl = ' (the sim pilot ran out of time).',
+      bd = BLD.filter((b) => b.dead).length,
+      cd = CV.destroyed + CV.list.filter((v) => v.dead && !v.gone).length;
+    if (S.m === 'dogfight' && airKills >= 1) (mc.ok = true), (mc.simSum = airKills + ' of 3 bandits shot down in ' + fmtT(S.i / 60) + tl);
+    else if (S.m === 'bomb' && bd >= 1) (mc.ok = true), (mc.simSum = bd + ' of ' + BLD.length + ' buildings destroyed in ' + fmtT(S.i / 60) + tl);
+    else if (S.m === 'convoy' && cd >= 1) (mc.ok = true), (mc.simSum = 'Vehicles destroyed: ' + cd + tl);
+  }
+  mc.simT = S.i / 60;
+  mc.ideal = mc.ok && S.out.length > 5 ? S.out : null;
+  if (mc.ideal) {
+    mc.ideal.forEach((o, i) => (o.t = Math.max(0, o.t)));
+  }
+  mc.why = crashed ? 'the sim pilot crashed' : mc.ok ? '' : 'the sim pilot ran out of time';
+  SND.on = RPL.snd;
+  RPL.keep = true;
+  reset();
+  started = true;
+  RPL.keep = false;
+  RPL.busy = false;
+  RPL.on = false;
+  $$('rplW').style.display = 'none';
+  rpStart();
+}
+
 /* start / stop / per frame */
 function rpStart() {
   const m = trn.mode,
     aero = !!AERO[m],
     A = aero ? trn.a : trn;
   if (RPL.on || !rpAvail()) return;
-  if (!RPL.built || RPL.A !== A || (!aero && RPL.rec !== trn.rec) || (!aero && RPL.T !== trn.rec[trn.rec.length - 1].t)) RPL.built = aero ? rpBuild(m, A) : rpBuildGen(m);
+  if (!aero) {
+    /* a finished run: the sim pilot flies the mission first, then the replay opens with its path */
+    if (trn.rec && trn.rec.length > 4 && (trn.done || crashed || trn.rpReady) && (!RPL.mc || RPL.mc.srcRec !== trn.rec)) {
+      rpMissionStart();
+      return;
+    }
+    RPL.built = rpBuildGen(m);
+  } else if (!RPL.built || RPL.A !== A) RPL.built = rpBuild(m, A);
   if (!RPL.built) return;
   rpInit();
   const rec = RPL.rec,
@@ -10821,7 +11251,7 @@ function rpStart() {
     });
   };
   fill(0, rec.map((s) => s.p));
-  if (I) fill(1, I.map((o) => o.p));
+  if (I) fill(1, I.length > 1500 ? I.filter((o, i) => i % Math.ceil(I.length / 1500) === 0).map((o) => o.p) : I.map((o) => o.p));
   else if (RPL.gpl) fill(1, RPL.gpl);
   else (rpG.line[1].visible = false), rpG.dots[1].forEach((sp) => (sp.visible = false));
   const dr = rec.filter((s) => s.d).map((s) => s.d);
@@ -10831,7 +11261,7 @@ function rpStart() {
   rpG.ghostP.g.visible = true;
   rpG.ghostI.g.visible = !!I;
   rpG.ghostI.glow.visible = !!I;
-  const hasGap = !!RPL.gap,
+  const hasGap = !!RPL.gap && (!RPL.ideal || RPL.gap.j !== undefined),
     gp = hasGap ? RPL.rec[RPL.gap.i].p : new V(),
     gi = hasGap ? (I ? I[RPL.gap.j].p : RPL.gap.gi) : new V();
   rpG.mark.position.copy(gp);
@@ -10851,7 +11281,7 @@ function rpStart() {
   aimE.style.display = aimT.style.display = 'none';
   $$('rpl').style.display = 'block';
   $$('rplX').style.display = 'block';
-  $$('rplT').innerHTML = AERO[m] ? 'REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span>' : 'REPLAY &mdash; <span style="color:#ffa020">your flight</span> <span style="color:#55ff88">&middot; green = guide route</span> <span style="color:#ddd">&middot; grey = bandit</span> <span style="color:#ff6655">&middot; red = biggest gap</span>';
+  $$('rplT').innerHTML = AERO[m] ? 'REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span>' : 'REPLAY &mdash; <span style="color:#ffa020">your flight</span> <span style="color:#55ff88">&middot; green = best path (sim pilot)</span> <span style="color:#ddd">&middot; grey = bandit</span>' + (RPL.gap ? ' <span style="color:#ff6655">&middot; red = biggest gap</span>' : '');
   $$('rplX').innerHTML = '<b>' + (AERO[m] ? 'WHERE TO IMPROVE' : 'FLIGHT SUMMARY') + '</b><br>' + RPL.tips.map((x) => '&bull; ' + x).join('<br>');
   $$('rplS').max = String(Math.round(RPL.T * 10));
   rpUi();
@@ -10887,7 +11317,7 @@ function rpGhost(b, p, qq, d) {
   b.prop.rotation.z += 0.9;
 }
 function rpUpdate(dt) {
-  if (!RPL.on) return;
+  if (!RPL.on || RPL.busy) return;
   if (!RPL.pause) RPL.t += dt * RPL.spd;
   if (RPL.t >= RPL.T + 1.5) RPL.t = RPL.T + 1.5 - 1e-3, (RPL.pause = true), rpUi();
   RPL.az += dt * 0.12;
@@ -10923,7 +11353,7 @@ function rpUpdate(dt) {
   plane.position.copy(pP);
 }
 function rpCam() {
-  if (!RPL.on) return;
+  if (!RPL.on || RPL.busy) return;
   const R = RPL,
     a = 0.5 * Math.sin(R.az),
     c = R.ctr;
@@ -10941,6 +11371,13 @@ function rpCam() {
 window.addEventListener(
   'keydown',
   (e) => {
+    if (RPL.busy) {
+      if (e.code === 'Escape' || e.code === 'Backspace' || e.code === 'Enter') {
+        rpSimCancel();
+        if (e.code !== 'Enter') (e.preventDefault(), e.stopImmediatePropagation());
+      }
+      return;
+    }
     if (RPL.on) {
       if (e.code === 'Enter') return rpStop(); /* the normal Enter then restarts the trainer */
       if (e.target && e.target.id === 'rplS') return;
@@ -10956,7 +11393,7 @@ window.addEventListener(
         e.preventDefault();
         e.stopImmediatePropagation();
       }
-    } else if (e.code === 'Backslash' && (trn.done || crashed) && rpAvail()) {
+    } else if (e.code === 'Backslash' && (trn.done || crashed || trn.rpReady || (RPL.mc && RPL.mc.m === trn.mode && trn.t < 10)) && rpAvail()) {
       e.preventDefault();
       rpStart();
     }
@@ -11683,6 +12120,7 @@ function guideState(dtOv) {
       ? 'track good'
       : 'turn ' + (dh > 0 ? 'left' : 'right') + ' ' + Math.round(Math.abs(dh) * 57.3) + ' deg');
   guide.vertErr = vert;
+  guide.latErr = lat;
   return { bi: pr.i, s: pr.s, lat, vert, rx: guide.rs.x, ry: guide.rs.y, rz: guide.rs.z };
 }
 /* ---------- ILS: localizer and glide slope needles for both runway ends ----------
