@@ -586,6 +586,14 @@ with sync_playwright() as p:
       el:Math.atan2(G.ry+2-pos.y,Math.hypot(G.rx-pos.x,G.rz-pos.z))*57.3,lat:Math.abs(G.lat)}}""")
     check("pilot recording: changing mission while the pilot flies cancels cleanly and the new mission gets its own recording", (not pp["busy"]) and pp["mode"] == "takeoff" and pp["n"] > 50 and pp["ok"] and pp["key"], str(pp))
     check("pilot recording: on the runway the green ring sits near the horizon and the line is the runway", abs(pp["el"]) < 3 and pp["lat"] < 15, str(pp))
+    ae2 = pg.evaluate("""()=>{FM.on=false;const i=MENU.findIndex(x=>x[0]==='immelmann');menuPick(i);paused=false;return 1}""")
+    for _ in range(120):
+        pg.wait_for_timeout(1000)
+        if not pg.evaluate("()=>RPL.busy"):
+            break
+    ae3 = pg.evaluate("""()=>{for(let k=0;k<20;k++){step(1/60);updEnemies(1/60);updTrainer(1/60);updGuide(1/60);if(guide.pts.length>1)guideState(1/60)}drawGuide();drawAim();
+      return {n:PP.out?PP.out.length:0,ok:PP.ok,ring:ringShown(),aimHidden:document.getElementById('aim').style.display==='none',fd:document.getElementById('fd').style.display,txt:document.getElementById('coachS').textContent.includes('green ring')}}""")
+    check("maneuver trainers: the pilot is recorded, the green ring replaces the old aim target, and the coach points at the ring", ae3["n"] > 50 and ae3["ok"] and ae3["ring"] and ae3["aimHidden"] and ae3["fd"] == "block" and ae3["txt"], str(ae3))
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
     check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))
     pg.evaluate("()=>{PP.off=true}")

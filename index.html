@@ -9712,7 +9712,7 @@ const TRAINERS = {
       l = 'bad';
     } else if (td > 2600) {
       txt =
-        'Step 1: Approach\nThe red T marker on the compass points at the nearest building. Follow the green path toward it, level at about 900 m and 390 km/h.\nKeep the white marker inside the green ring to stay lined up.';
+        'Step 1: Approach\nThe red T marker on the compass points at the nearest building. Follow the green ring toward it, level at about 900 m and 390 km/h.\nKeep the white marker inside the green ring to stay lined up.';
       h = 'Target ' + (td / 1000).toFixed(1) + ' km away, height ' + R(agl) + ' m, speed ' + R(kmh) + ' km/h.';
       l = 'warn';
     } else if (pitch > -8 && td > 700) {
@@ -10080,7 +10080,7 @@ const AERO_DEF = {
     steps: [
       {
         t: 'Get set',
-        txt: (c, A) => 'Wings level, nose on the horizon, about ' + (A.hc ? 470 : 420) + ' km/h. Pick the direction you will roll (left or right).',
+        txt: (c, A) => 'Wings level, nose on the horizon, about ' + (A.hc ? 470 : 420) + ' km/h. The green ring will show which way to roll: follow it.',
         hint: (c, A) => ['Speed ' + c.R(c.kmh) + ' km/h. Nose ' + c.R(c.pitch) + ', bank ' + c.R(A.bank) + '.', 'ok'],
         done: (c, A) => Math.abs(c.pitch) < 6 && Math.abs(A.bank) < 12 && c.kmh > (A.hc ? 420 : 370),
       },
@@ -10129,7 +10129,7 @@ const AERO_DEF = {
       },
       {
         t: 'Climbing turn',
-        txt: (c, A) => 'Start a climbing turn to the left or right: pull up and roll into the turn together. Let the bank build to 60 or 70 degrees as the nose climbs to about 30 degrees.' + (A.hc ? '\nHardcore: the speed falls faster than in Standard mode; keep full power and use a little right rudder.' : ''),
+        txt: (c, A) => 'Start the climbing turn the way the green ring leads: pull up and roll into the turn together. Let the bank build to 60 or 70 degrees as the nose climbs to about 30 degrees.' + (A.hc ? '\nHardcore: the speed falls faster than in Standard mode; keep full power and use a little right rudder.' : ''),
         hint: (c, A) => ['Nose ' + c.R(c.pitch) + ', bank ' + c.R(Math.abs(A.bank)) + ', heading change ' + c.R(Math.abs(A.dh)) + ' deg.', c.pitch > 20 && Math.abs(A.bank) > 40 ? 'ok' : 'warn'],
         done: (c, A) => c.pitch > 20 && Math.abs(A.bank) > 40,
       },
@@ -10326,6 +10326,16 @@ function drawAim() {
     aimE.style.display = aimT.style.display = 'none';
     return;
   }
+  if (ringShown()) {
+    /* the green ring is the guide now: only the step's label stays, under it */
+    aimE.style.display = 'none';
+    const ring = $$('fd');
+    aimT.style.display = ring.style.display === 'block' ? 'block' : 'none';
+    aimT.style.left = ring.style.left;
+    aimT.style.top = parseFloat(ring.style.top) + 36 + 'px';
+    aimT.textContent = A.aim.lab;
+    return;
+  }
   const d = A.aim.dir,
     pr = pos.clone().addScaledVector(d, 3000).project(cam),
     behind = pr.z > 1;
@@ -10391,7 +10401,7 @@ function aeroRun(c, m) {
     c.T0(A.pmTxt, h, 'bad');
     return;
   }
-  c.T0(st.txt(c, A), h, l);
+  c.T0(st.txt(c, A) + (ringShown() ? '\nKeep the white marker in the green ring: it is the line the pilot flew.' : ''), h, l);
 }
 Object.keys(AERO_DEF).forEach((m) => {
   TRAINERS[m] = (c) => aeroRun(c, m);
@@ -10923,6 +10933,19 @@ function rpMBot(m, S) {
     r = 0,
     y = 0,
     th = thr;
+  if (AERO[m]) {
+    /* the maneuver trainers: the scripted pilot used for the replay, flown from the start state in a fixed direction */
+    if (S.i === 0 && trn.a) {
+      trn.a.sg = 1;
+      trn.a.dh = 0.001;
+    }
+    const ct = rpBotCtl(m, trn.a, FM.on);
+    pad.p = ct.p;
+    pad.r = ct.r;
+    pad.y = 0;
+    thr = ct.th;
+    return;
+  }
   pad.fire = false;
   pad.brake = false;
   S.prate = S.pp === undefined ? 0 : (pit - S.pp) * 60;
@@ -11139,7 +11162,7 @@ function rpMBot(m, S) {
   pad.y = y;
   thr = th;
 }
-const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 330, bomb: 420 };
+const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 330, bomb: 420, barrel: 120, immelmann: 120, splits: 120, wingover: 120, lowyoyo: 120, highyoyo: 120 };
 function rpMissionStart() {
   const m = trn.mode,
     mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, cn: m === 'convoy' ? Math.min(2, CV.list.filter((v) => v.dead && !v.gone).length) : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
@@ -12125,15 +12148,25 @@ guide.Ls = 400;
    The pilot (same plane, same physics as the player) flies the mission once, hidden, and its path is kept in PP.out. The green
    ring is a point a little way ahead on that path, so putting the white flight-path marker in the ring puts the player back on
    the pilot's line. The same recording is the pilot's flight in the replay afterwards. */
-const PRE_MODES = { takeoff: 1, landing: 1, bomb: 1, convoy: 1 };
+const PRE_MODES = { takeoff: 1, landing: 1, bomb: 1, convoy: 1, barrel: 1, immelmann: 1, splits: 1, wingover: 1, lowyoyo: 1, highyoyo: 1 };
 const PP = { key: '', out: null, ok: false, ix: 0, simSum: '', simT: 0, why: '' };
 function ppKey() {
   return trn.mode + (FM.on ? 'H' : 'S') + Object.keys(FM.opt).map((k) => (FM.opt[k] ? 1 : 0)).join('');
+}
+function ringShown() {
+  return !!(PRE_MODES[trn.mode] && PP.out && PP.key === ppKey() && !RPL.busy);
 }
 function ppAhead(L) {
   if (RPL.busy || !PP.out || PP.key !== ppKey() || !PRE_MODES[trn.mode]) return null;
   const o = PP.out,
     n = o.length;
+  if (AERO_DEF[trn.mode] && AERO_DEF[trn.mode].drone) {
+    /* the yo-yos chase a moving drone, so a fixed line in space is no use: the ring is the point the sim pilot steers at in each
+       step (it flew the recorded maneuver by steering at exactly this point), and it moves as the drone does */
+    const A = trn.a;
+    if (A && A.aim && A.aim.dir) return { ahead: { x: pos.x + A.aim.dir.x * 500, y: pos.y - 2 + A.aim.dir.y * 500, z: pos.z + A.aim.dir.z * 500 }, lat: 0, vert: 0 };
+    return null;
+  }
   let bi = PP.ix,
     bd = 1e18;
   for (let i = Math.max(0, PP.ix - 12); i < Math.min(n, PP.ix + 160); i++) {
@@ -12150,6 +12183,17 @@ function ppAhead(L) {
   PP.ix = bi;
   /* bombing: the recording is the first building's attack; after it the old planned route takes over for the next building */
   if (trn.mode === 'bomb' && bi >= n - 6) return null;
+  if (AERO[trn.mode] && bi >= n - 3) {
+    /* the pilot has finished the maneuver: from here the ring just says "fly level on the new heading" from where you are */
+    const e1 = o[n - 1].p,
+      e0 = o[Math.max(0, n - 6)].p;
+    let hx = e1.x - e0.x,
+      hz = e1.z - e0.z;
+    const hl = Math.hypot(hx, hz) || 1;
+    hx /= hl;
+    hz /= hl;
+    return { ahead: { x: pos.x + hx * L, y: pos.y - 2, z: pos.z + hz * L }, lat: 0, vert: 0 };
+  }
   const a = o[bi].p,
     b0 = o[Math.min(n - 1, bi + 4)].p;
   let tx = b0.x - a.x,
@@ -12171,6 +12215,7 @@ function ppAhead(L) {
     /* past the end of the recording: carry on in the direction it was heading */
     const d0 = o[k].p.clone().sub(o[k - 1].p).normalize(),
       r = L - acc;
+    if (AERO[trn.mode]) (d0.y = 0), d0.normalize(); /* after the maneuver: carry on level */
     ex += d0.x * r;
     ey += d0.y * r;
     ez += d0.z * r;
@@ -12211,7 +12256,7 @@ function guideState(dtOv) {
   let lat = (pos.x - pr.x) * -tz + (pos.z - pr.z) * tx,
     vert = pos.y - 2 - pr.y;
   const v = Math.max(45, vel.length());
-  guide.Ls += (Math.max(250, Math.min(700, v * 4)) - guide.Ls) * 0.08;
+  guide.Ls += ((AERO[trn.mode] ? Math.max(70, Math.min(330, v * 0.7)) : Math.max(250, Math.min(700, v * 4))) - guide.Ls) * 0.08;
   let lk = pathAt(pts, pr.s + guide.Ls);
   const pp = ppAhead(guide.Ls);
   if (pp) {
@@ -12224,7 +12269,7 @@ function guideState(dtOv) {
     rz = lk.z,
     ry = lk.y,
     dh = 0;
-  {
+  if (!(pp && AERO[trn.mode])) {
     const dxz = Math.max(150, Math.hypot(rx - pos.x, rz - pos.z)),
       trk = Math.atan2(-vel.x, -vel.z),
       brg = Math.atan2(-(rx - pos.x), -(rz - pos.z));
@@ -12272,6 +12317,7 @@ function guideState(dtOv) {
     (Math.abs(dh) < 0.07
       ? 'track good'
       : 'turn ' + (dh > 0 ? 'left' : 'right') + ' ' + Math.round(Math.abs(dh) * 57.3) + ' deg');
+  if (pp && AERO[trn.mode]) guide.info = '';
   guide.vertErr = vert;
   guide.latErr = lat;
   return { bi: pr.i, s: pr.s, lat, vert, rx: guide.rs.x, ry: guide.rs.y, rz: guide.rs.z };
@@ -12477,7 +12523,7 @@ function drawGuide() {
     return;
   }
   const G = guideState(),
-    ilsOnly = trn.mode === 'landing' || trn.mode === 'takeoff' /* these two show no drawn path (no dots, rings or markers), just the green ring */,
+    ilsOnly = trn.mode === 'landing' || trn.mode === 'takeoff' || !!(PRE_MODES[trn.mode] && PP.out && PP.key === ppKey() && !RPL.busy) /* with the pilot's recording there is no drawn path (no dots, rings or markers), just the green ring */,
     pts = ilsOnly ? [] : guide.pts,
     bi = ilsOnly ? 0 : G.bi;
   // glowing dots + a tunnel of rings along the path, from the aircraft forward
@@ -12588,7 +12634,6 @@ const MENU = [
   ['free', 'Free Flight', 'Fly around. A convoy runs on the road, with ground targets scattered about.'],
   ['takeoff', 'Takeoff Trainer', 'Step-by-step coaching from the runway to a safe climb.'],
   ['landing', 'Landing Trainer', 'Start on approach: gear, flaps, flare and stop. Scored.'],
-  ['dogfight', 'Dogfight Trainer', 'Shoot down 3 bandits (difficulty: keys 1/2/3 or R3).'],
   ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base.'],
   ['bomb', 'Building Bombing', 'Destroy the depot and base buildings. Ordnance resupplies itself.'],
   ['barrel', 'Barrel Roll', 'A coached corkscrew roll around a point ahead. Scored.'],
