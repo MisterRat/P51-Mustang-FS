@@ -9159,7 +9159,7 @@ const TRAINERS = {
     if (trn.step < 4 && !gnd) trn.step = 4;
     if (trn.step < 5 && !gearOn && !gnd) trn.step = 5;
     if (trn.step < 6 && flapLvl === 0 && kmh >= 235 && !gearOn) trn.step = 6;
-    if (trn.step === 6 && agl >= 300 && kmh >= 225) {
+    if (!gnd && agl >= 300) {
       trn.done = true;
       trn.sum =
         'Liftoff at ' +
@@ -9167,7 +9167,9 @@ const TRAINERS = {
         ' km/h after ' +
         R(trn.liftD) +
         ' m. ' +
-        (trn.liftV < 215 ? 'Clean takeoff!' : 'A bit fast: try rotating nearer 150 km/h.');
+        (trn.liftV < 215 ? 'Clean takeoff!' : 'A bit fast: try rotating nearer 150 km/h.') +
+        (gearOn ? ' The gear is still down.' : '') +
+        (flapLvl > 0 ? ' The flaps are still down.' : '');
       note('TAKEOFF COMPLETE');
       return;
     }
@@ -9223,8 +9225,8 @@ const TRAINERS = {
       trn.title = 'Step 5/7: Gear up';
       txt =
         'You are flying! Raise the landing gear now: press G (or A). The gear is drag.\nKeep the nose about 10 degrees up and the wings level.';
-      if (kmh < 190) {
-        h = 'Speed ' + R(kmh) + ': lower the nose a little, you need airspeed.';
+      if (kmh < 190 || (kmh < 235 && pitch > 11)) {
+        h = 'Speed ' + R(kmh) + (pitch > 11 ? ', nose ' + R(pitch) + ' deg: too steep to gain speed. Lower the nose to 8 to 10 degrees.' : ': lower the nose a little, you need airspeed.');
         l = 'warn';
       } else {
         h = 'Speed ' + R(kmh) + ' km/h, climbing ' + vel.y.toFixed(1) + ' m/s. Gear up: G / A.';
@@ -9233,12 +9235,12 @@ const TRAINERS = {
     } else if (s === 5) {
       trn.title = 'Step 6/7: Build speed, flaps up';
       txt =
-        'Let the speed build to 240 km/h, then retract the flaps: press V (or D-pad left).\nRaising them early makes you sink.';
+        'Hold the nose 8 to 10 degrees up and let the speed build to 240 km/h, then retract the flaps: press V (or D-pad left).\nRaising them early makes you sink. A steeper nose stops the speed building.';
       if (flapLvl === 0 && kmh < 235) {
         h = 'Flaps are up. Build speed: now ' + R(kmh) + ', want 240 km/h.';
         l = 'warn';
       } else if (kmh < 235) {
-        h = 'Wait: speed ' + R(kmh) + ' km/h, want 240 before flaps up.';
+        h = pitch > 11 ? 'Nose ' + R(pitch) + ' deg is too steep: the speed will not build. Lower it to 8 to 10 (speed ' + R(kmh) + ', want 240).' : 'Wait: speed ' + R(kmh) + ' km/h, want 240 before flaps up.';
         l = 'warn';
       } else {
         h = 'Speed OK: flaps up now (V / D-pad left)!';
@@ -9246,7 +9248,7 @@ const TRAINERS = {
       }
     } else {
       trn.title = 'Step 7/7: Climb away';
-      txt = 'Climb out at about 270 km/h with the nose 10 to 13 degrees up (full power), until you are 300 m above the ground.';
+      txt = 'Climb out at 250 to 270 km/h with the nose 9 to 12 degrees up (full power), until you are 300 m above the ground.';
       h =
         'Height ' +
         R(agl) +
@@ -11842,7 +11844,7 @@ function finalLineFor() {
       A: { x: 0, z: -60 },
       u: { x: 0, z: -1 },
       alt: (d) => (d > 0 ? 0.6 : 0.6 - d * 0.1228),
-      dEnd: -3200,
+      dEnd: -12000,
       Dg: 260,
       Dmax: 1e9,
       descLim: 0.1,
@@ -12349,7 +12351,7 @@ function drawGuide() {
     return;
   }
   const G = guideState(),
-    ilsOnly = trn.mode === 'landing' /* the landing trainer flies the ILS: no drawn path, just the green ring */,
+    ilsOnly = trn.mode === 'landing' || trn.mode === 'takeoff' /* these two show no drawn path (no dots, rings or markers), just the green ring */,
     pts = ilsOnly ? [] : guide.pts,
     bi = ilsOnly ? 0 : G.bi;
   // glowing dots + a tunnel of rings along the path, from the aircraft forward
