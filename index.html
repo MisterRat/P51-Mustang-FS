@@ -9167,7 +9167,7 @@ const TRAINERS = {
         ' km/h after ' +
         R(trn.liftD) +
         ' m. ' +
-        (trn.liftV < 190 ? 'Clean takeoff!' : 'A bit fast: try rotating nearer 160 km/h.');
+        (trn.liftV < 215 ? 'Clean takeoff!' : 'A bit fast: try rotating nearer 150 km/h.');
       note('TAKEOFF COMPLETE');
       return;
     }
@@ -9191,11 +9191,11 @@ const TRAINERS = {
     } else if (s === 2) {
       trn.title = 'Step 3/7: Roll straight';
       txt =
-        'Keep the nose on the runway centerline. Roll left/right (A / D or right stick) steers on the ground.\nDo not pull back yet: rotate at 160 km/h.';
+        'Keep the nose on the runway centerline. Roll left/right (A / D or right stick) steers on the ground.\nDo not pull back yet: rotate at 150 km/h.';
       h =
         'Speed ' +
         R(kmh) +
-        ' km/h (rotate at 160). ' +
+        ' km/h (rotate at 150). ' +
         (Math.abs(off) < 4
           ? 'On the centerline.'
           : R(Math.abs(off)) +
@@ -9216,7 +9216,7 @@ const TRAINERS = {
         h = 'Nose ' + R(pitch) + ' deg: pull back gently toward 10.';
         l = 'warn';
       } else {
-        h = 'Good: nose ' + R(pitch) + ' deg. She lifts off at about 175 km/h (' + R(kmh) + ' now).';
+        h = 'Good: nose ' + R(pitch) + ' deg. She lifts off at about 200 km/h (' + R(kmh) + ' now).';
         l = 'ok';
       }
     } else if (s === 4) {
@@ -9246,7 +9246,7 @@ const TRAINERS = {
       }
     } else {
       trn.title = 'Step 7/7: Climb away';
-      txt = 'Climb out at about 250 km/h with the nose 8 to 10 degrees up, until you are 300 m above the ground.';
+      txt = 'Climb out at about 270 km/h with the nose 10 to 13 degrees up (full power), until you are 300 m above the ground.';
       h =
         'Height ' +
         R(agl) +
@@ -9513,7 +9513,7 @@ const TRAINERS = {
     trn.title = 'Bandits down ' + airKills + '/3  |  Hull ' + R(php) + '%';
     if (!alive.length) {
       T0(
-        'Next bandit incoming.\nRules of the fight: keep your speed up (over 300 km/h), turn so your nose points at him, get behind him, then fire short bursts.',
+        'Next bandit incoming.\nRules of the fight: keep your speed up (over 250 km/h; if it falls below 235, level the wings and trade height for speed until you have 270 again), turn so your nose points a little AHEAD of him, get behind him, then fire short bursts.',
         'Check the pink B marker on the compass: it points at the bandit.',
         '',
       );
@@ -9543,22 +9543,22 @@ const TRAINERS = {
     let txt, h, l;
     if (him < 22 && d < 1000 && ata > 90) {
       txt =
-        'DEFENSIVE: he is behind you!\nBreak: roll hard toward him and pull; or dive and run. A hard turn costs speed, so keep it above 280 km/h.';
+        'DEFENSIVE: he is behind you!\nBreak: roll hard toward him and pull; or dive and run. A hard turn costs speed, so keep it above 235 km/h.';
       h = 'He has you in his sights at ' + R(d) + ' m. Break now!';
       l = 'bad';
     } else if (ata < 18 && d < 800 && him > 60) {
       txt =
-        'OFFENSIVE: you are on his tail!\nPut the small orange ring on him and fire short bursts (Space / right trigger) inside 450 m.';
+        'OFFENSIVE: you are on his tail!\nPut the small orange ring a little ahead of him and fire short bursts (Space / right trigger) inside 520 m.';
       h =
-        d < 450
+        d < 520
           ? ata < 4
             ? 'FIRE! Ring on target at ' + R(d) + ' m.'
             : 'In range (' + R(d) + ' m): steer the ring onto him (' + R(ata) + ' deg off).'
-          : 'Close in to under 450 m: ' + R(d) + ' m now. Add power, keep the ring on him.';
-      l = d < 450 && ata < 4 ? 'ok' : 'warn';
+          : 'Close in to under 520 m: ' + R(d) + ' m now. Add power, keep the ring on him.';
+      l = d < 520 && ata < 4 ? 'ok' : 'warn';
     } else {
       txt =
-        'NEUTRAL: get behind him.\nTurn so the pink marker is dead ahead, match his height, and pull inside his turn without stalling (stay above 220 km/h).';
+        'NEUTRAL: get behind him.\nTurn so the pink marker is dead ahead, match his height, and pull inside his turn without stalling (stay above 235 km/h).';
       h =
         ata > 100
           ? 'He is behind you: turn hard toward him to keep him in sight.'
@@ -9570,8 +9570,8 @@ const TRAINERS = {
             (dy > 40 ? 'Climb a little to match him.' : dy < -40 ? 'Dive a little to match him.' : 'Height matched.');
       l = 'warn';
     }
-    if (kmh < 260 && l !== 'bad') {
-      h = 'LOW ENERGY (' + R(kmh) + ' km/h, stall near 160): lower the nose and build speed before turning again.';
+    if (kmh < 235 && l !== 'bad') {
+      h = 'LOW ENERGY (' + R(kmh) + ' km/h, stall near 160): wings level, trade height for speed until 270 before turning again.';
       l = 'bad';
     }
     T0(txt + '\n' + where, h, l);
@@ -9598,7 +9598,7 @@ const TRAINERS = {
         (CV.st === 'wreck'
           ? 'Convoy finished. Next one in ' + Math.ceil(CV.tm + CV.gap) + ' s.'
           : 'Next convoy leaves the depot in ' + Math.ceil(CV.tm) + ' s.') +
-          '\nPlan: approach from BEHIND, along the road, so the vehicles line up in your sights one after another.\n' +
+          '\nPlan: the convoy leaves right under your start point, so fly past it, turn back at about 160 m, and come in on the nearest vehicle from 2 km out.\n' +
           stats +
           (trn.rpReady ? '\n\\ = replay with the sim pilot\'s best path (restarts the mission)' : ''),
         'Follow the red T marker on the compass to the road.',
@@ -9619,36 +9619,33 @@ const TRAINERS = {
       ata = Math.acos(Math.max(-1, Math.min(1, fwd.dot(to)))) * 57.3,
       lead = Math.max(...alive.map((v) => v.s));
     let txt, h, l;
-    if (agl < 100 && vel.y < 0 && nd < 700) {
+    const high = agl > 0.4 * nd + 40;
+    if (agl < 18 && vel.y < -1.5 && nd < 800) {
       txt = 'PULL UP!';
       h = 'Only ' + R(agl) + ' m above the ground and sinking: pull back NOW, then climb and set up another pass.';
       l = 'bad';
-    } else if (nd > 2500) {
+    } else if (nd < 1500 && (ata > 38 || high || nd < 160)) {
       txt =
-        'Step 1: Find the convoy\nThe red T marker on the compass points at the nearest vehicle. Follow the green path: it leads you in BEHIND the convoy.\nKeep the white marker inside the green ring.';
-      h = 'Nearest vehicle ' + (nd / 1000).toFixed(1) + ' km away. Height ' + R(agl) + ' m.';
+        'Break off\nThis run is spoiled: ' +
+        (nd < 160 ? 'you have gone past the vehicle.' : ata > 38 ? 'the vehicle is too far off your nose.' : 'you are too high to get down on it.') +
+        '\nFly straight and level at about 160 m and keep going until the convoy is 2.3 km away, then turn back in on the nearest vehicle.';
+      h = 'Range ' + R(nd) + ' m, ' + R(ata) + ' deg off the nose, height ' + R(agl) + ' m. Extend away, then come back.';
       l = 'warn';
-    } else if (nd > 1300) {
+    } else if (nd > 1500) {
       txt =
-        'Step 2: Line up\nStay on the gold line behind the convoy at about 450 km/h. The path eases you down into a 10 degree dive.\nKeep the white marker inside the green ring; the gold ring is for the guns.';
-      h =
-        agl > 750
-          ? 'High (' + R(agl) + ' m): you will need a steeper dive, start lower.'
-          : agl < 200
-            ? 'Low (' + R(agl) + ' m): climb a little to give yourself room.'
-            : 'Good set-up. Range ' + R(nd) + ' m, height ' + R(agl) + ' m, speed ' + R(kmh) + ' km/h.';
-      l = agl > 750 || agl < 200 ? 'warn' : 'ok';
+        'Step 1: Turn in\nPoint the nose at the nearest vehicle (the red T marker on the compass shows it) and come down: about 160 m at 2 km out, and about 390 km/h.\nBy 1.5 km it must be within 38 degrees of your nose, and you must not be too high, or break off and try again.';
+      h = 'Nearest vehicle ' + (nd / 1000).toFixed(1) + ' km away, ' + R(ata) + ' deg off the nose. Height ' + R(agl) + ' m, speed ' + R(kmh) + ' km/h.';
+      l = ata > 60 ? 'warn' : 'ok';
     } else {
       txt =
-        'Step 3: Dive, aim, fire\nNose down 10 to 15 degrees. Put the gold ring on a vehicle and hold the trigger (Space / right trigger) from 500 m to 200 m.\nStart pulling up by 150 m above the ground. Tankers explode!';
-      if (nd <= 550)
+        'Step 2: Dive, aim, fire\nKeep the nose on the vehicle and go down to the deck, 20 to 50 m, by the time you are 700 m out. Hold the trigger (Space / right trigger) from 700 m to about 250 m while it is within 8 degrees of your nose. The burst has to walk onto it.\nThe pull-up comes at about 20 m, or at once if you are closer than 160 m. Tankers explode!';
+      if (nd <= 700)
         h =
-          ata < 5
-            ? 'FIRE! Ring is on target (' + R(nd) + ' m).'
-            : 'In range (' + R(nd) + ' m): ring is ' + R(ata) + ' deg off. Steer onto the vehicle.';
-      else h = 'Range ' + R(nd) + ' m. Hold the dive, ring on the target; fire inside 550 m.';
-      l = nd <= 550 && ata < 5 ? 'ok' : agl < 200 ? 'bad' : 'warn';
-      if (agl < 200 && l !== 'bad') l = 'bad';
+          ata < 8
+            ? 'FIRE! On target (' + R(nd) + ' m, ' + R(ata) + ' deg off).'
+            : 'In range (' + R(nd) + ' m): ' + R(ata) + ' deg off. Steer onto the vehicle.';
+      else h = 'Range ' + R(nd) + ' m. Keep the nose on it and come down: fire inside 700 m.';
+      l = ata < (nd <= 700 ? 8 : 12) ? 'ok' : 'warn';
     }
     if (kmh < 260 && agl > 150 && l !== 'bad') {
       h =
@@ -9703,12 +9700,12 @@ const TRAINERS = {
       l = 'bad';
     } else if (td > 2600) {
       txt =
-        'Step 1: Approach\nThe red T marker on the compass points at the nearest building. Follow the green path toward it, level at 600-900 m and about 450 km/h.\nKeep the white marker inside the green ring to stay lined up.';
+        'Step 1: Approach\nThe red T marker on the compass points at the nearest building. Follow the green path toward it, level at about 900 m and 390 km/h.\nKeep the white marker inside the green ring to stay lined up.';
       h = 'Target ' + (td / 1000).toFixed(1) + ' km away, height ' + R(agl) + ' m, speed ' + R(kmh) + ' km/h.';
       l = 'warn';
-    } else if (pitch > -12 && td > 700) {
+    } else if (pitch > -8 && td > 700) {
       txt =
-        'Step 2: Roll in\nWhen the target is about 2 km ahead, lower the nose into a 25 to 30 degree dive straight at it. A dive makes the aim steady and speeds the bomb up.';
+        'Step 2: Roll in\nWhen the target is about 2 km ahead, lower the nose into a 10 to 18 degree dive straight at it. A dive makes the aim steady and speeds the bomb up.';
       h = 'Target ' + (td / 1000).toFixed(1) + ' km. Nose ' + R(pitch) + ' deg: nose down toward the target.';
       l = 'warn';
     } else {
@@ -10978,8 +10975,8 @@ function rpMBot(m, S) {
       p = kmh >= 150 ? cl((16 - pit) * 0.25) : 0;
     } else {
       if (gearOn && agl > 12 && vel.y > 0) gearOn = false;
-      if (kmh >= 235 && !gearOn) flapLvl = 0;
-      const tp = Math.max(3, Math.min(10, 4 + (kmh - 205) * 0.1));
+      if (kmh >= 240 && !gearOn) flapLvl = 0;
+      const tp = Math.max(4, Math.min(16, 9 + (kmh - 250) * 0.12)); /* hold the 250 km/h the coach asks for */
       p = Math.max(-0.5, Math.min(0.5, (tp - pit) * 0.08));
       if (buffet > 0.05) p = Math.min(p, 0);
       r = cl(-bank * 0.05 - (psi - psT) * 1.2);
@@ -11130,7 +11127,7 @@ function rpMBot(m, S) {
   pad.y = y;
   thr = th;
 }
-const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 240, bomb: 420 };
+const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 330, bomb: 420 };
 function rpMissionStart() {
   const m = trn.mode,
     mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, cn: m === 'convoy' ? Math.min(2, CV.list.filter((v) => v.dead && !v.gone).length) : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
@@ -11746,6 +11743,7 @@ function finalLineFor() {
     };
   }
   if (m === 'convoy') {
+    return null; /* the convoy is flown by pointing the nose at the vehicles, as the sim pilot does: no fixed route */
     const al = CV.list.filter((v) => !v.dead);
     if (CV.st !== 'run' || !al.length) return null;
     let tv = al[0];
