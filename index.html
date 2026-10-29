@@ -9061,7 +9061,7 @@ function trainerReset() {
   } else if (m === 'dogfight') placeAt(0, 900, 300, 0, -5000, 130);
   else if (m === 'convoy') {
     const tg = ROADC.getTangentAt(0);
-    placeAt(DEPOT[0] - tg.x * 4500, 700, DEPOT[1] - tg.z * 4500, DEPOT[0], DEPOT[1], 110); /* far enough back to line up on the convoy without breaking off */
+    placeAt(DEPOT[0] - tg.x * 4500, 350, DEPOT[1] - tg.z * 4500, DEPOT[0], DEPOT[1], 110); /* far enough back to line up on the convoy without breaking off */
   } else if (m === 'bomb') placeAt(BASE[0] - 2200, 700, BASE[1] + 1800, BASE[0], BASE[1], 120);
   else if (AERO[m]) aeroStart(m);
   coachHide();
@@ -9610,10 +9610,10 @@ const TRAINERS = {
         (CV.st === 'wreck'
           ? 'Convoy finished. Next one in ' + Math.ceil(CV.tm + CV.gap) + ' s.'
           : 'Next convoy leaves the depot in ' + Math.ceil(CV.tm) + ' s.') +
-          '\nPlan: the convoy leaves right under your start point, so fly past it, turn back at about 160 m, and come in on the nearest vehicle from 2 km out.\n' +
+          '\nPlan: the convoy leaves the depot ahead of you. Follow the green ring (the pilot\'s line) toward the road and come in on the nearest vehicle.\n' +
           stats +
           (trn.rpReady ? '\n\\ = replay with the sim pilot\'s best path (restarts the mission)' : ''),
-        'Follow the red T marker on the compass to the road.',
+        'Follow the green ring; the red T marker on the compass shows the road.',
         '',
       );
       return;
@@ -11101,7 +11101,7 @@ function rpMBot(m, S) {
         const tl = nd < 1400 ? nd / 950 : nd / Math.max(60, vel.length() - 8) /* guns: a short lead; far out: the point where we will meet the convoy */,
           dirv = ROADC.getTangentAt(Math.min(0.999, nv.s / RLEN)),
           aim0 = new V(nv.m.position.x + dirv.x * CV.spd * tl, 0, nv.m.position.z + dirv.z * CV.spd * tl),
-          want = Math.max(-5, Math.min(400, (nd - 1000) * 0.15 + 8)),
+          want = Math.max(-5, Math.min(300, (nd - 1000) * 0.1 + 8)),
           aim = new V(aim0.x, H(aim0.x, aim0.z) + want, aim0.z);
         if (nd > 1400) follow(aim, 4.5, 70, true);
         else follow(aim, 4.5, 70);
@@ -11269,7 +11269,9 @@ function rpSimEnd() {
   mc.why = crashed ? 'the sim pilot crashed' : mc.ok ? '' : 'the sim pilot ran out of time';
   SND.on = RPL.snd;
   const pre = !!mc.pre,
-    pk = ppKey();
+    pk = ppKey(),
+    /* a recording only counts if the pilot really did the job: a convoy run that let every vehicle escape is not a line to teach */
+    good = !!mc.ideal && mc.ok && (S.m === 'convoy' ? !!S.kt : S.m === 'bomb' ? BLD.filter((b) => b.dead).length >= 1 : true);
   RPL.keep = true;
   reset();
   started = true;
@@ -11277,12 +11279,19 @@ function rpSimEnd() {
   RPL.busy = false;
   RPL.on = false;
   $$('rplW').style.display = 'none';
+  if (pre && !good && (PP.tries || 0) < 1) {
+    PP.tries = (PP.tries || 0) + 1; /* try again: wind and gusts differ a little from run to run */
+    RPL.mc = null;
+    rpPrefly(true);
+    return;
+  }
   if (pre) {
     /* kept for the whole mission: the green ring and the replay both use it */
     RPL.mc = null;
-    Object.assign(PP, { key: mc.ideal ? pk : '', out: mc.ideal, ok: mc.ok, ix: 0, simSum: mc.simSum, simT: mc.simT, why: mc.why });
+    if (!good) note('THE PILOT COULD NOT RECORD A LINE FOR THIS MISSION: NO GREEN RING');
+    Object.assign(PP, { key: good ? pk : '', out: good ? mc.ideal : null, ok: mc.ok, ix: 0, simSum: mc.simSum, simT: mc.simT, why: mc.why });
     PP.pts = null;
-    if (mc.ideal) {
+    if (good) {
       let sAcc = 0;
       PP.pts = mc.ideal.map((o, i) => {
         if (i) sAcc += o.p.distanceTo(mc.ideal[i - 1].p);
@@ -12222,8 +12231,9 @@ function ppAhead(L) {
   }
   return { ahead: { x: ex, y: ey - 2, z: ez }, lat: (pos.x - a.x) * -tz + (pos.z - a.z) * tx, vert: pos.y - a.y };
 }
-function rpPrefly() {
+function rpPrefly(retry) {
   const m = trn.mode;
+  if (!retry) PP.tries = 0;
   if (!PRE_MODES[m] || RPL.busy || !started || PP.off) return;
   PP.key = '';
   PP.out = null;
