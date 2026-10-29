@@ -10923,7 +10923,7 @@ function rpMBot(m, S) {
     const tb = tg.clone().sub(pos).applyQuaternion(qi),
       br = Math.atan2(tb.x, -tb.z),
       el = Math.atan2(tb.y, Math.hypot(tb.x, tb.z) * (tb.z < 0 ? 1 : -1)),
-      db = Math.max(-(bk || 50), Math.min(bk || 50, br * 57.3 * 1.6 - ((isP || tg === look) && guide.latErr !== undefined ? Math.max(-250, Math.min(250, guide.latErr)) * 0.1 : 0)));
+      db = Math.max(-(bk || 50), Math.min(bk || 50, br * 57.3 * (S.kb || 1.6) - ((isP || tg === look) && !S.ng && guide.latErr !== undefined ? Math.max(-250, Math.min(250, guide.latErr)) * 0.1 : 0)));
     r = cl((db - bank) * 0.04);
     p = cl(el * 3 + (Math.abs(bank) / 57.3) * 0.25 * (Math.abs(bank) < 85 ? 1 : 0.3));
     const gl0 = Math.min(gMax, Math.max(1.6, (kmh - 190) / 45));
@@ -10933,11 +10933,11 @@ function rpMBot(m, S) {
         gT = Math.atan2(tg.y - pos.y, dxz),
         gam = Math.atan2(vel.y, Math.hypot(vel.x, vel.z));
       p = cl((gT - gam) * 5 + (Math.abs(bank) < 85 ? Math.max(0, 1 / Math.cos((Math.abs(bank) / 57.3))  - gF) * 0.7 + (Math.abs(bank) / 57.3) * 0.12 : 0.1));
-      if (guide.vertErr !== undefined) p = cl(p - guide.vertErr * 0.004);
+      if (guide.vertErr !== undefined && !S.ng) p = cl(p - guide.vertErr * 0.004);
       if (isP) {
         /* load-factor control: hold the G the bank needs, plus what the climb or dive error asks for */
         const bn = Math.min(Math.abs(bank), 75) / 57.3,
-          nzT = Math.max(0.3, Math.min(gl0, 1 / Math.cos(bn) + 4 * (gT - gam) - (guide.vertErr || 0) * 0.004));
+          nzT = Math.max(S.nzMin !== undefined ? S.nzMin : 0.3, Math.min(gl0, 1 / Math.cos(bn) + (S.kg || 4) * (gT - gam) - (S.ng ? 0 : guide.vertErr || 0) * 0.004));
         p = cl((nzT - gF) * 0.5 + (nzT - 1) * 0.12);
       }
     }
@@ -11043,35 +11043,46 @@ function rpMBot(m, S) {
       p = cl((2 - pit) * 0.05);
     }
   } else if (m === 'convoy') {
-    spd(400);
+    S.nzMin = -0.5;
+    S.kg = 10;
+    S.kb = 3.5;
+    S.ng = true; /* the strafing run is flown at the vehicles, not along the guide route */
+    spd(330);
     const al = CV.list.filter((v) => !v.dead);
     if (al.length && CV.st === 'run') {
-      /* strafe the rear vehicle from behind, along the road, gliding in low */
+      /* strafing run: turn in on the nearest vehicle from a distance, come down to the deck and fire; break off and extend when the run is spoiled */
       const nv = al.reduce((a, b) => (a.m.position.distanceTo(pos) < b.m.position.distanceTo(pos) ? a : b)),
         nd = nv.m.position.distanceTo(pos),
-        tl = Math.min(2.2, nd / 110),
-        u2 = Math.min(0.999, (nv.s + CV.spd * tl) / RLEN),
-        rp = ROADC.getPointAt(u2),
-        want = Math.max(6, Math.min(320, (nd - 350) * 0.2 + 6)),
-        aim = new V(rp.x, H(rp.x, rp.z) + want, rp.z),
         to = nv.m.position.clone().sub(pos).normalize(),
-        ata = Math.acos(Math.max(-1, Math.min(1, fwd.dot(to)))) * 57.3;
-      if (nd > 1300) {
-        follow(aim, 4, 55);
-        if (nd > 1800) aim.y = Math.max(aim.y, H(rp.x, rp.z) + 300);
+        ata = Math.acos(Math.max(-1, Math.min(1, fwd.dot(to)))) * 57.3,
+        high = agl > 0.4 * nd + 40;
+      if (!S.ext && ((nd < 1500 && (ata > 38 || high)) || nd < 160)) S.ext = true;
+      if (S.ext && nd > 2300) S.ext = false;
+      if (S.ext) {
+        /* extend: straight and low, away from the convoy, to set up the next run */
+        const hx = vel.x / (Math.hypot(vel.x, vel.z) || 1),
+          hz = vel.z / (Math.hypot(vel.x, vel.z) || 1),
+          ax = pos.x + hx * 900,
+          az = pos.z + hz * 900;
+        follow(new V(ax, H(ax, az) + 160, az), 4.5, 70, true);
       } else {
-        const tbv = aim.clone().sub(pos).applyQuaternion(qi),
-          elv = Math.atan2(tbv.y, Math.hypot(tbv.x, tbv.z) * (tbv.z < 0 ? 1 : -1)),
-          brv = Math.atan2(tbv.x, -tbv.z);
-        r = cl((Math.max(-55, Math.min(55, brv * 57.3 * 1.5)) - bank) * 0.04);
-        p = cl(elv * 0.9 + 0.03 + Math.max(0, 1 / Math.cos(Math.min(Math.abs(bank), 65) / 57.3) - gF) * 1.3 - S.prate * 0.08);
+        const tl = nd < 1400 ? nd / 950 : nd / Math.max(60, vel.length() - 8) /* guns: a short lead; far out: the point where we will meet the convoy */,
+          dirv = ROADC.getTangentAt(Math.min(0.999, nv.s / RLEN)),
+          aim0 = new V(nv.m.position.x + dirv.x * CV.spd * tl, 0, nv.m.position.z + dirv.z * CV.spd * tl),
+          want = Math.max(-5, Math.min(400, (nd - 1000) * 0.15 + 8)),
+          aim = new V(aim0.x, H(aim0.x, aim0.z) + want, aim0.z);
+        if (nd > 1400) follow(aim, 4.5, 70, true);
+        else follow(aim, 4.5, 70);
+        for (const v of al) {
+          const dd = v.m.position.distanceTo(pos),
+            aa = Math.acos(Math.max(-1, Math.min(1, fwd.dot(v.m.position.clone().sub(pos).normalize())))) * 57.3;
+          if (dd < 700 && aa < 8 && agl > 18) pad.fire = true;
+        }
       }
-      for (const v of al) {
-        const dd = v.m.position.distanceTo(pos),
-          aa = Math.acos(Math.max(-1, Math.min(1, fwd.dot(v.m.position.clone().sub(pos).normalize())))) * 57.3;
-        if (dd < 650 && aa < 7 && agl > 50) pad.fire = true;
-      }
-      if (nd < 260 && ata > 50) p = Math.max(p, 0.4);
+    } else if (CV.st === 'idle' || (CV.st === 'run' && !al.length)) {
+      /* the convoy is about to leave: fly along the road towards the depot, coming down */
+      const rp = ROADC.getPointAt(0.02);
+      follow(new V(rp.x, H(rp.x, rp.z) + 170, rp.z), 4.5, 70, true);
     } else if (plk) follow(plk, 4.5, 55, true);
     else if (look) follow(look, 4.5, 55);
   } else if (m === 'bomb') {
@@ -11102,9 +11113,10 @@ function rpMBot(m, S) {
     const sink = Math.max(0, -vel.y),
       cl5 = pos.y - 2 + vel.y * 5 - H(pos.x + vel.x * 5, pos.z + vel.z * 5),
       cl10 = pos.y - 2 + vel.y * 10 - H(pos.x + vel.x * 10, pos.z + vel.z * 10),
-      clr = Math.min(agl, cl5 + 40, cl10 + 80),
+      cvy = m === 'convoy',
+      clr = cvy ? Math.min(agl, cl5 + 60) : Math.min(agl, cl5 + 40, cl10 + 80),
       dog = m === 'dogfight';
-    if (clr < (dog ? 300 : 90) + (sink * sink) / 30) {
+    if (clr < (dog ? 300 : cvy ? 22 : 90) + (sink * sink) / (cvy ? 50 : 30)) {
       r = cl(-bank * 0.06);
       const gl = Math.min(5, Math.max(1.6, (kmh - 190) / 45));
       p = Math.abs(bank) < 70 ? (buffet > 0.02 ? 0 : gF < gl ? 1 : 0.25) : 0.1;
@@ -11121,7 +11133,7 @@ function rpMBot(m, S) {
 const RPM_CAP = { takeoff: 90, landing: 300, dogfight: 420, convoy: 240, bomb: 420 };
 function rpMissionStart() {
   const m = trn.mode,
-    mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
+    mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, cn: m === 'convoy' ? Math.min(2, CV.list.filter((v) => v.dead && !v.gone).length) : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
   if (m === 'convoy' && !mc.sum) mc.sum = trn.sum || '';
   RPL.mc = mc;
   RPL.busy = true;
@@ -11170,6 +11182,12 @@ function rpSimChunk() {
       S.out.push({ p: pos.clone(), f: fwd.clone(), u: up.clone(), t: S.i * dt, v: vel.length(), k: (FM.ias || vel.length()) * 3.6, g: gF, d: e ? e.p.clone() : null });
     }
     if (S.m === 'bomb' && RPL.mc.bn > 0 && BLD.filter((b) => b.dead).length >= RPL.mc.bn) trn.rpReady = true;
+    if (S.m === 'convoy') {
+      /* enough vehicles hit: let the pilot fly clear for a few seconds, then stop */
+      const kills = CV.list.filter((v) => v.dead && !v.gone).length;
+      if (kills >= Math.max(1, RPL.mc.cn || 0) && !S.kt) S.kt = S.i;
+      if (S.kt && S.i - S.kt > 300) trn.rpReady = true;
+    }
     fin = trn.done || crashed || trn.rpReady || S.i * dt > cap;
   }
   $$('rplWt').textContent = 'The sim pilot is flying this mission to find the best path... ' + Math.round((100 * S.i * dt) / cap) + '%';
@@ -11195,6 +11213,7 @@ function rpSimEnd() {
   RPL.sim = null;
   mc.ok = (trn.done || trn.rpReady) && !crashed;
   mc.simSum = trn.sum || (S.m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed in ' + fmtT(S.i / 60) + '.' : '');
+  if (S.m === 'convoy' && mc.ok && !mc.simSum) mc.simSum = 'Vehicles destroyed: ' + (CV.destroyed + CV.list.filter((v) => v.dead && !v.gone).length) + ' in ' + fmtT(S.i / 60) + '.';
   if (!mc.ok && !crashed && S.out.length > 5) {
     /* did not finish in the time allowed: still show how far the sim pilot got, labelled as such */
     const tl = ' (the sim pilot ran out of time).',
@@ -12444,7 +12463,7 @@ const MENU = [
   ['takeoff', 'Takeoff Trainer', 'Step-by-step coaching from the runway to a safe climb.'],
   ['landing', 'Landing Trainer', 'Start on approach: gear, flaps, flare and stop. Scored.'],
   ['dogfight', 'Dogfight Trainer', 'Shoot down 3 bandits (difficulty: keys 1/2/3 or R3).'],
-  /* Convoy Strafing is switched off for now: ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base.'], */
+  ['convoy', 'Convoy Strafing', 'Hunt the timed convoy between the depot and the base.'],
   ['bomb', 'Building Bombing', 'Destroy the depot and base buildings. Ordnance resupplies itself.'],
   ['barrel', 'Barrel Roll', 'A coached corkscrew roll around a point ahead. Scored.'],
   ['immelmann', 'Immelmann Turn', 'Half loop up, half roll to level: reverse course and gain height. Hardcore needs more speed.'],
