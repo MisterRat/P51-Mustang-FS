@@ -3,7 +3,7 @@
 # P-51D Mustang Flight Simulator
 
 **A casual-to-hardcore P-51D sim in a single offline HTML file.**
-Take off, land on the ILS, strafe convoys, bomb buildings and dogfight, on your keyboard, a gamepad or your phone.
+Take off, land on the ILS, strafe convoys, bomb buildings and dogfight in free flight, on your keyboard, a gamepad or your phone.
 
 ### [Play it in your browser](https://github.mrrat.org/p51-mustang-fs/)
 
