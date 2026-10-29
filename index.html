@@ -510,7 +510,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Bombs</td><td>Two 230 kg (500 lb), released with Z / X / the BOMB button. A bomb keeps your speed and falls for about 5 seconds. The blast reaches 75 m and does less damage with distance.</td></tr>
 <tr><td>Weight</td><td>Bombs and rockets add weight and raise the stall speed; it drops as you use them.</td></tr>
 <tr><td>Resupply</td><td>Land and stop with the throttle at idle: about 4 seconds to repair, rearm and (in Hardcore mode) refuel. The trainers also top up ammunition and hull for you.</td></tr>
-<tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>150 cm searchlights</b>. The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres. A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the crews hear you for several seconds) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you. Jink out of the beam to lose it. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
+<tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -581,7 +581,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.5';
+const VERSION = '4.6';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -9035,7 +9035,7 @@ AA.load();
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
     return g;
   };
-  const LB = 6500;
+  const LB = 8000; /* the Type 96 150 cm land searchlight lit a target out to about 8 km (Japanese Navy figure) */
   const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum() };
   const MAT = lam();
   const mk = (g) => {
@@ -9064,7 +9064,7 @@ AA.load();
     scene.add(grp);
     const t = addT(grp, 'aa25', 40, 4.5);
     AA.gun.push({
-      t, grp, tur, bar, x, z, bias: new V(0, 0, 0), yaw: yaw0, pit: 0.5, acq: 0, mag: 30, rl: 0, cd: 0, side: 1, rec: 0, snd: 0, v: new V(0, 0, 0),
+      t, grp, tur, bar, x, z, nr: 0, bias: new V(0, 0, 0), yaw: yaw0, pit: 0.5, acq: 0, mag: 30, rl: 0, cd: 0, side: 1, rec: 0, snd: 0, v: new V(0, 0, 0),
       piv: new V(x, H(x, z) + 1.5 + 0.4 + 0, z),
     });
   };
@@ -9260,7 +9260,7 @@ function updAA(dt) {
       yawP = Math.atan2(dx, dz);
     aaDir(L.yaw, L.el, _aaF);
     const ang = R > 1 ? Math.acos(Math.max(-1, Math.min(1, (_aaF.x * dx + _aaF.y * dy + _aaF.z * dz) / R))) : 9,
-      cue = !L.fr && hot && R < 6500 && elP > 0.1; /* the airfield's own light only sweeps for show */
+      cue = !L.fr && hot && R < 8000 && elP > 0.1; /* the airfield's own light only sweeps for show */
     if (L.mode === 'search') {
       /* the beam crossing you, or the sound locators giving the crews a bearing once you have been in earshot for a few seconds */
       if (cue && R < 4800) L.cue += dt * (trk ? 2 : 1);
@@ -9273,18 +9273,18 @@ function updAA(dt) {
     if (L.mode === 'track') {
       if (!cue || ang > 0.14) L.lost += dt;
       else L.lost = Math.max(0, L.lost - dt);
-      if (!cue || L.lost > 2.5) {
+      if (!cue || L.lost > 1.8) {
         L.mode = 'search';
         L.cue = 0;
         L.wy = L.yaw;
         L.we = L.el;
       } else {
-        const tl = 0.3,
+        const tl = 0.1,
           px = dx + vel.x * tl,
           py = dy + vel.y * tl,
           pz = dz + vel.z * tl;
-        L.yaw = aaSlew(L.yaw, Math.atan2(px, pz), 0.75, dt);
-        L.el = Math.max(0.12, Math.min(1.5, aaSlew(L.el, Math.atan2(py, Math.hypot(px, pz)), 0.75, dt)));
+        L.yaw = aaSlew(L.yaw, Math.atan2(px, pz), 0.45, dt);
+        L.el = Math.max(0.12, Math.min(1.5, aaSlew(L.el, Math.atan2(py, Math.hypot(px, pz)), 0.45, dt)));
       }
     }
     if (L.mode === 'search') {
@@ -9310,13 +9310,14 @@ function updAA(dt) {
     /* is the beam on you? */
     aaDir(L.yaw, L.el, _aaF);
     const ang2 = R > 1 ? Math.acos(Math.max(-1, Math.min(1, (_aaF.x * dx + _aaF.y * dy + _aaF.z * dz) / R))) : 9;
-    if (!L.fr && hot && R < 6500 && ang2 < 0.03) {
+    if (!L.fr && hot && R < 8000 && ang2 < 0.03) {
       L.lit = true;
       litAny++;
-      dzT = Math.max(dzT, (1 - ang2 / 0.03) * Math.min(1, 2200 / R));
+      dzT = Math.max(dzT, (1 - ang2 / 0.03) * Math.min(1, 2200 / R) * Math.max(0.3, Math.min(1, 1.5 - pos.y / 2800))); /* the glare is worst below about 1,200 m */
     }
   }
   AA.lit = litAny;
+  AA.litT = litAny ? (AA.litT || 0) + dt : Math.max(0, (AA.litT || 0) - dt * 0.5); /* seconds held in the beams */
   if (hot && litAny && AA.msgT <= 0) {
     note('SEARCHLIGHT: YOU ARE ILLUMINATED');
     AA.msgT = 12;
@@ -9335,9 +9336,9 @@ function updAA(dt) {
       dz = pos.z - g.piv.z;
     if (!dead) {
       R = Math.hypot(dx, dy, dz);
-      can = hot && R < 2800 && pos.y > H(pos.x, pos.z) + 2 && (night < 0.35 || litAny > 0 || R < 800);
+      can = hot && R < 2500 && pos.y > H(pos.x, pos.z) + 2 && (night < 0.35 || litAny > 0 || R < 800);
       g.v.lerp(vel, Math.min(1, 1.3 * dt));
-      const tt = R / 860,
+      const tt = R / 840,
         ax = dx + g.v.x * tt * 0.9,
         ay = dy + g.v.y * tt * 0.9 + 4.9 * tt * tt,
         az = dz + g.v.z * tt * 0.9,
@@ -9358,23 +9359,23 @@ function updAA(dt) {
       if (can && g.acq > 1.0 && err < 0.07 && g.rl <= 0) {
         g.cd -= dt;
         while (g.cd <= 0 && g.mag > 0) {
-          g.cd += 0.25;
+          g.cd += 0.27; /* about 220 rounds a minute cyclic; with the magazine changes about 110 a minute, as the real gun managed */
           g.mag--;
           g.side = -g.side;
           aaDir(g.yaw, g.pit, _aaF);
           _aaR.set(Math.cos(g.yaw), 0, -Math.sin(g.yaw));
           _aaU.crossVectors(_aaR, _aaF).normalize();
-          const s = dmgS * (0.7 + R / 1200) + 16 / Math.max(R, 150) /* a floor of about 16 m: shell flight time, hand-cranked traverse and the crew's own guesswork */,
+          const s = dmgS * (0.7 + R / 900) + 16 / Math.max(R, 150) /* a floor of about 16 m: shell flight time, hand-cranked traverse and the crew's own guesswork */,
             gz = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2,
             sg = g.bias,
             d = _aaF.clone().addScaledVector(_aaR, gz() * s + sg.x * 0.012).addScaledVector(_aaU, gz() * s + sg.y * 0.012).normalize(),
             mp = g.piv.clone().addScaledVector(_aaF, 3.3).addScaledVector(_aaR, g.side * 0.2);
-          if (AA.bl.length < 190) AA.bl.push({ p: mp, v: d.multiplyScalar(880), t: 0 });
+          if (AA.bl.length < 190) AA.bl.push({ p: mp, v: d.multiplyScalar(870), t: 0, tr: g.nr++ % 4 === 0 /* one round in four is a tracer */ });
           fxAdd(mp, 0xffd890, 1.3, 3.8, 0.07, 0, true);
           g.rec = 1;
         }
         if (g.mag <= 0) {
-          g.rl = 3;
+          g.rl = 6;
           g.bias.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, 0); /* each fresh magazine: the crew's estimate of speed and range is a little off */
         }
         if (AA.fT <= 0 && R < 3000) {
@@ -9401,14 +9402,16 @@ function updAA(dt) {
     let dead = b.t > 3.6 || b.p.y < H(b.p.x, b.p.z);
     if (!dead && hot && a.distanceToSquared(pos) < 6400 && segHit(a, b.p, pos, 6.5)) {
       dead = true;
-      playerHit(2, 0.4);
+      playerHit(AA.litT > 20 ? 4 : 2, 0.4); /* held in the beams for over 20 s: hit about twice as hard */
     }
     if (dead && b.t > 3.5 && Math.random() < 0.3) fxAdd(b.p, 0x555555, 2, 7, 1.2, 0, false);
     if (dead) AA.bl.splice(i, 1);
   }
+  let nt = 0;
   for (let i = 0; i < AA.bl.length; i++) {
-    const b = AA.bl[i],
-      o = i * 6;
+    const b = AA.bl[i];
+    if (!b.tr) continue;
+    const o = nt++ * 6;
     abPos[o] = b.p.x;
     abPos[o + 1] = b.p.y;
     abPos[o + 2] = b.p.z;
@@ -9416,7 +9419,7 @@ function updAA(dt) {
     abPos[o + 4] = b.p.y - b.v.y * 0.06;
     abPos[o + 5] = b.p.z - b.v.z * 0.06;
   }
-  abGeo.setDrawRange(0, AA.bl.length * 2);
+  abGeo.setDrawRange(0, nt * 2);
   abGeo.attributes.position.needsUpdate = true;
 }
 
