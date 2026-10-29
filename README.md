@@ -25,7 +25,7 @@ by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://di
 | | |
 |---|---|
 | **Free flight** | Explore the whole island chain, with a minimap and path guide. |
-| **Trainers** | Takeoff, Landing (with ILS), Dogfighting, Building Bombing, Convoy Strafing, each with a visible flight path; plus coached aerobatics: Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
+| **Trainers** | Takeoff, Landing (with ILS), Building Bombing and Convoy Strafing are guided by a green ring on the line a hidden sim pilot flew first (put the white flight-path marker in the ring to follow it), plus Dogfighting; plus coached aerobatics: Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
 | **Combat** | Machine guns, rockets and bombs. Enemies come in Low (40%), Medium (65%) and Hard (100%) performance. |
 | **Weather and time** | Pick your clock, dawn to night, and clear, cloud, fog or rain. |
 | **Photo mode** | Press **F9** for a free camera. Drag to look, right-drag to pan, wheel to dolly, Ctrl+wheel to zoom. Save JPG snapshots. |

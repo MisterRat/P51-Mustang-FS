@@ -54,6 +54,7 @@ with sync_playwright() as p:
     check(f"draw calls within budget ({DRAW_CALL_BUDGET})", calls <= DRAW_CALL_BUDGET, f"{calls} calls")
 
     pg.evaluate("()=>{$$('go').click()}"); pg.wait_for_timeout(500)
+    pg.evaluate("()=>{PP.off=true}")  # the hidden pilot flight is tested on its own below; the other checks drive missions by hand
     pg.evaluate("()=>{camMode=1}")
     try:
         pg.wait_for_function("()=>{const d=pcx.getImageData(150,120,80,40).data;let s=0;for(let i=0;i<d.length;i+=4)s+=d[i]+d[i+1]+d[i+2];return s>5000}", timeout=20000)
@@ -572,6 +573,22 @@ with sync_playwright() as p:
     check("trim: keys move elevator, rudder and aileron trim and clamp at full travel", tr["up"] > 0.2 and tr["dn"] < 0 and tr["r"] > 0 and tr["a"] > 0 and tr["max"] == [1, 1, 1], str(tr))
     check("trim: centre-all resets, and it does nothing with the option or Hardcore off", tr["ctr"] == [0, 0, 0] and tr["off"] == 0 and tr["casual"] == 0, str(tr))
     check("trim: the tabs on the aircraft deflect in Hardcore and sit flat otherwise", abs(tr["tabs"][0]) > 0.1 and abs(tr["tabs"][1]) > 0.1 and abs(tr["tabs"][2]) > 0.1 and tr["tabsOff"] == [0, 0], str(tr))
+    # ---- the hidden pilot flight: recorded before a mission, used by the green ring and by the replay
+    pg.evaluate("()=>{PP.off=false;FM.on=false;const i=MENU.findIndex(x=>x[0]==='landing');menuPick(i);paused=false}")
+    pg.wait_for_timeout(800)
+    pg.evaluate("()=>{const i=MENU.findIndex(x=>x[0]==='takeoff');menuPick(i);paused=false}")  # change mission while the pilot is still flying
+    for _ in range(240):
+        pg.wait_for_timeout(1000)
+        if not pg.evaluate("()=>RPL.busy"):
+            break
+    pp = pg.evaluate("""()=>{planGuide();for(let k=0;k<30;k++){step(1/60);updTrainer(1/60);updGuide(1/60);guideState(1/60)}
+      const G=guideState(1/60);return {busy:RPL.busy,mode:trn.mode,n:PP.out?PP.out.length:0,ok:PP.ok,key:PP.key===ppKey(),
+      el:Math.atan2(G.ry+2-pos.y,Math.hypot(G.rx-pos.x,G.rz-pos.z))*57.3,lat:Math.abs(G.lat)}}""")
+    check("pilot recording: changing mission while the pilot flies cancels cleanly and the new mission gets its own recording", (not pp["busy"]) and pp["mode"] == "takeoff" and pp["n"] > 50 and pp["ok"] and pp["key"], str(pp))
+    check("pilot recording: on the runway the green ring sits near the horizon and the line is the runway", abs(pp["el"]) < 3 and pp["lat"] < 15, str(pp))
+    cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
+    check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))
+    pg.evaluate("()=>{PP.off=true}")
     check("still no errors at the end", not errors, "; ".join(errors[-2:]))
     pg.close()  # two software-rendered pages at once are too slow; the desktop page is finished
     # ---- phone layout: a saved layout that pushes the top bar off screen is repaired so the pause button (and Exit) stays reachable

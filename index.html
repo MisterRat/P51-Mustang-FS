@@ -9014,6 +9014,7 @@ function placeAt(x, y, z, tx, tz, spd) {
   cp.copy(pos).add(new V(0, 4, 14));
 }
 function trainerReset() {
+  if (RPL.busy && !RPL.keep) rpSimCancel(); /* a mission change while the pilot is still flying its hidden recording */
   if (RPL.on && !RPL.keep) rpStop();
   convoyClear();
   CV.st = 'idle';
@@ -9039,6 +9040,7 @@ function trainerReset() {
   });
   trn.a = null;
   guide.plan = null;
+  guide.rs = null; /* the ring starts afresh with each mission */
   guide.pts = [];
   guide.marks = [];
   guide.hdg = null;
@@ -9059,7 +9061,7 @@ function trainerReset() {
   } else if (m === 'dogfight') placeAt(0, 900, 300, 0, -5000, 130);
   else if (m === 'convoy') {
     const tg = ROADC.getTangentAt(0);
-    placeAt(DEPOT[0] - tg.x * 1900, 600, DEPOT[1] - tg.z * 1900, DEPOT[0], DEPOT[1], 110);
+    placeAt(DEPOT[0] - tg.x * 4500, 700, DEPOT[1] - tg.z * 4500, DEPOT[0], DEPOT[1], 110); /* far enough back to line up on the convoy without breaking off */
   } else if (m === 'bomb') placeAt(BASE[0] - 2200, 700, BASE[1] + 1800, BASE[0], BASE[1], 120);
   else if (AERO[m]) aeroStart(m);
   coachHide();
@@ -9178,6 +9180,13 @@ const TRAINERS = {
     let txt,
       h = '',
       l = '';
+    /* the green ring is a point on the pilot's recorded line; the white marker is your flight path */
+    let ringH = '';
+    if (!gnd && s >= 4 && guide.rs) {
+      const fpaN = Math.asin(Math.max(-1, Math.min(1, vel.y / Math.max(1, vel.length())))) * 57.3,
+        fpaR = Math.atan2(guide.rs.y + 2 - pos.y, Math.hypot(guide.rs.x - pos.x, guide.rs.z - pos.z)) * 57.3;
+      ringH = fpaN > fpaR + 2 ? ' White marker is above the ring: ease the nose down.' : fpaN < fpaR - 2 ? ' White marker is below the ring: raise the nose a little.' : ' White marker is in the ring: good.';
+    }
     if (s === 0) {
       trn.title = 'Step 1/7: Flaps';
       txt =
@@ -9210,7 +9219,7 @@ const TRAINERS = {
     } else if (s === 3) {
       trn.title = 'Step 4/7: Rotate';
       txt =
-        "Ease the stick back until the nose sits about 10 degrees above the horizon, then hold it there.\nDon't yank it: too much nose-up adds drag and can stall the wing.";
+        "Ease the stick back until the nose sits about 10 degrees above the horizon, then hold it there.\nThe white marker stays on the horizon until she lifts off, so judge by the nose angle. Don't yank it: too much nose-up adds drag and can stall the wing.";
       if (pitch > 15) {
         h = 'Nose too high (' + R(pitch) + '). Ease forward!';
         l = 'bad';
@@ -9224,12 +9233,12 @@ const TRAINERS = {
     } else if (s === 4) {
       trn.title = 'Step 5/7: Gear up';
       txt =
-        'You are flying! Raise the landing gear now: press G (or A). The gear is drag.\nKeep the nose about 10 degrees up and the wings level.';
+        'You are flying! Raise the landing gear now: press G (or A). The gear is drag.\nKeep the nose about 10 degrees up and the wings level. Now the white marker should sit in the green ring.';
       if (kmh < 190 || (kmh < 235 && pitch > 11)) {
         h = 'Speed ' + R(kmh) + (pitch > 11 ? ', nose ' + R(pitch) + ' deg: too steep to gain speed. Lower the nose to 8 to 10 degrees.' : ': lower the nose a little, you need airspeed.');
         l = 'warn';
       } else {
-        h = 'Speed ' + R(kmh) + ' km/h, climbing ' + vel.y.toFixed(1) + ' m/s. Gear up: G / A.';
+        h = 'Speed ' + R(kmh) + ' km/h, climbing ' + vel.y.toFixed(1) + ' m/s. Gear up: G / A.' + ringH;
         l = 'ok';
       }
     } else if (s === 5) {
@@ -9243,7 +9252,7 @@ const TRAINERS = {
         h = pitch > 11 ? 'Nose ' + R(pitch) + ' deg is too steep: the speed will not build. Lower it to 8 to 10 (speed ' + R(kmh) + ', want 240).' : 'Wait: speed ' + R(kmh) + ' km/h, want 240 before flaps up.';
         l = 'warn';
       } else {
-        h = 'Speed OK: flaps up now (V / D-pad left)!';
+        h = 'Speed OK: flaps up now (V / D-pad left)!' + ringH;
         l = 'bad';
       }
     } else {
@@ -9255,7 +9264,8 @@ const TRAINERS = {
         ' m, speed ' +
         R(kmh) +
         ' km/h. ' +
-        (kmh < 215 ? 'Too slow: lower the nose.' : kmh > 310 ? 'Fast: you can raise the nose.' : 'Good climb.');
+        (kmh < 215 ? 'Too slow: lower the nose.' : kmh > 310 ? 'Fast: you can raise the nose.' : 'Good climb.') +
+        ringH;
       l = kmh < 215 ? 'bad' : 'ok';
     }
     T0(txt, h, l);
@@ -9635,7 +9645,7 @@ const TRAINERS = {
       l = 'warn';
     } else if (nd > 1500) {
       txt =
-        'Step 1: Turn in\nPoint the nose at the nearest vehicle (the red T marker on the compass shows it) and come down: about 160 m at 2 km out, and about 390 km/h.\nBy 1.5 km it must be within 38 degrees of your nose, and you must not be too high, or break off and try again.';
+        'Step 1: Follow the green ring\nKeep the white marker in the green ring: it is the line the pilot flew down to the convoy. Hold about 390 km/h. The convoy comes into view ahead and the red T marker on the compass points at the nearest vehicle.\nIf you wander far off the line or stay too high, you will have to break off and try again.';
       h = 'Nearest vehicle ' + (nd / 1000).toFixed(1) + ' km away, ' + R(ata) + ' deg off the nose. Height ' + R(agl) + ' m, speed ' + R(kmh) + ' km/h.';
       l = ata > 60 ? 'warn' : 'ok';
     } else {
@@ -11135,6 +11145,12 @@ function rpMissionStart() {
     mc = { m, bn: m === 'bomb' ? BLD.filter((b) => b.dead).length : 0, cn: m === 'convoy' ? Math.min(2, CV.list.filter((v) => v.dead && !v.gone).length) : 0, srcRec: trn.rec, rec: trn.rec.slice(), sum: trn.sum || (m === 'bomb' ? BLD.filter((b) => b.dead).length + ' of ' + BLD.length + ' buildings destroyed.' : ''), T: trn.rec[trn.rec.length - 1].t, ideal: null, ok: false, simSum: '', simT: 0 };
   if (m === 'convoy' && !mc.sum) mc.sum = trn.sum || '';
   RPL.mc = mc;
+  if (PRE_MODES[m] && PP.out && PP.key === ppKey()) {
+    /* the pilot already flew this mission before it began: its recording is what the green ring followed */
+    Object.assign(mc, { ok: PP.ok, ideal: PP.out, simSum: PP.simSum, simT: PP.simT, why: PP.why });
+    rpStart();
+    return;
+  }
   RPL.busy = true;
   RPL.on = true;
   RPL.keep = true;
@@ -11156,7 +11172,7 @@ function rpSimChunk() {
     dt = 1 / 60,
     cap = RPM_CAP[S.m];
   let fin = false;
-  while (performance.now() - t0 < 14 && !fin) {
+  while (performance.now() - t0 < (RPL.mc && RPL.mc.pre ? 30 : 14) && !fin) {
     rpMBot(S.m, S);
     step(dt);
     plane.position.copy(pos);
@@ -11229,6 +11245,8 @@ function rpSimEnd() {
   }
   mc.why = crashed ? 'the sim pilot crashed' : mc.ok ? '' : 'the sim pilot ran out of time';
   SND.on = RPL.snd;
+  const pre = !!mc.pre,
+    pk = ppKey();
   RPL.keep = true;
   reset();
   started = true;
@@ -11236,6 +11254,20 @@ function rpSimEnd() {
   RPL.busy = false;
   RPL.on = false;
   $$('rplW').style.display = 'none';
+  if (pre) {
+    /* kept for the whole mission: the green ring and the replay both use it */
+    RPL.mc = null;
+    Object.assign(PP, { key: mc.ideal ? pk : '', out: mc.ideal, ok: mc.ok, ix: 0, simSum: mc.simSum, simT: mc.simT, why: mc.why });
+    PP.pts = null;
+    if (mc.ideal) {
+      let sAcc = 0;
+      PP.pts = mc.ideal.map((o, i) => {
+        if (i) sAcc += o.p.distanceTo(mc.ideal[i - 1].p);
+        return { x: o.p.x, y: o.p.y - 2, z: o.p.z, s: sAcc };
+      });
+    }
+    return;
+  }
   rpStart();
 }
 
@@ -11319,11 +11351,13 @@ function rpStop() {
   document.body.classList.remove('phHide');
   $$('rpl').style.display = 'none';
   $$('rplX').style.display = 'none';
+  if (rpG.init) {
   rpG.line.forEach((l) => (l.visible = false));
   rpG.dots.forEach((D) => D.forEach((s) => (s.visible = false)));
   [rpG.ghostP, rpG.ghostI, rpG.ghostD].forEach((b) => ((b.g.visible = false), (b.glow.visible = false)));
   rpG.mark.visible = false;
   rpG.gapL.visible = false;
+  }
   cp.copy(pos).add(new V(0, 4, 14));
 }
 function rpUi() {
@@ -11996,6 +12030,14 @@ function closestIdx(pts) {
 /* the path is built ONCE and then stays fixed in the world; it is only rebuilt when the target really moved, you flew past the end, or you are far off it */
 function planGuide() {
   const F = finalLineFor();
+  if (!F && PRE_MODES[trn.mode] && PP.pts && PP.key === ppKey() && !RPL.busy) {
+    /* no planned route for this mission: the pilot's recorded flight stands in for it */
+    guide.plan = null;
+    guide.pts = PP.pts;
+    guide.marks = [];
+    guide.kind = 'pp';
+    return;
+  }
   if (!F) {
     guide.plan = null;
     guide.pts = [];
@@ -12079,6 +12121,83 @@ function projectOnPath(pts) {
   };
 }
 guide.Ls = 400;
+/* ---------- the sim pilot's recorded flight, flown before the mission starts ----------
+   The pilot (same plane, same physics as the player) flies the mission once, hidden, and its path is kept in PP.out. The green
+   ring is a point a little way ahead on that path, so putting the white flight-path marker in the ring puts the player back on
+   the pilot's line. The same recording is the pilot's flight in the replay afterwards. */
+const PRE_MODES = { takeoff: 1, landing: 1, bomb: 1, convoy: 1 };
+const PP = { key: '', out: null, ok: false, ix: 0, simSum: '', simT: 0, why: '' };
+function ppKey() {
+  return trn.mode + (FM.on ? 'H' : 'S') + Object.keys(FM.opt).map((k) => (FM.opt[k] ? 1 : 0)).join('');
+}
+function ppAhead(L) {
+  if (RPL.busy || !PP.out || PP.key !== ppKey() || !PRE_MODES[trn.mode]) return null;
+  const o = PP.out,
+    n = o.length;
+  let bi = PP.ix,
+    bd = 1e18;
+  for (let i = Math.max(0, PP.ix - 12); i < Math.min(n, PP.ix + 160); i++) {
+    const d = o[i].p.distanceToSquared(pos);
+    if (d < bd) (bd = d), (bi = i);
+  }
+  if (bd > 1500 * 1500) {
+    /* far from where the search was looking (a long way off the line): look at the whole recording */
+    for (let i = 0; i < n; i++) {
+      const d = o[i].p.distanceToSquared(pos);
+      if (d < bd) (bd = d), (bi = i);
+    }
+  }
+  PP.ix = bi;
+  /* bombing: the recording is the first building's attack; after it the old planned route takes over for the next building */
+  if (trn.mode === 'bomb' && bi >= n - 6) return null;
+  const a = o[bi].p,
+    b0 = o[Math.min(n - 1, bi + 4)].p;
+  let tx = b0.x - a.x,
+    tz = b0.z - a.z;
+  const tl = Math.hypot(tx, tz) || 1;
+  tx /= tl;
+  tz /= tl;
+  let acc = 0,
+    k = bi;
+  while (k < n - 1 && acc < L) {
+    acc += o[k].p.distanceTo(o[k + 1].p);
+    k++;
+  }
+  const e = o[k].p;
+  let ex = e.x,
+    ey = e.y,
+    ez = e.z;
+  if (acc < L && k > 1) {
+    /* past the end of the recording: carry on in the direction it was heading */
+    const d0 = o[k].p.clone().sub(o[k - 1].p).normalize(),
+      r = L - acc;
+    ex += d0.x * r;
+    ey += d0.y * r;
+    ez += d0.z * r;
+  }
+  return { ahead: { x: ex, y: ey - 2, z: ez }, lat: (pos.x - a.x) * -tz + (pos.z - a.z) * tx, vert: pos.y - a.y };
+}
+function rpPrefly() {
+  const m = trn.mode;
+  if (!PRE_MODES[m] || RPL.busy || !started || PP.off) return;
+  PP.key = '';
+  PP.out = null;
+  PP.ix = 0;
+  RPL.mc = { m, pre: true, bn: m === 'bomb' ? 1 : 0, cn: 0, srcRec: null, rec: [], sum: '' };
+  RPL.busy = true;
+  RPL.on = true;
+  RPL.keep = true;
+  RPL.snd = SND.on;
+  SND.on = false;
+  coachHide();
+  reset();
+  started = true;
+  RPL.keep = false;
+  RPL.sim = { m, i: 0, out: [], t0: performance.now() };
+  $$('rplW').style.display = 'flex';
+  $$('rplWt').textContent = 'The sim pilot is flying this mission first, to record the line you will follow...';
+  requestAnimationFrame(rpSimChunk);
+}
 function guideState(dtOv) {
   const pts = guide.pts,
     pr = projectOnPath(pts),
@@ -12089,11 +12208,18 @@ function guideState(dtOv) {
   const tl = Math.hypot(tx, tz) || 1;
   tx /= tl;
   tz /= tl;
-  const lat = (pos.x - pr.x) * -tz + (pos.z - pr.z) * tx,
-    vert = pos.y - 2 - pr.y,
-    v = Math.max(45, vel.length());
+  let lat = (pos.x - pr.x) * -tz + (pos.z - pr.z) * tx,
+    vert = pos.y - 2 - pr.y;
+  const v = Math.max(45, vel.length());
   guide.Ls += (Math.max(250, Math.min(700, v * 4)) - guide.Ls) * 0.08;
-  const lk = pathAt(pts, pr.s + guide.Ls);
+  let lk = pathAt(pts, pr.s + guide.Ls);
+  const pp = ppAhead(guide.Ls);
+  if (pp) {
+    /* the sim pilot's recorded flight is the route: the ring is a point ahead on it, and the offsets are measured from it */
+    lk = pp.ahead;
+    lat = pp.lat;
+    vert = pp.vert;
+  }
   let rx = lk.x,
     rz = lk.z,
     ry = lk.y,
@@ -12109,10 +12235,10 @@ function guideState(dtOv) {
       rx = pos.x - Math.sin(b2) * dxz;
       rz = pos.z - Math.cos(b2) * dxz;
     }
-    const dl = Math.min((guide.F && guide.F.descLim) || 0.1, 0.2),
+    const dl = pp ? 0.3 : Math.min((guide.F && guide.F.descLim) || 0.1, 0.2) /* the pilot's own dives are steeper than the planned routes */,
       py = pos.y - 2,
       dn = dxz * dl,
-      up = dxz * 0.12,
+      up = dxz * (pp ? 0.2 : 0.12),
       dy = ry - py;
     ry = py + (dy < 0 ? -dn * Math.tanh(-dy / dn) : up * Math.tanh(dy / up));
   }
@@ -12534,6 +12660,8 @@ function reset() {
   $$('msg').style.display = 'none';
   cp.copy(pos).add(new V(0, 4, 14));
   trainerReset();
+  PP.ix = 0;
+  if (started && !RPL.busy && !RPL.keep && PRE_MODES[trn.mode] && PP.key !== ppKey()) rpPrefly();
 }
 reset();
 
