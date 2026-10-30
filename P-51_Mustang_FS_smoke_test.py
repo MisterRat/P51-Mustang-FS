@@ -469,6 +469,10 @@ with sync_playwright() as p:
     pg.evaluate("()=>{keys.KeyW=true}"); pg.wait_for_timeout(700); pg.evaluate("()=>{keys.KeyW=false}")
     check("photo mode: the free camera moves", pg.evaluate("()=>PHOTO.pos.x+','+PHOTO.pos.z")!=p0)
     pr = pg.evaluate("""()=>{const p=PHOTO.pos.clone(),y0=PHOTO.yaw;cv.dispatchEvent(new MouseEvent('mousedown',{button:2}));dispatchEvent(new MouseEvent('mousemove',{movementX:40,movementY:0}));dispatchEvent(new MouseEvent('mouseup'));const d=PHOTO.pos.distanceTo(p);const y1=PHOTO.yaw;cv.dispatchEvent(new MouseEvent('mousedown',{button:0}));dispatchEvent(new MouseEvent('mousemove',{movementX:40,movementY:0}));dispatchEvent(new MouseEvent('mouseup'));return [d,y1-y0,PHOTO.yaw-y1,PHOTO.pos.distanceTo(p)-d]}""")
+    pm = pg.evaluate("""()=>{const p=PHOTO.pos.clone(),y0=PHOTO.yaw;cv.dispatchEvent(new MouseEvent('mousedown',{button:2}));dispatchEvent(new MouseEvent('mousemove',{movementX:0,movementY:40}));dispatchEvent(new MouseEvent('mouseup'));const h=PHOTO.pos.clone().sub(p);
+      const p1=PHOTO.pos.clone();cv.dispatchEvent(new MouseEvent('mousedown',{button:1}));dispatchEvent(new MouseEvent('mousemove',{movementX:0,movementY:-40}));dispatchEvent(new MouseEvent('mouseup'));const v=PHOTO.pos.clone().sub(p1);
+      return [Math.hypot(h.x,h.z),h.y,Math.hypot(v.x,v.z),v.y,PHOTO.yaw-y0]}""")
+    check("photo mode: right-drag moves along the ground (height unchanged), middle-drag moves up and down only", pm[0] > 0.1 and abs(pm[1]) < 1e-6 and pm[2] < 1e-6 and abs(pm[3]) > 0.1 and abs(pm[4]) < 1e-6, str(pm))
     check("photo mode: right-drag moves the camera (no turn), left-drag turns it (no move)", pr[0] > 0.1 and abs(pr[1]) < 1e-6 and abs(pr[2]) > 0.01 and abs(pr[3]) < 1e-6, str(pr))
     wd = pg.evaluate("""()=>{const p=PHOTO.pos.clone(),f=PHOTO.fov;cv.dispatchEvent(new WheelEvent('wheel',{deltaY:-200,cancelable:true}));const d=PHOTO.pos.distanceTo(p),f1=PHOTO.fov;cv.dispatchEvent(new WheelEvent('wheel',{deltaY:-200,ctrlKey:true,cancelable:true}));return [d,f1-f,PHOTO.fov-f1]}""")
     check("photo mode: the wheel moves the camera in and out, Ctrl + wheel changes the FOV", wd[0] > 0.1 and abs(wd[1]) < 1e-6 and abs(wd[2]) > 0.5, str(wd))
@@ -618,6 +622,12 @@ with sync_playwright() as p:
     check("ground fire: at night the searchlights light their beams", pg.evaluate("()=>AA.lamp.filter(l=>!l.t.dead).every(l=>{updAA(1/60);return l.beam.visible})"))
     pg.evaluate("()=>{WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
     check("ground fire: reset repairs the guns", pg.evaluate("()=>AA.gun.every(g=>!g.t.dead)"))
+    col = pg.evaluate("""()=>{ const hex=(g)=>{let h=[];g.grp.traverse(o=>{if(o.material&&o.material.color)h.push(o.material.color.getHex())});return h};
+      const a=AA.gun[0], b=AA.gun[1], l=AA.lamp[0]; damage(a.t,999); damage(l.t,999);
+      const dark=hex(a).every(c=>c===0x1a1a1a), others=hex(b).some(c=>c!==0x1a1a1a)&&AA.lamp[1].grp.children.length>0&&(()=>{let ok=false;AA.lamp[1].grp.traverse(o=>{if(o.material&&o.material.color&&o.material.color.getHex()!==0x1a1a1a)ok=true});return ok})();
+      reset(); const back=hex(a).every(c=>c===0x1a1a1a)===false&&(()=>{let ok=true;[a,b,{grp:l.grp}].forEach(g=>g.grp.traverse(o=>{if(o.material&&o.material.color&&o.isMesh&&o.material.color.getHex()===0x1a1a1a)ok=false}));return ok})();
+      return [dark,others,back]}""")
+    check("ground fire: a destroyed gun or light goes dark on its own, the others stay normal, and reset restores the colours", all(col), str(col))
 
     wxl_js = """(a)=>{ const [wx,dist]=a; WX.setWx(wx); paused=true; started=true; trn.mode='free'; AA.msgT=99; const L=AA.lamp[0];
       pos.set(L.p.x+Math.cos(0.6)*dist, L.p.y+100, L.p.z+Math.sin(0.6)*dist); vel.set(0,0,0); let lit=0;

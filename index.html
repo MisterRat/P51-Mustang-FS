@@ -287,7 +287,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <label>Move <select id="phSpd"><option value="8">Slow</option><option value="30" selected>Normal</option><option value="120">Fast</option></select></label>
 <label><input type="checkbox" id="phStamp"> Stamp info on the photo</label><label><input type="checkbox" id="phGrid"> Thirds grid</label></div>
 <div class="r more">Camera spot: <button data-s="chase">Behind</button><button data-s="side">Beside</button><button data-s="front">In front</button><button data-s="top">Above</button><button data-s="cockpit">Cockpit</button><span id="phMsg" style="color:var(--acc)"></span></div>
-<div class="r more dim">W A S D move &middot; Q E down / up &middot; Z C roll &middot; drag to look &middot; right-drag slides the camera &middot; wheel moves in / out in small steps (Shift = big steps) &middot; Ctrl + wheel zooms (FOV) &middot; Shift = fast &middot; H HUD on / off &middot; F hides this panel</div></div>
+<div class="r more dim">W A S D move &middot; Q E down / up &middot; Z C roll &middot; left-drag looks &middot; right-drag moves along the ground &middot; middle-drag moves up / down &middot; wheel moves in / out (Shift = bigger steps for all of them) &middot; Ctrl + wheel zooms (FOV) &middot; Shift = fast &middot; H HUD on / off &middot; F hides this panel</div></div>
 <div id="phGridV" style="position:fixed;inset:0;pointer-events:none;display:none;z-index:28;background:linear-gradient(to right,transparent 33.2%,rgba(255,255,255,.45) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.45) 66.6%,transparent 66.8%),linear-gradient(to bottom,transparent 33.2%,rgba(255,255,255,.45) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.45) 66.6%,transparent 66.8%)"></div>
 <div class="p" id="msg"></div>
 
@@ -483,7 +483,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>STALL</td><td>The wing is stalled. Release the stick, lower the nose, add power. The STALL readout on the left panel shakes within a few km/h of the stall.</td></tr>
 <tr><td>PULL UP</td><td>Low and descending fast.</td></tr>
 <tr><td>ILS</td><td>The landing trainer teaches the instrument landing system. The ILS panel (beside the artificial horizon) is a cross-pointer: the <b>vertical needle</b> is the localizer (left / right of the runway centreline) and the <b>horizontal needle</b> is the glide slope (your height against a 3&deg; slope that meets the runway 200 m past the threshold). Each needle points toward where the beam is, so fly <b>toward</b> the needle: needle right = turn right, needle below the centre = descend. Red LOC / GS flags mean no beam yet. The beam reaches about 25 km out and 40&deg; either side of the runway, for both ends (36 and 18; in free flight the nearer end is used, switched on with L). The distance (DME) to the threshold is shown at the top. Standard needles are full scale at 5&deg; and 1.4&deg;. In the landing trainer the green ring leads you around the circuit and then sits on the centreline and the slope. Catch the slope from below. <b>Hardcore &gt; ILS realism</b> uses the real sensitivity (2.5&deg; and 0.7&deg;), a narrower cone, the outer and middle marker beacons with lamps and tones, and capture call-outs.</td></tr>
-<tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, drag the mouse to look, the right-drag slides the camera, the wheel moves it in and out in small steps (Shift + wheel in big steps; it never runs out), Ctrl + wheel changes the field of view, Shift moves fast. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
+<tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, left-drag looks around, right-drag moves the camera along the ground (sideways and forward / back), middle-drag moves it up and down, the wheel moves it in and out in small steps (it never runs out), Ctrl + wheel changes the field of view, and holding Shift makes the drags and the wheel move in larger steps. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
 <tr><td>Time &amp; weather</td><td>Settings &gt; Time of day &amp; weather. <b>Time</b>: your local clock, dawn, morning, midday, afternoon, evening or night; tick &ldquo;Time passes&rdquo; to run a day in 24 minutes. <b>Weather</b>: clear, partly cloudy, overcast, rain, thunderstorm or fog. Overcast, rain, storm and fog cut how far you can see and dim the sun. At night you get a moon, stars, runway lights, lit building windows, the hangars and the tower, and wingtip and tail lights (red left, green right, white tail). Rain streaks past the canopy; a thunderstorm adds lightning and thunder. Fly the runway lights in, and watch your altitude. <b>Night:</b> the instrument panel dims, and with the landing gear down the landing light puts a pool of light on the ground ahead of the nose.</td></tr>
 <tr><td>DAMAGE</td><td>Enemy hits hurt one system at a time (Settings &gt; Battle damage). <b>Engine</b>: less power, smoke, then fire or a dead engine. <b>Wing</b>: the plane rolls toward the damaged side and the aileron weakens (lost when badly hit). <b>Tail</b>: weaker elevator and rudder. <b>Fuel tank</b>: a leak. <b>Hydraulics</b>: flaps jam and the gear will not retract. A fire burns the hull: dive fast for about 3 seconds to put it out. Land and stop with the throttle at idle to repair everything. If it is hopeless, bail out (J twice, or hold both bumpers, or Pause menu &gt; Bail out): the canopy blows off, you climb out of the seat, fall clear and the parachute opens. <b>Drag the mouse</b> (or use the right stick) to look all around, down at the ground and up at the canopy. You need about 100 m of height when you climb out for the parachute to open in time; Enter restarts at any time. The aircraft is lost.</td></tr>
 <tr><td>Sound</td><td>The engine note follows the throttle and propeller speed, with wind, tyre rumble, guns, rockets, bombs and explosions (heard late when far away), and a chirp and squeal of rubber when you touch down fast. Warning tones: a pulsing buzzer for a stall, a steady wail past the redline, a two-tone warble in a spin, and fast beeps for overstress. Settings &gt; Sound has the overall volume and a separate Engine &amp; Wind volume; U mutes.</td></tr>
@@ -581,7 +581,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.7';
+const VERSION = '4.8';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -9039,8 +9039,7 @@ AA.load();
   const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum() };
   const MAT = lam();
   const mk = (g) => {
-    const m = new THREE.Mesh(g, MAT);
-    return m;
+    return new THREE.Mesh(g, MAT.clone()); /* one material per mesh: killT darkens and restores each mesh's own colour */
   };
   const addT = (grp, type, hp, r) => {
     const e = { m: grp, lit: null, c: grp.position, r, hp, hp0: hp, type, dead: false, s1: 3, col: 0x4a5035, kind: 'aa' };
@@ -14821,7 +14820,7 @@ function orbReset() {
 }
 cv.addEventListener('mousedown', (e) => {
   if (PHOTO.on) {
-    PHOTO.drag = e.button === 2 ? 2 : 1; /* left drag looks around, right drag moves the camera */
+    PHOTO.drag = e.button === 2 ? 2 : e.button === 1 ? 3 : 1; /* left drag looks around, right drag moves the camera along the ground, middle drag moves it up and down */
     e.preventDefault();
     return;
   }
@@ -14836,15 +14835,22 @@ addEventListener('mouseup', () => {
 });
 addEventListener('mousemove', (e) => {
   if (PHOTO.on) {
-    if (PHOTO.drag === 2) {
-      /* right-drag: slide the camera across the view, as if pulling the picture along with the mouse */
-      /* 1:1 at the aircraft's depth: the aircraft follows the cursor */
-      const k =
-          ((2 * Math.tan((PHOTO.fov * Math.PI) / 360) * Math.max(1, cam.position.distanceTo(pos))) / innerHeight) *
-          (keys.ShiftLeft || keys.ShiftRight ? 3 : 1),
-        rx = PHV1.set(1, 0, 0).applyQuaternion(cam.quaternion),
-        ry = PHV2.set(0, 1, 0).applyQuaternion(cam.quaternion);
-      PHOTO.pos.addScaledVector(rx, -e.movementX * k).addScaledVector(ry, e.movementY * k);
+    if (PHOTO.drag === 2 || PHOTO.drag === 3) {
+      /* right-drag moves the camera horizontally (sideways and forward / back along the ground, whichever way it is looking),
+         middle-drag moves it up and down; the picture follows the cursor. Steps are a fraction of the distance to the aircraft or
+         the ground, whichever is nearer, so they stay fine near the ground; Shift makes each one six times bigger */
+      const ref = Math.max(
+          0.3,
+          Math.min(cam.position.distanceTo(pos), cam.position.y - H(cam.position.x, cam.position.z) + 1.5),
+        ),
+        k = ((2 * Math.tan((PHOTO.fov * Math.PI) / 360) * ref) / innerHeight) * (keys.ShiftLeft || keys.ShiftRight || e.shiftKey ? 6 : 1),
+        sy = Math.sin(PHOTO.yaw),
+        cy = Math.cos(PHOTO.yaw);
+      if (PHOTO.drag === 2) {
+        PHOTO.pos.x += cy * -e.movementX * k + -sy * e.movementY * k;
+        PHOTO.pos.z += -sy * -e.movementX * k + -cy * e.movementY * k;
+      } else PHOTO.pos.y += e.movementY * k;
+      PHOTO.pos.y = Math.max(PHOTO.pos.y, H(PHOTO.pos.x, PHOTO.pos.z) + 0.4);
     } else if (PHOTO.drag) {
       const k = 0.0035 * (PHOTO.fov / 65);
       PHOTO.yaw -= e.movementX * k;
