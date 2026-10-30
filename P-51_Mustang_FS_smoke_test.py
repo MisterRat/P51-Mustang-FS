@@ -619,6 +619,19 @@ with sync_playwright() as p:
     pg.evaluate("()=>{WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
     check("ground fire: reset repairs the guns", pg.evaluate("()=>AA.gun.every(g=>!g.t.dead)"))
 
+    wxl_js = """(a)=>{ const [wx,dist]=a; WX.setWx(wx); paused=true; started=true; trn.mode='free'; AA.msgT=99; const L=AA.lamp[0];
+      pos.set(L.p.x+Math.cos(0.6)*dist, L.p.y+100, L.p.z+Math.sin(0.6)*dist); vel.set(0,0,0); let lit=0;
+      for(let i=0;i<90;i++){ L.mode='track'; L.lost=0; const dx=pos.x-L.p.x,dy=pos.y-L.p.y,dz=pos.z-L.p.z; L.yaw=Math.atan2(dx,dz); L.el=Math.atan2(dy,Math.hypot(dx,dz)); updAA(1/60); if(L.lit) lit++; } return lit}"""
+    pg.evaluate("()=>{WX.setTime('night')}"); pg.wait_for_timeout(2500)
+    lits = [pg.evaluate(wxl_js, a) for a in (["clear", 1500], ["fog", 1500], ["fog", 200], ["storm", 2500])]
+    check("ground fire: a searchlight lights you in clear weather but fog limits it to a few hundred metres", lits[0] > 0 and lits[1] == 0 and lits[2] > 0 and lits[3] == 0, str(lits))
+    occ = pg.evaluate("""()=>{ WX.setWx('overcast'); const L=AA.lamp[0]; const r=CSH.root.position; let c=null,bd=1e9;
+      for(const k of CLOUDS){ if(!k.userData.wx) continue; const d=Math.hypot(k.position.x+r.x-L.p.x,k.position.z+r.z-L.p.z); if(d<bd&&k.position.y>L.p.y+600){bd=d;c=k;} }
+      const cx=c.position.x+r.x, cy=c.position.y, cz=c.position.z+r.z; pos.set(L.p.x+2*(cx-L.p.x), L.p.y+2*(cy-L.p.y), L.p.z+2*(cz-L.p.z));
+      let lit=0; for(let i=0;i<120;i++){ L.mode='track'; L.lost=0; const dx=pos.x-L.p.x,dy=pos.y-L.p.y,dz=pos.z-L.p.z; L.yaw=Math.atan2(dx,dz); L.el=Math.atan2(dy,Math.hypot(dx,dz)); updAA(1/60); if(i>30&&L.lit) lit++; }
+      return [L.occ, L.spl.visible, lit]}""")
+    check("ground fire: a beam stops at a cloud, glows its underside and does not light a plane behind it", occ[0] and occ[1] and occ[2] == 0, str(occ))
+    pg.evaluate("()=>{WX.setWx('clear');WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
     check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))
     pg.evaluate("()=>{PP.off=true}")

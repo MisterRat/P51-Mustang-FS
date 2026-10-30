@@ -510,7 +510,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Bombs</td><td>Two 230 kg (500 lb), released with Z / X / the BOMB button. A bomb keeps your speed and falls for about 5 seconds. The blast reaches 75 m and does less damage with distance.</td></tr>
 <tr><td>Weight</td><td>Bombs and rockets add weight and raise the stall speed; it drops as you use them.</td></tr>
 <tr><td>Resupply</td><td>Land and stop with the throttle at idle: about 4 seconds to repair, rearm and (in Hardcore mode) refuel. The trainers also top up ammunition and hull for you.</td></tr>
-<tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
+<tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. <b>Weather limits them:</b> a beam stops at the first cloud and only lights its underside, so a target behind a cloud is not lit; rain cuts the beam to about 3 km, a thunderstorm to 1.5 km and fog to about 300 m. The gun crews cannot see through cloud either, and by day see only as far as the weather lets them (about 700 m in fog); at night in fog they fire only at what a beam or the close range lights up. The lights can still follow you by sound. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -581,7 +581,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.6';
+const VERSION = '4.7';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -9105,9 +9105,12 @@ AA.load();
     glow.scale.set(26, 26, 1);
     glow.visible = false;
     scene.add(glow);
+    const spl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xcfe0ff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+    spl.visible = false;
+    scene.add(spl);
     const t = fr ? { dead: false } : addT(grp, 'sl150', 16, 3);
     AA.lamp.push({
-      fr: !!fr, t, grp, head, pit, lens, beam, glow, x, z, home, yaw: home, el: 0.8, wy: home, we: 0.8, mode: 'search', lost: 0, cue: 0, lit: false, on: false,
+      fr: !!fr, t, grp, head, pit, lens, beam, glow, spl, ct: Math.random() * 0.15, cloudAxis: Infinity, occ: false, x, z, home, yaw: home, el: 0.8, wy: home, we: 0.8, mode: 'search', lost: 0, cue: 0, lit: false, on: false,
       p: new V(x, H(x, z) + 1.5 + 0.6, z),
     });
   };
@@ -9183,6 +9186,33 @@ AA.load();
 const _aaF = new V(),
   _aaR = new V(),
   _aaU = new V();
+/* weather limits: how far a searchlight beam lights a target (fog and rain eat it; a cloud stops it and only the cloud's underside glows),
+   and how far the gun crews can see by day */
+const AAV = { clear: 8000, partly: 8000, overcast: 6000, rain: 3000, storm: 1500, fog: 300 };
+/* distance along the unit direction (dx,dy,dz) from a to the first cloud in the way, or Infinity (the weather's clouds only, whatever the graphics setting) */
+function aaCloudT(a, dx, dy, dz, len) {
+  const r = CSH.root.position;
+  let best = Infinity;
+  for (const c of CLOUDS) {
+    if (!c.userData.wx) continue;
+    const ex = 0.4 * c.scale.x,
+      ey = 0.3 * c.scale.y,
+      ox = (a.x - (c.position.x + r.x)) / ex,
+      oy = (a.y - c.position.y) / ey,
+      oz = (a.z - (c.position.z + r.z)) / ex,
+      qx = dx / ex,
+      qy = dy / ey,
+      qz = dz / ex,
+      A = qx * qx + qy * qy + qz * qz,
+      B = ox * qx + oy * qy + oz * qz,
+      C = ox * ox + oy * oy + oz * oz - 1,
+      D = B * B - A * C;
+    if (D < 0) continue;
+    const t = Math.max(0, (-B - Math.sqrt(D)) / A);
+    if (t < best && t < len && (-B + Math.sqrt(D)) / A > 0) best = t;
+  }
+  return best;
+}
 function aaDir(y, e, o) {
   return o.set(Math.sin(y) * Math.cos(e), Math.sin(e), Math.cos(y) * Math.cos(e));
 }
@@ -9210,6 +9240,7 @@ AA.apply = function () {
     this.lamp.forEach((L) => {
       L.beam.visible = false;
       L.glow.visible = false;
+      L.spl.visible = false;
       L.lens.material.color.set(0x8c9bb0);
       L.lit = false;
       L.mode = 'search';
@@ -9227,6 +9258,7 @@ AA.hide = function () {
   this.lamp.forEach((L) => {
     L.beam.visible = false;
     L.glow.visible = false;
+    L.spl.visible = false;
   });
   const d = document.getElementById('dazzle');
   if (d) d.style.opacity = 0;
@@ -9238,6 +9270,9 @@ function updAA(dt) {
   AA.fT = Math.max(0, AA.fT - dt);
   const night = WX.lt || 0,
     hot = started && !crashed && !RPL.busy && (trn.mode === 'free' || trn.mode === 'convoy' || trn.mode === 'bomb');
+  const wxs = WX_SET[WX.wx] || WX_SET.clear,
+    lightVis = AAV[WX.wx] || 8000,
+    gunVis = Math.min(2500, wxs.fogF * 0.45); /* by day the crews see about this far */
   /* ----- searchlights ----- */
   let dzT = 0,
     litAny = 0;
@@ -9248,6 +9283,7 @@ function updAA(dt) {
     if (!L.on) {
       L.beam.visible = false;
       L.glow.visible = false;
+      L.spl.visible = false;
       L.lens.material.color.set(0x8c9bb0);
       continue;
     }
@@ -9301,16 +9337,31 @@ function updAA(dt) {
     L.beam.rotation.set(-L.el, L.yaw, 0);
     L.beam.position.set(L.p.x, L.p.y + 0.5, L.p.z).addScaledVector(_aaF, 1.0);
     L.beam.visible = true;
+    /* the beam stops at the first cloud (and lights its underside), and fog or rain shorten it */
+    if ((L.ct -= dt) <= 0) {
+      L.ct = 0.15;
+      L.cloudAxis = aaCloudT(L.p, _aaF.x, _aaF.y, _aaF.z, 8000);
+      L.occ = R > 1 && aaCloudT(L.p, dx / R, dy / R, dz / R, R) < R; /* a cloud between the light and you */
+    }
+    const reach = Math.min(8000, lightVis),
+      bl = Math.max(20, Math.min(reach, L.cloudAxis));
+    L.beam.scale.set(1, 1, bl / 8000);
+    L.spl.visible = L.cloudAxis < reach;
+    if (L.spl.visible) {
+      L.spl.position.copy(L.beam.position).addScaledVector(_aaF, bl);
+      L.spl.scale.set(180 + bl * 0.12, 180 + bl * 0.12, 1);
+    }
     const bm = Math.min(1, (night - 0.3) / 0.4);
     L.beam.children.forEach((m, i) => (m.material.opacity = [0.075, 0.085, 0.1][i] * bm));
     L.glow.position.copy(L.beam.position);
     L.glow.visible = true;
     L.glow.material.opacity = bm;
+    L.spl.material.opacity = 0.5 * bm;
     L.lens.material.color.set(0xeaf6ff);
     /* is the beam on you? */
     aaDir(L.yaw, L.el, _aaF);
     const ang2 = R > 1 ? Math.acos(Math.max(-1, Math.min(1, (_aaF.x * dx + _aaF.y * dy + _aaF.z * dz) / R))) : 9;
-    if (!L.fr && hot && R < 8000 && ang2 < 0.03) {
+    if (!L.fr && hot && R < reach && !L.occ && ang2 < 0.03) {
       L.lit = true;
       litAny++;
       dzT = Math.max(dzT, (1 - ang2 / 0.03) * Math.min(1, 2200 / R) * Math.max(0.3, Math.min(1, 1.5 - pos.y / 2800))); /* the glare is worst below about 1,200 m */
@@ -9336,7 +9387,13 @@ function updAA(dt) {
       dz = pos.z - g.piv.z;
     if (!dead) {
       R = Math.hypot(dx, dy, dz);
-      can = hot && R < 2500 && pos.y > H(pos.x, pos.z) + 2 && (night < 0.35 || litAny > 0 || R < 800);
+      if ((g.ct = (g.ct || 0) - dt) <= 0) {
+        g.ct = 0.2;
+        g.occ = R > 1 && aaCloudT(g.piv, dx / R, dy / R, dz / R, R) < R; /* cloud between the gun and you: they cannot see you */
+      }
+      /* by day they see as far as the weather lets them; at night they need a beam on you (which reaches only as far as the weather lets it) or you close in */
+      const sight = night < 0.35 ? gunVis : litAny > 0 ? Math.min(gunVis > 0 ? 2500 : 0, lightVis) : Math.min(800, gunVis);
+      can = hot && R < Math.min(2500, sight) && !g.occ && pos.y > H(pos.x, pos.z) + 2;
       g.v.lerp(vel, Math.min(1, 1.3 * dt));
       const tt = R / 840,
         ax = dx + g.v.x * tt * 0.9,
