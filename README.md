@@ -75,4 +75,4 @@ Built with [three.js](https://threejs.org/) r128 (MIT), inlined in the file.
 ## License
 Free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0). Commercial use needs written permission. See [`LICENSE`](LICENSE).
 
-| Port, airbase and coast road | A free-flight port (pier, ships, cranes) and a fenced second airbase (control tower, gravel yard, parked fighters), joined to your airfield by a road and a long bridge, with a Ukuru-class escort patrolling the coast under Ground Fire |
+| Port, airbase and coast road | A free-flight port (pier, ships, cranes) and a fenced second airbase (control tower, gravel yard, parked fighters), joined by enemy roads (port to airbase to the depot, and the second base back to the port), with a Ukuru-class escort patrolling the coast under Ground Fire |

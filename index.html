@@ -513,7 +513,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. <b>Weather limits them:</b> a beam stops at the first cloud and only lights its underside, so a target behind a cloud is not lit; rain cuts the beam to about 3 km, a thunderstorm to 1.5 km and fog to about 300 m. The gun crews cannot see through cloud either, and by day see only as far as the weather lets them (about 700 m in fog); at night in fog they fire only at what a beam or the close range lights up. The lights can still follow you by sound. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Wrecks, smoke and craters</td><td>A destroyed building, vehicle, gun or fuel store leaves a scorch mark and burns for a while, with a smoke column you can see from miles away (fuel and tanker fires burn longest). Bombs leave craters, rockets small scorch marks, and a bandit that hits the ground or your own crash leaves a burning wreck. Smoke leans downwind. They stay for the rest of the flight and are cleared when you restart. Graphics Low shows fewer fires at once.</td></tr>
 <tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water a freighter, a tanker and a patrol boat sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
-<tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate and, over a long bridge across the sea, to your airfield. Red squares on the map and the compass point to the targets.</td></tr>
+<tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate to the depot where the convoy starts, and another from the second base, where the convoy ends, back to the port. No road reaches your airfield. Red squares on the map and the compass point to the targets.</td></tr>
 <tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out; hold the backtick key ` for six times bigger steps) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.11';
+const VERSION = '4.12';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1285,6 +1285,89 @@ const ss = (a, b, x) => {
 };
 const RW = { x: 40, zN: -1700, zS: 600 };
 const PL = { cx: 3900, cz: -4400, R: 4300 };
+/* the port and the airbase: two more enemy sites for free flight, found by searching the map for a gently sloping coast with level farmland behind it.
+   Local frame: u runs along the coast, d runs out to sea (so the airbase, on the inland side, has negative d). */
+const SITE = (() => {
+  const O = { x: 2000, z: -7200 },
+    n = Math.hypot(0.38, 0.92),
+    S = { x: -0.38 / n, z: -0.92 / n },
+    A = { x: -S.z, z: S.x };
+  return {
+    O,
+    S,
+    A,
+    ryA: Math.atan2(-A.z, A.x) /* yaw that lays a model's +x along the coast */,
+    ryS: Math.atan2(-S.z, S.x) /* yaw that points a model's +x out to sea */,
+    w: (u, d) => [O.x + A.x * u + S.x * d, O.z + A.z * u + S.z * d],
+    H0: 26.5 /* the airbase stands on a levelled pad this high (the farmland there rolls between 25 and 60 m) */,
+    pad(x, z) {
+      const dx = x - O.x,
+        dz = z - O.z,
+        u = dx * A.x + dz * A.z,
+        d = dx * S.x + dz * S.z,
+        e = Math.hypot(Math.max(0, Math.abs(u) - 780), Math.max(0, -1110 - d, d + 520));
+      return 1 - ss(0, 230, e);
+    },
+    inside(x, z, m) {
+      const dx = x - O.x,
+        dz = z - O.z,
+        u = dx * A.x + dz * A.z,
+        d = dx * S.x + dz * S.z;
+      return (Math.abs(u) < 190 + m && d > -150 - m && d < 270 + m) || (Math.abs(u) < 740 + m && d > -1110 - m && d < -520 + m);
+    },
+  };
+})();
+/* the enemy roads: from the port quay round the west end of the airbase (a spur turns in at its gate) and on to the depot where the convoy starts;
+   and from the second base, where the convoy ends, back to the port */
+const ROAD2C = new THREE.CatmullRomCurve3(
+    [
+      SITE.w(0, -95),
+      SITE.w(-220, -300),
+      SITE.w(-560, -520),
+      SITE.w(-740, -760),
+      SITE.w(-740, -990),
+      [1680, -5720],
+      [1680, -5120],
+      [1680, -4520],
+      [1680, -3920],
+      [1690, -3500],
+    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
+    false,
+    'catmullrom',
+    0.5,
+  ),
+  RP2 = ROAD2C.getSpacedPoints(Math.ceil(ROAD2C.getLength() / 18)),
+  ROAD3C = new THREE.CatmullRomCurve3(
+    [
+      [5400, -4350],
+      [5160, -4580],
+      [4680, -5060],
+      [4200, -5540],
+      [3600, -5720],
+      [3120, -6200],
+      [2640, -6680],
+      SITE.w(260, -300),
+      SITE.w(110, -95),
+      SITE.w(30, -95),
+    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
+    false,
+    'catmullrom',
+    0.5,
+  ),
+  RP3 = ROAD3C.getSpacedPoints(Math.ceil(ROAD3C.getLength() / 18)),
+  RSPUR = (() => {
+    const o = [];
+    for (let i = 0; i <= 14; i++) {
+      const [x, z] = SITE.w(-740 + (i * 90) / 14, -990);
+      o.push(new THREE.Vector3(x, 0, z));
+    }
+    for (let i = 1; i <= 6; i++) {
+      const [x, z] = SITE.w(-650 + (i * 330) / 6, -990);
+      o.push(new THREE.Vector3(x, 0, z));
+    }
+    return o;
+  })();
+
 function HR(x, z) {
   const dz = Math.max(0, z - RW.zS, RW.zN - z),
     d = Math.hypot(Math.max(0, Math.abs(x) - 60), dz);
@@ -1300,6 +1383,8 @@ function HR(x, z) {
   if (pw > 0)
     r =
       r * (1 - pw) + (30 + 15 * Math.sin(x * 0.0011 + 1) * Math.cos(z * 0.0013) + 6 * Math.sin((x + z) * 0.0021)) * pw;
+  const sp = SITE.pad(x, z);
+  if (sp > 0) r = r * (1 - sp) + SITE.H0 * sp;
   return r;
 }
 const H = (x, z) => Math.max(HR(x, z), -8);
@@ -1552,85 +1637,13 @@ function nearRoad(x, z, d) {
       dz = RP[i].z - z;
     if (dx * dx + dz * dz < d * d) return true;
   }
-  for (const L of [RP2, RSPUR])
+  for (const L of [RP2, RP3, RSPUR])
     for (let i = 0; i < L.length; i += 2) {
       const dx = L[i].x - x,
         dz = L[i].z - z;
       if (dx * dx + dz * dz < d * d) return true;
     }
   return false;
-}
-/* the port and the airbase: two more enemy sites for free flight, found by searching the map for a gently sloping coast with level farmland behind it.
-   Local frame: u runs along the coast, d runs out to sea (so the airbase, on the inland side, has negative d). */
-const SITE = (() => {
-  const O = { x: 2000, z: -7200 },
-    n = Math.hypot(0.38, 0.92),
-    S = { x: -0.38 / n, z: -0.92 / n },
-    A = { x: -S.z, z: S.x };
-  return {
-    O,
-    S,
-    A,
-    ryA: Math.atan2(-A.z, A.x) /* yaw that lays a model's +x along the coast */,
-    ryS: Math.atan2(-S.z, S.x) /* yaw that points a model's +x out to sea */,
-    w: (u, d) => [O.x + A.x * u + S.x * d, O.z + A.z * u + S.z * d],
-    inside(x, z, m) {
-      const dx = x - O.x,
-        dz = z - O.z,
-        u = dx * A.x + dz * A.z,
-        d = dx * S.x + dz * S.z;
-      return (Math.abs(u) < 190 + m && d > -150 - m && d < 270 + m) || (Math.abs(u) < 740 + m && d > -1110 - m && d < -520 + m);
-    },
-  };
-})();
-/* the coast road: from the port quay round the west end of the airbase (a spur turns in at its gate) and on south-west to your airfield */
-const ROAD2C = new THREE.CatmullRomCurve3(
-    [
-      SITE.w(0, -95),
-      SITE.w(-220, -300),
-      SITE.w(-560, -520),
-      SITE.w(-740, -760),
-      SITE.w(-740, -990),
-      [1560, -5560],
-      [1380, -5140],
-      [1200, -4720],
-      [1140, -4300],
-      [1140, -3880],
-      [1140, -3460],
-      [1200, -3040],
-    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
-    false,
-    'catmullrom',
-    0.5,
-  ),
-  RP2 = ROAD2C.getSpacedPoints(Math.ceil(ROAD2C.getLength() / 18)),
-  /* the sea lies between the mainland and your airfield: the road crosses it on a long bridge to the north end of the runway island */
-  BRG = { x0: 1200, z0: -3040, x1: 40, z1: -1840, top: 8 },
-  RSPUR = (() => {
-    const o = [];
-    for (let i = 0; i <= 14; i++) {
-      const [x, z] = SITE.w(-740 + (i * 90) / 14, -990);
-      o.push(new THREE.Vector3(x, 0, z));
-    }
-    for (let i = 1; i <= 6; i++) {
-      const [x, z] = SITE.w(-650 + (i * 330) / 6, -990);
-      o.push(new THREE.Vector3(x, 0, z));
-    }
-    return o;
-  })();
-
-{
-  const L = Math.hypot(BRG.x1 - BRG.x0, BRG.z1 - BRG.z0),
-    n = Math.round(L / 18);
-  for (let q = 1; q <= n; q++) {
-    const t = q / n,
-      d = Math.min(t, 1 - t) * L,
-      p = new THREE.Vector3(BRG.x0 + (BRG.x1 - BRG.x0) * t, 0, BRG.z0 + (BRG.z1 - BRG.z0) * t);
-    const g0 = H(t < 0.5 ? BRG.x0 : BRG.x1, t < 0.5 ? BRG.z0 : BRG.z1) + 0.4;
-    p.b = Math.max(H(p.x, p.z) + 0.4, Math.min(BRG.top, g0 + 0.06 * d)); /* deck: ramps up 6% from each shore, level out over the water */
-    RP2.push(p);
-  }
-  for (let q = 1; q <= 9; q++) RP2.push(new THREE.Vector3(BRG.x1 - (q * 40) / 9, 0, BRG.z1 + (q * 150) / 9)); /* on along the island to the end of the runway */
 }
 /* fenced area of each compound: [x0, x1, z0, z1] in metres from DEPOT / BASE (the compounds are not centred on those points) */
 const DEPF = [-160, 10, -95, 105],
@@ -1759,7 +1772,7 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   ]) {
     g.globalAlpha = al;
     g.lineWidth = (wd / (2 * HS)) * FW;
-    for (const L of [RP, RP2, RSPUR]) {
+    for (const L of [RP, RP2, RP3, RSPUR]) {
       g.beginPath();
       L.forEach((p, n) => {
         const q = px(p.x, p.z);
@@ -1879,7 +1892,7 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   FARM.hedgeCount = items.length;
 }
 
-for (const RPX of [RP, RP2, RSPUR]) {
+for (const RPX of [RP, RP2, RP3, RSPUR]) {
   const n = RPX.length,
     P = new Float32Array(n * 6),
     UV = new Float32Array(n * 4),
@@ -1900,7 +1913,7 @@ for (const RPX of [RP, RP2, RSPUR]) {
       const x = p.x - dz * 5.5 * k,
         z = p.z + dx * 5.5 * k,
         o = i * 2 + j;
-      P.set([x, p.b !== undefined ? p.b : H(x, z) + 0.4, z], o * 3);
+      P.set([x, HMESH(x, z) + 0.4, z], o * 3);
       NR.set([0, 1, 0], o * 3);
       UV.set([j, s / 14], o * 2);
     });
@@ -1933,13 +1946,11 @@ for (const RPX of [RP, RP2, RSPUR]) {
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.anisotropy = 8;
-  const rm = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide }));
+  const rm = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
   g.computeBoundingSphere();
   rm.frustumCulled = RPX !== RP;
   scene.add(rm);
 }
-
-/* the bridge: a thick deck, parapets and pillars under every stretch that is raised above the sea (built after the kit exists, see below) */
 
 /* ---------- shared geometry kit ----------
    Models are written as lists of parts (GX.part: shape + colour + position/rotation/scale). A GX.Acc bakes any number of parts, each
@@ -10120,7 +10131,7 @@ const SITES = [],
       for (let j = 0; j <= nd; j++)
         for (let i = 0; i <= nu; i++) {
           const [x, z] = SITE.w(u0 + ((u1 - u0) * i) / nu, d0 + ((d1 - d0) * j) / nd);
-          P.push(x, H(x, z) + yoff, z);
+          P.push(x, HMESH(x, z) + yoff, z);
           UV.push((i / nu) * ru, (j / nd) * rd);
         }
       for (let j = 0; j < nd; j++)
@@ -10552,39 +10563,6 @@ const SITES = [],
       part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 10.5, 0),
     );
     target(P, 'tower', 60, 9, 0, DR - 190, SITE.ryA);
-  }
-  /* the bridge structure under the road deck */
-  {
-    const acc = new GX.Acc(),
-      br = RP2.filter((p) => p.b !== undefined);
-    for (let i = 0; i < br.length - 1; i++) {
-      const a = br[i],
-        b = br[i + 1],
-        L = Math.hypot(b.x - a.x, b.z - a.z) + 0.2,
-        yaw = Math.atan2(-(b.z - a.z), b.x - a.x),
-        y = (a.b + b.b) / 2,
-        cx = (a.x + b.x) / 2,
-        cz = (a.z + b.z) / 2;
-      acc.add(
-        [
-          part(bx(L, 0.9, 12.4), 0x8e9094, 0, -0.55, 0),
-          part(bx(L, 0.8, 0.3), 0x7d8084, 0, 0.35, 5.9),
-          part(bx(L, 0.8, 0.3), 0x7d8084, 0, 0.35, -5.9),
-        ],
-        GX.xf(cx, y, cz, yaw, 1),
-      );
-      if (i % 3 === 1 && y - H(cx, cz) > 1.5) {
-        const bot = Math.min(H(cx, cz), -8) - 6;
-        acc.add(
-          [
-            part(bx(4, 1.2, 9), 0x7d8084, 0, -1.4, 0),
-            part(cyl(1.6, 1.9, y - 1.8 - bot, 10), 0x74777b, 0, (bot + y - 1.8) / 2 - y, 0),
-          ],
-          GX.xf(cx, y, cz, yaw + Math.PI / 2, 1),
-        );
-      }
-    }
-    scene.add(new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true })));
   }
   /* perimeter fence round the whole airfield, with guard towers */
   {
@@ -14747,7 +14725,7 @@ function drawMinimap() {
   g.beginPath();
   RP.forEach((q, i) => (i ? g.lineTo(q.x, q.z) : g.moveTo(q.x, q.z)));
   g.stroke(); /* road */
-  for (const L of [RP2, RSPUR]) {
+  for (const L of [RP2, RP3, RSPUR]) {
     g.beginPath();
     L.forEach((q, i) => (i ? g.lineTo(q.x, q.z) : g.moveTo(q.x, q.z)));
     g.stroke();

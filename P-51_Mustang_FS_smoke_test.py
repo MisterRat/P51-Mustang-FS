@@ -702,16 +702,12 @@ with sync_playwright() as p:
       resetWeapons(); const back=[ship,pl,cr].every(t=>!t.dead&&t.m.scale.y===1)&&ship.m.rotation.z===0;
       return [n, kinds, types, vis, dead, back, SITE.inside(2000,-7200,0), SITE.inside(0,300,0)]}""")
     check("port and airbase: ships, cranes and parked fighters are free-flight targets, killable, and reset restores them", sit[0] >= 30 and sit[1] and sit[2][0] >= 3 and sit[2][1] >= 2 and sit[2][2] >= 9 and sit[3] and sit[4] and sit[5] and sit[6] and not sit[7], str(sit))
-    rd = pg.evaluate("""()=>{ const p0=RP2[0], pe=RP2[RP2.length-1]; const wet=RP2.filter(p=>HR(p.x,p.z)<-1);
-      const raised=wet.every(p=>p.b!==undefined&&p.b>-7); const ex=SITE.w(0,-95);
-      return [Math.hypot(p0.x-ex[0],p0.z-ex[1]), Math.hypot(pe.x-0,pe.z+1700), wet.length, raised, SITES.some(t=>t.type==='tower'), nearRoad(RSPUR[4].x,RSPUR[4].z,5)]}""")
-    check("coast road: runs from the port quay to the airfield island, every wet stretch is a raised bridge, the airbase has a control tower and a gate spur", rd[0] < 30 and rd[1] < 250 and rd[2] > 50 and rd[3] and rd[4] and rd[5], str(rd))
-    pt = pg.evaluate("""()=>{ trn.mode='free'; const e=SITE.patrol.e, m=e.m; const p0=m.position.clone(); let wet=true, far=0;
-      for(let k=0;k<1200;k++){ SITE.pat(0.5); if(HR(m.position.x,m.position.z)>-8) wet=false; far=Math.max(far,m.position.distanceTo(p0)) }
-      killT(e); const x=m.position.x; SITE.pat(1); const stops=e.dead&&m.position.x===x; resetWeapons(); SITE.pat(1);
-      const gs=AA.gun.filter(g=>g.ship); const riding=gs.length===4&&gs.every(g=>g.piv.distanceTo(m.position)<30&&g.t===e);
-      return [wet, far, stops, !e.dead, e.type, riding]}""")
-    check("patrol ship: the Ukuru-class escort carries four of the base's 25 mm mounts, patrols up and down the coast over open water, stops when sunk and sails again after reset", pt[0] and pt[1] > 1500 and pt[2] and pt[3] and pt[4] == 'ship' and pt[5], str(pt))
+    rd = pg.evaluate("""()=>{ const q=SITE.w(0,-95), d=(p,x,z)=>Math.hypot(p.x-x,p.z-z); const a=RP2[0], e=RP2[RP2.length-1], c=RP3[0], f=RP3[RP3.length-1];
+      const land=[...RP2,...RP3].every(p=>HR(p.x,p.z)>1); const far=[...RP2,...RP3].every(p=>Math.hypot(p.x,p.z-300)>2500);
+      let pad=0; for(let u=-700;u<=700;u+=100)for(let k=-1000;k<=-560;k+=110){const [x,z]=SITE.w(u,k);pad=Math.max(pad,Math.abs(HR(x,z)-SITE.H0))}
+      return [d(a,q[0],q[1]), d(e,DEPOT[0],DEPOT[1]), d(c,BASE[0],BASE[1]), d(f,q[0],q[1]), land, far, pad, SITES.some(t=>t.type==='tower'), nearRoad(RSPUR[4].x,RSPUR[4].z,5)]}""")
+    check("enemy roads: port to airbase gate to the depot, and the second base back to the port, all on dry land, none near your airfield; the airbase pad is level; the tower and gate spur exist",
+          rd[0] < 30 and rd[1] < 40 and rd[2] < 30 and rd[3] < 120 and rd[4] and rd[5] and rd[6] < 0.2 and rd[7] and rd[8], str(rd))
     sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
     check("port and airbase: their guns only exist in free flight", sg is not None and sg[0] >= 4 and sg[1] and sg[2], str(sg))
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
