@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.13';
+const VERSION = '4.14';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1308,6 +1308,15 @@ const SITE = (() => {
         e = Math.hypot(Math.max(0, Math.abs(u) - 780), Math.max(0, -1110 - d, d + 520));
       return 1 - ss(0, 230, e);
     },
+    H1: 3.2 /* the harbour yard is cut and filled level at this height (the shore there falls 20 m) */,
+    pad2(x, z) {
+      const dx = x - O.x,
+        dz = z - O.z,
+        u = dx * A.x + dz * A.z,
+        d = dx * S.x + dz * S.z,
+        t = Math.max(Math.max(0, Math.abs(u) - 200) / 220, Math.max(0, -150 - d) / 220, Math.max(0, d - 52) / 60);
+      return 1 - ss(0, 1, t);
+    },
     inside(x, z, m) {
       const dx = x - O.x,
         dz = z - O.z,
@@ -1322,9 +1331,11 @@ const SITE = (() => {
 const ROAD2C = new THREE.CatmullRomCurve3(
     [
       SITE.w(40, 5),
-      SITE.w(40, -55),
-      SITE.w(30, -108),
-      SITE.w(-90, -130),
+      SITE.w(40, -60),
+      SITE.w(40, -115),
+      SITE.w(30, -140),
+      SITE.w(-20, -168),
+      SITE.w(-100, -215),
       SITE.w(-220, -300),
       SITE.w(-560, -520),
       SITE.w(-740, -760),
@@ -1347,12 +1358,18 @@ const ROAD2C = new THREE.CatmullRomCurve3(
       [4680, -5060],
       [4200, -5540],
       [3600, -5720],
-      [3120, -6200],
-      [2640, -6680],
+      SITE.w(900, -1500),
+      SITE.w(820, -1000),
+      SITE.w(800, -640),
+      SITE.w(600, -590),
+      SITE.w(300, -500),
       SITE.w(260, -300),
-      SITE.w(130, -160),
-      SITE.w(60, -118),
-      SITE.w(30, -108),
+      SITE.w(180, -200),
+      SITE.w(120, -135),
+      SITE.w(95, -110),
+      SITE.w(75, -105),
+      SITE.w(58, -105),
+      SITE.w(40, -105),
     ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
     false,
     'catmullrom',
@@ -1389,6 +1406,8 @@ function HR(x, z) {
       r * (1 - pw) + (30 + 15 * Math.sin(x * 0.0011 + 1) * Math.cos(z * 0.0013) + 6 * Math.sin((x + z) * 0.0021)) * pw;
   const sp = SITE.pad(x, z);
   if (sp > 0) r = r * (1 - sp) + SITE.H0 * sp;
+  const sq = SITE.pad2(x, z);
+  if (sq > 0) r = r * (1 - sq) + SITE.H1 * sq;
   return r;
 }
 const H = (x, z) => Math.max(HR(x, z), -8);
@@ -1900,7 +1919,58 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   FARM.hedgeCount = items.length;
 }
 
-for (const RPX of [RP, RP2, RP3, RSPUR]) {
+/* a road that ends on another road stops at that road's edge instead of running into it */
+function trimRoad(L) {
+  const out = L.slice(),
+    others = [RP, RP2, RP3, RSPUR].filter((Y) => Y !== L),
+    dseg = (Y, x, z) => {
+      let m = 1e9;
+      for (let i = 0; i < Y.length - 1; i++) {
+        const ax = Y[i].x,
+          az = Y[i].z,
+          bx = Y[i + 1].x - ax,
+          bz = Y[i + 1].z - az,
+          t = Math.max(0, Math.min(1, ((x - ax) * bx + (z - az) * bz) / (bx * bx + bz * bz || 1)));
+        m = Math.min(m, Math.hypot(x - ax - bx * t, z - az - bz * t));
+      }
+      return m;
+    };
+  for (const end of [0, 1]) {
+    const get = () => (end ? out[out.length - 1] : out[0]);
+    let Yh = null;
+    for (const Y of others) {
+      let bi = -1,
+        bd = 24;
+      const e = get();
+      for (let i = 3; i < Y.length - 3; i++) {
+        const d = Math.hypot(Y[i].x - e.x, Y[i].z - e.z);
+        if (d < bd) {
+          bd = d;
+          bi = i;
+        }
+      }
+      if (bi >= 0) Yh = Y;
+    }
+    if (!Yh) continue;
+    let last = null;
+    while (out.length > 3 && dseg(Yh, get().x, get().z) < 5.6) last = end ? out.pop() : out.shift();
+    if (!last) continue;
+    const k = get();
+    let lo = 0,
+      hi = 1;
+    for (let it = 0; it < 14; it++) {
+      const m = (lo + hi) / 2;
+      if (dseg(Yh, k.x + (last.x - k.x) * m, k.z + (last.z - k.z) * m) < 5.6) hi = m;
+      else lo = m;
+    }
+    const p = new THREE.Vector3(k.x + (last.x - k.x) * lo, 0, k.z + (last.z - k.z) * lo);
+    if (end) out.push(p);
+    else out.unshift(p);
+  }
+  return out;
+}
+for (const RPL of [RP, RP2, RP3, RSPUR]) {
+  const RPX = trimRoad(RPL);
   const n = RPX.length,
     P = new Float32Array(n * 6),
     UV = new Float32Array(n * 4),
@@ -1956,7 +2026,7 @@ for (const RPX of [RP, RP2, RP3, RSPUR]) {
   tex.anisotropy = 8;
   const rm = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
   g.computeBoundingSphere();
-  rm.frustumCulled = RPX !== RP;
+  rm.frustumCulled = RPL !== RP;
   scene.add(rm);
 }
 
@@ -2857,12 +2927,31 @@ const GRG = (i, j, k) => {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
 };
 /* is this spot bare grass land: not sand or water, not steep, not on the runway, apron, roads or compounds? */
+const RGRID = new Map();
+for (const L of [RP2, RP3, RSPUR])
+  for (let i = 0; i < L.length; i++) {
+    const kx = Math.floor(L[i].x / 60),
+      kz = Math.floor(L[i].z / 60),
+      key = kx * 100003 + kz;
+    if (!RGRID.has(key)) RGRID.set(key, []);
+    RGRID.get(key).push(L[i]);
+  }
+function onEnemyRoad(x, z, d) {
+  const kx = Math.floor(x / 60),
+    kz = Math.floor(z / 60);
+  for (let a = -1; a <= 1; a++)
+    for (let b = -1; b <= 1; b++) {
+      const q = RGRID.get((kx + a) * 100003 + kz + b);
+      if (q) for (const p of q) if ((p.x - x) * (p.x - x) + (p.z - z) * (p.z - z) < d * d) return true;
+    }
+  return false;
+}
 function grassOK(x, z, h) {
   const air = Math.abs(x) < 400 && z > -2250 && z < 1050; /* the ground shader's sand line is lower on the airfield */
   if (h < (air ? -1.5 : 4.5) || h > 650) return false;
   if (Math.abs(x) < 34 && z > RW.zN - 30 && z < RW.zS + 30) return false;
   if (x > -235 && x < -15 && z > 95 && z < 525) return false;
-  if (SITE.inside(x, z, 20)) return false;
+  if (SITE.inside(x, z, 20) || onEnemyRoad(x, z, 15)) return false;
   if (x > 1400 && x < 5700 && z > -4700 && z < -3100 && (inCompound(x, z) || nearRoad(x, z, 11))) return false;
   const e = 2.5,
     sx = HMESH(x + e, z) - HMESH(x - e, z),
@@ -9587,8 +9676,21 @@ AA.load();
     return g;
   };
   const LB = 8000; /* the Type 96 150 cm land searchlight lit a target out to about 8 km (Japanese Navy figure) */
-  const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum() };
-  AA.mount = { tur: GEOM.tur, bar: GEOM.bar }; /* the 25 mm twin mount, reused by the escort ship */
+  /* the gunner: sits behind the breech on the platform, hands forward on the hand wheels, in a steel helmet */
+  const gunner = (y0, zo) =>
+    raw([
+      ...[-1, 1].flatMap((s) => [
+        part(bx(0.16, 0.1, 0.3), 0x2a2a26, s * 0.12, y0 + 0.05, zo + 0.4),
+        part(bx(0.15, 0.4, 0.15), 0x6f6643, s * 0.12, y0 + 0.3, zo + 0.3),
+        part(bx(0.17, 0.15, 0.5), 0x6f6643, s * 0.12, y0 + 0.55, zo + 0.05),
+        part(bx(0.11, 0.11, 0.55), 0x6f6643, s * 0.27, y0 + 1.0, zo + 0.3),
+      ]),
+      part(bx(0.42, 0.55, 0.26), 0x7a6f4a, 0, y0 + 0.95, zo - 0.15),
+      part(sph(10), 0xc89a7a, 0, y0 + 1.4, zo - 0.12, 0, 0, 0, 0.12, 0.13, 0.12),
+      part(sph(10), 0x4a4f35, 0, y0 + 1.47, zo - 0.12, 0, 0, 0, 0.16, 0.1, 0.16),
+    ]);
+  const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum(), man: gunner(0.3, -0.75), man37: gunner(0.33, -1.0) };
+  AA.mount = { tur: GEOM.tur, bar: GEOM.bar, man: GEOM.man }; /* the 25 mm twin mount, reused by the escort ship */
   const MAT = lam();
   const mk = (g) => {
     return new THREE.Mesh(g, MAT.clone()); /* one material per mesh: killT darkens and restores each mesh's own colour */
@@ -9607,6 +9709,7 @@ AA.load();
     const tur = new THREE.Group();
     tur.position.set(0, 1.25 + G0, 0);
     tur.add(mk(GEOM.tur));
+    tur.add(mk(GEOM.man));
     const bar = new THREE.Group();
     bar.position.set(0, 0.65, 0);
     bar.add(mk(GEOM.bar));
@@ -9712,6 +9815,7 @@ AA.load();
     const tur = new THREE.Group();
     tur.position.set(0, 1.1 + G0, 0);
     tur.add(mk(GEOM.t37));
+    tur.add(mk(GEOM.man37));
     const bar = new THREE.Group();
     bar.position.set(0, 1.05, 0);
     bar.add(mk(GEOM.b37));
@@ -10408,6 +10512,7 @@ const SITES = [],
         top = UK.deckY(mx) + 0.96 + oy;
       tur.position.set(mx, top + 0.25, mz);
       tur.add(new THREE.Mesh(AA.mount.tur, MAT()));
+      tur.add(new THREE.Mesh(AA.mount.man, MAT()));
       bar.position.set(0, 0.65, 0);
       bar.add(new THREE.Mesh(AA.mount.bar, MAT()));
       tur.add(bar);

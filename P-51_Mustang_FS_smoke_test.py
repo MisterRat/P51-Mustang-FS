@@ -702,12 +702,14 @@ with sync_playwright() as p:
       resetWeapons(); const back=[ship,pl,cr].every(t=>!t.dead&&t.m.scale.y===1)&&ship.m.rotation.z===0;
       return [n, kinds, types, vis, dead, back, SITE.inside(2000,-7200,0), SITE.inside(0,300,0)]}""")
     check("port and airbase: ships, cranes and parked fighters are free-flight targets, killable, and reset restores them", sit[0] >= 30 and sit[1] and sit[2][0] >= 3 and sit[2][1] >= 2 and sit[2][2] >= 9 and sit[3] and sit[4] and sit[5] and sit[6] and not sit[7], str(sit))
-    rd = pg.evaluate("""()=>{ const q=SITE.w(40,5), q2=SITE.w(30,-108), d=(p,x,z)=>Math.hypot(p.x-x,p.z-z); const a=RP2[0], e=RP2[RP2.length-1], c=RP3[0], f=RP3[RP3.length-1];
+    rd = pg.evaluate("""()=>{ const q=SITE.w(40,5), q2=SITE.w(40,-105), d=(p,x,z)=>Math.hypot(p.x-x,p.z-z); const a=RP2[0], e=RP2[RP2.length-1], c=RP3[0], f=RP3[RP3.length-1];
       const land=[...RP2,...RP3].every(p=>HR(p.x,p.z)>1); const far=[...RP2,...RP3].every(p=>Math.hypot(p.x,p.z-300)>2500);
       let pad=0; for(let u=-700;u<=700;u+=100)for(let k=-1000;k<=-560;k+=110){const [x,z]=SITE.w(u,k);pad=Math.max(pad,Math.abs(HR(x,z)-SITE.H0))}
       return [d(a,q[0],q[1]), d(e,DEPOT[0],DEPOT[1]), d(c,BASE[0],BASE[1]), d(f,q2[0],q2[1]), land, far, pad, SITES.some(t=>t.type==='tower'), nearRoad(RSPUR[4].x,RSPUR[4].z,5), SITES.filter(t=>{ if(t.type==='ship') return false; t.m.updateMatrixWorld(true); const bb=new THREE.Box3().setFromObject(t.m).expandByScalar(4); return [...RP2,...RP3,...RSPUR].some(p=>p.x>bb.min.x&&p.x<bb.max.x&&p.z>bb.min.z&&p.z<bb.max.z) }).length]}""")
     check("enemy roads: port to airbase gate to the depot, and the second base back to the port, all on dry land, none near your airfield; the airbase pad is level; the tower and gate spur exist, and no road runs through a building",
           rd[0] < 30 and rd[1] < 40 and rd[2] < 30 and rd[3] < 30 and rd[4] and rd[5] and rd[6] < 0.2 and rd[7] and rd[8] and rd[9] == 0, str(rd))
+    fz = pg.evaluate("""()=>{ let m=1e9; for(const L of [RP,RP2,RP3]) for(const p of L){ const dx=p.x-SITE.O.x, dz=p.z-SITE.O.z, u=dx*SITE.A.x+dz*SITE.A.z, d=dx*SITE.S.x+dz*SITE.S.z; const e=Math.hypot(Math.max(0,Math.abs(u)-650,0), Math.max(0,-1060-d,d+670)); if(Math.abs(u)<650&&d>-1060&&d<-670) return -1; m=Math.min(m,Math.hypot(Math.max(0,Math.abs(u)-650),Math.max(0,-1060-d,d+670))) } return m }""")
+    check("enemy roads keep outside the airbase fence (none across the runway)", fz is not None and fz > 20, str(fz))
     sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
     check("port and airbase: their guns only exist in free flight", sg is not None and sg[0] >= 4 and sg[1] and sg[2], str(sg))
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
