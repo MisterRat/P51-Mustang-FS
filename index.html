@@ -331,7 +331,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="note">The wind, gusts, turbulence, wet runway and icing only act in Hardcore mode (Hardcore page). The runway points north and south.</div>
 <label style="display:block;margin:4px 0"><input type="checkbox" id="wxFlow" style="accent-color:#ffb43a"> Time passes (one hour per real minute) <span id="wxClock" style="opacity:.7"></span></label>
 <h3>BATTLE DAMAGE</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="dmgOn" style="accent-color:#ffb43a"> Battle damage: hits can hurt the engine, wings, tail, fuel tank and hydraulics, with smoke and fire</label>
-<h3>GROUND FIRE</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="aaOn" style="accent-color:#ffb43a"> Ground fire: each enemy base has two Type 96 25 mm anti-aircraft guns and two searchlights (guns fire in free flight, convoy and bombing; the lights sweep and lock on at night). Your own airfield has a 3.7-inch gun and a searchlight for show</label>
+<h3>GROUND FIRE</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="aaOn" style="accent-color:#ffb43a"> Ground fire: each enemy base has two Type 96 25 mm anti-aircraft guns and two searchlights (guns fire in free flight, convoy and bombing; the lights sweep and lock on at night). The port and the second airbase have guns too, and the Ukuru-class escort off the port carries the same guns. Your own airfield has a 3.7-inch gun and a searchlight for show</label>
 <h3>SOUND</h3><label style="display:block;margin:4px 0"><input type="checkbox" id="sndOn" style="accent-color:#ffb43a"> Sound (U switches it on and off)</label>
 <label style="display:block;margin:4px 0">Volume <input type="range" id="sndVol" min="0" max="100" style="width:min(260px,60vw);vertical-align:middle;accent-color:#ffb43a"> <span id="sndVolV"></span></label>
 <label style="display:block;margin:4px 0">Engine &amp; Wind <input type="range" id="engVol" min="0" max="100" style="width:min(260px,60vw);vertical-align:middle;accent-color:#ffb43a"> <span id="engVolV"></span></label>
@@ -513,6 +513,8 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. <b>Weather limits them:</b> a beam stops at the first cloud and only lights its underside, so a target behind a cloud is not lit; rain cuts the beam to about 3 km, a thunderstorm to 1.5 km and fog to about 300 m. The gun crews cannot see through cloud either, and by day see only as far as the weather lets them (about 700 m in fog); at night in fog they fire only at what a beam or the close range lights up. The lights can still follow you by sound. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Wrecks, smoke and craters</td><td>A destroyed building, vehicle, gun or fuel store leaves a scorch mark and burns for a while, with a smoke column you can see from miles away (fuel and tanker fires burn longest). Bombs leave craters, rockets small scorch marks, and a bandit that hits the ground or your own crash leaves a burning wreck. Smoke leans downwind. They stay for the rest of the flight and are cleared when you restart. Graphics Low shows fewer fires at once.</td></tr>
 <tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water a freighter, a tanker and a patrol boat sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
+<tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate and, over a long bridge across the sea, to your airfield. Red squares on the map and the compass point to the targets.</td></tr>
+<tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out, Shift for bigger steps, Ctrl+wheel for field of view) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -583,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.9';
+const VERSION = '4.10';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1550,7 +1552,85 @@ function nearRoad(x, z, d) {
       dz = RP[i].z - z;
     if (dx * dx + dz * dz < d * d) return true;
   }
+  for (const L of [RP2, RSPUR])
+    for (let i = 0; i < L.length; i += 2) {
+      const dx = L[i].x - x,
+        dz = L[i].z - z;
+      if (dx * dx + dz * dz < d * d) return true;
+    }
   return false;
+}
+/* the port and the airbase: two more enemy sites for free flight, found by searching the map for a gently sloping coast with level farmland behind it.
+   Local frame: u runs along the coast, d runs out to sea (so the airbase, on the inland side, has negative d). */
+const SITE = (() => {
+  const O = { x: 2000, z: -7200 },
+    n = Math.hypot(0.38, 0.92),
+    S = { x: -0.38 / n, z: -0.92 / n },
+    A = { x: -S.z, z: S.x };
+  return {
+    O,
+    S,
+    A,
+    ryA: Math.atan2(-A.z, A.x) /* yaw that lays a model's +x along the coast */,
+    ryS: Math.atan2(-S.z, S.x) /* yaw that points a model's +x out to sea */,
+    w: (u, d) => [O.x + A.x * u + S.x * d, O.z + A.z * u + S.z * d],
+    inside(x, z, m) {
+      const dx = x - O.x,
+        dz = z - O.z,
+        u = dx * A.x + dz * A.z,
+        d = dx * S.x + dz * S.z;
+      return (Math.abs(u) < 190 + m && d > -150 - m && d < 270 + m) || (Math.abs(u) < 740 + m && d > -1110 - m && d < -520 + m);
+    },
+  };
+})();
+/* the coast road: from the port quay round the west end of the airbase (a spur turns in at its gate) and on south-west to your airfield */
+const ROAD2C = new THREE.CatmullRomCurve3(
+    [
+      SITE.w(0, -95),
+      SITE.w(-220, -300),
+      SITE.w(-560, -520),
+      SITE.w(-740, -760),
+      SITE.w(-740, -990),
+      [1560, -5560],
+      [1380, -5140],
+      [1200, -4720],
+      [1140, -4300],
+      [1140, -3880],
+      [1140, -3460],
+      [1200, -3040],
+    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
+    false,
+    'catmullrom',
+    0.5,
+  ),
+  RP2 = ROAD2C.getSpacedPoints(Math.ceil(ROAD2C.getLength() / 18)),
+  /* the sea lies between the mainland and your airfield: the road crosses it on a long bridge to the north end of the runway island */
+  BRG = { x0: 1200, z0: -3040, x1: 40, z1: -1840, top: 8 },
+  RSPUR = (() => {
+    const o = [];
+    for (let i = 0; i <= 14; i++) {
+      const [x, z] = SITE.w(-740 + (i * 90) / 14, -990);
+      o.push(new THREE.Vector3(x, 0, z));
+    }
+    for (let i = 1; i <= 6; i++) {
+      const [x, z] = SITE.w(-650 + (i * 330) / 6, -990);
+      o.push(new THREE.Vector3(x, 0, z));
+    }
+    return o;
+  })();
+
+{
+  const L = Math.hypot(BRG.x1 - BRG.x0, BRG.z1 - BRG.z0),
+    n = Math.round(L / 18);
+  for (let q = 1; q <= n; q++) {
+    const t = q / n,
+      d = Math.min(t, 1 - t) * L,
+      p = new THREE.Vector3(BRG.x0 + (BRG.x1 - BRG.x0) * t, 0, BRG.z0 + (BRG.z1 - BRG.z0) * t);
+    const g0 = H(t < 0.5 ? BRG.x0 : BRG.x1, t < 0.5 ? BRG.z0 : BRG.z1) + 0.4;
+    p.b = Math.max(H(p.x, p.z) + 0.4, Math.min(BRG.top, g0 + 0.06 * d)); /* deck: ramps up 6% from each shore, level out over the water */
+    RP2.push(p);
+  }
+  for (let q = 1; q <= 9; q++) RP2.push(new THREE.Vector3(BRG.x1 - (q * 40) / 9, 0, BRG.z1 + (q * 150) / 9)); /* on along the island to the end of the runway */
 }
 /* fenced area of each compound: [x0, x1, z0, z1] in metres from DEPOT / BASE (the compounds are not centred on those points) */
 const DEPF = [-160, 10, -95, 105],
@@ -1558,6 +1638,7 @@ const DEPF = [-160, 10, -95, 105],
 function inCompound(x, z) {
   const m = 45;
   return (
+    SITE.inside(x, z, 30) ||
     (x > DEPOT[0] + DEPF[0] - m &&
       x < DEPOT[0] + DEPF[1] + m &&
       z > DEPOT[1] + DEPF[2] - m &&
@@ -1678,12 +1759,14 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   ]) {
     g.globalAlpha = al;
     g.lineWidth = (wd / (2 * HS)) * FW;
-    g.beginPath();
-    RP.forEach((p, n) => {
-      const q = px(p.x, p.z);
-      n ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]);
-    });
-    g.stroke();
+    for (const L of [RP, RP2, RSPUR]) {
+      g.beginPath();
+      L.forEach((p, n) => {
+        const q = px(p.x, p.z);
+        n ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]);
+      });
+      g.stroke();
+    }
   }
   g.globalAlpha = 1;
   /* clear the crops under each compound: its fenced rectangle plus a soft edge */
@@ -1796,28 +1879,28 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   FARM.hedgeCount = items.length;
 }
 
-{
-  const n = RP.length,
+for (const RPX of [RP, RP2, RSPUR]) {
+  const n = RPX.length,
     P = new Float32Array(n * 6),
     UV = new Float32Array(n * 4),
     NR = new Float32Array(n * 6),
     idx = [];
   let s = 0;
   for (let i = 0; i < n; i++) {
-    const p = RP[i],
-      a = RP[Math.max(0, i - 1)],
-      b = RP[Math.min(n - 1, i + 1)];
+    const p = RPX[i],
+      a = RPX[Math.max(0, i - 1)],
+      b = RPX[Math.min(n - 1, i + 1)];
     let dx = b.x - a.x,
       dz = b.z - a.z;
     const l = Math.hypot(dx, dz) || 1;
     dx /= l;
     dz /= l;
-    if (i > 0) s += Math.hypot(p.x - RP[i - 1].x, p.z - RP[i - 1].z);
+    if (i > 0) s += Math.hypot(p.x - RPX[i - 1].x, p.z - RPX[i - 1].z);
     [-1, 1].forEach((k, j) => {
       const x = p.x - dz * 5.5 * k,
         z = p.z + dx * 5.5 * k,
         o = i * 2 + j;
-      P.set([x, H(x, z) + 0.4, z], o * 3);
+      P.set([x, p.b !== undefined ? p.b : H(x, z) + 0.4, z], o * 3);
       NR.set([0, 1, 0], o * 3);
       UV.set([j, s / 14], o * 2);
     });
@@ -1851,9 +1934,12 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.anisotropy = 8;
   const rm = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, side: THREE.DoubleSide }));
-  rm.frustumCulled = false;
+  g.computeBoundingSphere();
+  rm.frustumCulled = RPX !== RP;
   scene.add(rm);
 }
+
+/* the bridge: a thick deck, parapets and pillars under every stretch that is raised above the sea (built after the kit exists, see below) */
 
 /* ---------- shared geometry kit ----------
    Models are written as lists of parts (GX.part: shape + colour + position/rotation/scale). A GX.Acc bakes any number of parts, each
@@ -2757,6 +2843,7 @@ function grassOK(x, z, h) {
   if (h < (air ? -1.5 : 4.5) || h > 650) return false;
   if (Math.abs(x) < 34 && z > RW.zN - 30 && z < RW.zS + 30) return false;
   if (x > -235 && x < -15 && z > 95 && z < 525) return false;
+  if (SITE.inside(x, z, 20)) return false;
   if (x > 1400 && x < 5700 && z > -4700 && z < -3100 && (inCompound(x, z) || nearRoad(x, z, 11))) return false;
   const e = 2.5,
     sx = HMESH(x + e, z) - HMESH(x - e, z),
@@ -3298,6 +3385,8 @@ function this_t(o) {
   AFLD.addShip(freighter(), 95, 1500, 3800, 6.5, 1);
   AFLD.addShip(tanker(), 112, 2500, 6500, 5.5, 2);
   AFLD.addShip(patrol(), 32, 2000, 5000, 11, 3);
+  AFLD.hullSteps = hullSteps;
+  AFLD.models = { freighter, tanker, patrol, fighter }; /* the port and the airbase reuse these models */
   /* soft contact shadows under everything parked */
   {
     const c = document.createElement('canvas');
@@ -7830,6 +7919,7 @@ function killT(t) {
   killed++;
   t.m.scale.y = 0.3;
   t.m.position.y = H(t.c.x, t.c.z) + t.s1 * 0.15;
+  if (t.type === 'ship') t.m.rotation.z = (t.c.x % 2 > 1 ? 1 : -1) * 0.2; /* a ship settles by the side as it burns */
   if (t.lit) t.lit.visible = false; /* the lights go out */
   t.m.traverse((o) => {
     if (o.material && o.material.color && !o.isPoints) {
@@ -7841,7 +7931,7 @@ function killT(t) {
   if (t.type == 'fuel' || t.type == 'tanker') blast(t.c, t.type == 'fuel' ? 22 : 14, 40);
   if (!RPL.on && !RPL.busy) AF.target(t);
   if (t.kind !== 'veh' || trn.mode === 'convoy')
-    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : t.type == 'aa25' ? 'FLAK GUN DESTROYED' : t.type == 'sl150' ? 'SEARCHLIGHT DESTROYED' : 'TARGET DESTROYED');
+    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : t.type == 'ship' ? 'SHIP SUNK' : t.type == 'plane' ? 'AIRCRAFT DESTROYED ON THE GROUND' : t.type == 'tower' ? 'CONTROL TOWER DESTROYED' : t.type == 'crane' ? 'CRANE DESTROYED' : t.type == 'aa25' ? 'FLAK GUN DESTROYED' : t.type == 'sl150' ? 'SEARCHLIGHT DESTROYED' : 'TARGET DESTROYED');
 }
 function blast(p, R, dmg) {
   EN.forEach((e) => {
@@ -8101,6 +8191,7 @@ function resetWeapons() {
     t.hp = t.hp0;
     t.m.scale.y = 1;
     t.m.position.y = H(t.c.x, t.c.z) + t.s1 / 2;
+    if (t.type === 'ship') t.m.rotation.z = 0;
     t.m.traverse((o) => {
       if (o.userData.c0 !== undefined) o.material.color.set(o.userData.c0);
     });
@@ -9478,6 +9569,7 @@ AA.load();
   };
   const LB = 8000; /* the Type 96 150 cm land searchlight lit a target out to about 8 km (Japanese Navy figure) */
   const GEOM = { pit: gunPit(), tur: gunTurret(), bar: gunBarrels(), lb: lampBase(), ly: lampYoke(), ld: lampDrum() };
+  AA.mount = { tur: GEOM.tur, bar: GEOM.bar }; /* the 25 mm twin mount, reused by the escort ship */
   const MAT = lam();
   const mk = (g) => {
     return new THREE.Mesh(g, MAT.clone()); /* one material per mesh: killT darkens and restores each mesh's own colour */
@@ -9619,6 +9711,25 @@ AA.load();
   lamp(D[0], D[1], 3, 97, 1.0);
   lamp(B[0], B[1], -34, 40, 1.9);
   lamp(B[0], B[1], 134, -85, 2.4);
+  /* the port and the airbase (free flight only): two guns and a searchlight each */
+  const sg = (u, d, yaw) => {
+      const [x, z] = SITE.w(u, d);
+      gun(x, z, 0, 0, yaw);
+      const g = AA.gun[AA.gun.length - 1];
+      g.site = g.t.site = true;
+    },
+    sl = (u, d, home) => {
+      const [x, z] = SITE.w(u, d);
+      lamp(x, z, 0, 0, home);
+      const L = AA.lamp[AA.lamp.length - 1];
+      L.site = L.t.site = true;
+    };
+  sg(-150, -20, 0.5);
+  sg(150, -30, 0.5);
+  sl(-110, -105, 1.2);
+  sg(-480, -700, 0.5);
+  sg(470, -705, 0.5);
+  sl(40, -1010, 2.0);
   /* the player's airfield: a 3.7-inch gun behind the hangars and a searchlight beside the line-up, both on our side, for show only */
   fgun(-168, 100, 0.8);
   lamp(0, 0, -218, 372, 0.3, true);
@@ -9718,7 +9829,8 @@ function updAA(dt) {
     litAny = 0;
   const trk = AA.lamp.some((L) => L.mode === 'track' && L.on);
   for (const L of AA.lamp) {
-    L.on = !L.t.dead && night > 0.3;
+    L.on = !L.t.dead && night > 0.3 && (!L.site || trn.mode === 'free');
+    if (L.site) L.grp.visible = trn.mode === 'free';
     L.lit = false;
     if (!L.on) {
       L.beam.visible = false;
@@ -9819,7 +9931,8 @@ function updAA(dt) {
   /* ----- guns ----- */
   const dmgS = 0.009 + DIFF.spread * 0.12;
   for (const g of AA.gun) {
-    const dead = g.t.dead;
+    const dead = g.t.dead || (g.site && trn.mode !== 'free');
+    if (g.site) g.grp.visible = trn.mode === 'free';
     let can = false,
       R = 1e9;
     const dx = pos.x - g.piv.x,
@@ -9920,6 +10033,635 @@ function updAA(dt) {
   abGeo.attributes.position.needsUpdate = true;
 }
 
+/* ---------- the port and the airbase (free flight): ground, buildings, ships, aircraft and cranes, all of them targets ---------- */
+const SITES = [],
+  SITE_OBJ = [];
+{
+  const _sceneAdd = scene.add; /* remember what this module adds, so the whole site can be culled by distance (see SITE.vis) */
+  scene.add = function (...a) {
+    SITE_OBJ.push(...a);
+    return _sceneAdd.apply(this, a);
+  };
+  const { part, bx, cyl } = GX,
+    Z = Math.PI / 2,
+    M = AFLD.models,
+    asMesh = (P, lit) => {
+      const g = new GX.Acc().add(P, GX.xf(0, 0, 0, 0)).geometry();
+      g.computeBoundingBox();
+      const b = g.boundingBox,
+        s1 = b.max.y - b.min.y;
+      g.translate(0, -b.min.y - s1 / 2, 0); /* base at the model's own zero, the mesh origin in the middle (as the other targets) */
+      g.computeBoundingSphere();
+      return [new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true })), s1];
+    },
+    target = (P, type, hp, r, u, d, ry, yOff) => {
+      const [m, s1] = asMesh(P),
+        [x, z] = SITE.w(u, d);
+      m.position.set(x, H(x, z) + s1 / 2 + (yOff || 0), z);
+      m.rotation.y = ry;
+      scene.add(m);
+      const e = { m, lit: null, c: m.position, r, hp, hp0: hp, type, dead: false, s1, col: 0x555555, kind: 'st' };
+      T.push(e);
+      SITES.push(e);
+      return e;
+    },
+    bld = (type, u, d, ry) => {
+      const [x, z] = SITE.w(u, d),
+        e = mkT(type, x, z, ry, 'st');
+      SITES.push(e);
+      return e;
+    };
+  /* a texture and a mesh draped over the terrain */
+  const concrete = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const g = c.getContext('2d');
+      g.fillStyle = '#8c8e90';
+      g.fillRect(0, 0, 128, 128);
+      for (let i = 0; i < 700; i++) {
+        g.fillStyle = Math.random() < 0.5 ? 'rgba(50,52,56,.12)' : 'rgba(200,202,206,.12)';
+        g.fillRect(Math.random() * 128, Math.random() * 128, 1 + Math.random() * 2, 1 + Math.random() * 2);
+      }
+      g.fillStyle = 'rgba(60,62,66,.6)';
+      g.fillRect(0, 0, 128, 2);
+      g.fillRect(0, 0, 2, 128);
+      const t = new THREE.CanvasTexture(c);
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.anisotropy = 4;
+      return t;
+    },
+    runwayTex = () => {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const g = c.getContext('2d');
+      g.fillStyle = '#55575b';
+      g.fillRect(0, 0, 256, 64);
+      for (let i = 0; i < 900; i++) {
+        g.fillStyle = Math.random() < 0.5 ? 'rgba(30,30,34,.15)' : 'rgba(150,150,154,.1)';
+        g.fillRect(Math.random() * 256, Math.random() * 64, 1 + Math.random() * 3, 1 + Math.random() * 2);
+      }
+      g.fillStyle = '#dcdcd4';
+      g.fillRect(40, 30, 90, 4); /* centre dashes */
+      g.fillRect(0, 3, 256, 2);
+      g.fillRect(0, 59, 256, 2);
+      const t = new THREE.CanvasTexture(c);
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.anisotropy = 8;
+      return t;
+    },
+    drape = (u0, u1, d0, d1, tex, ru, rd, yoff) => {
+      const st = 10,
+        nu = Math.max(1, Math.ceil((u1 - u0) / st)),
+        nd = Math.max(1, Math.ceil((d1 - d0) / st)),
+        P = [],
+        UV = [],
+        I = [];
+      for (let j = 0; j <= nd; j++)
+        for (let i = 0; i <= nu; i++) {
+          const [x, z] = SITE.w(u0 + ((u1 - u0) * i) / nu, d0 + ((d1 - d0) * j) / nd);
+          P.push(x, H(x, z) + yoff, z);
+          UV.push((i / nu) * ru, (j / nd) * rd);
+        }
+      for (let j = 0; j < nd; j++)
+        for (let i = 0; i < nu; i++) {
+          const a = j * (nu + 1) + i,
+            b = a + 1,
+            c = a + nu + 1,
+            e = c + 1;
+          I.push(a, c, b, b, c, e);
+        }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+      g.setAttribute('uv', new THREE.Float32BufferAttribute(UV, 2));
+      g.setIndex(I);
+      g.computeVertexNormals();
+      if (g.attributes.normal.getY(0) < 0) {
+        g.setIndex(I.slice().reverse());
+        g.computeVertexNormals();
+      }
+      g.computeBoundingSphere();
+      const m = new THREE.Mesh(
+        g,
+        new THREE.MeshLambertMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+      );
+      scene.add(m);
+      return m;
+    };
+  const CT = concrete(),
+    RT = runwayTex();
+  const cc = (t, ru, rd) => {
+    const u = t.clone();
+    u.repeat.set(ru, rd);
+    u.needsUpdate = true;
+    return u;
+  };
+  /* ===== the port ===== */
+  drape(-130, 130, -95, 48, cc(CT, 26, 14), 1, 1, 0.35); /* the quay */
+  {
+    /* a finger pier on piles, running 210 m out to deep water; the deck stays 4.5 m above the sea */
+    const P = [part(bx(210, 0.8, 16), 0x7d7f80, 0, 0, 0)];
+    for (let k = 0; k <= 8; k++)
+      for (const s of [-1, 1]) {
+        P.push(part(cyl(0.45, 0.45, 9, 8), 0x4a4a44, -96 + k * 24, -4.6, s * 7.4));
+        P.push(part(cyl(0.3, 0.3, 1, 8), 0x2a2a28, -96 + k * 24, 0.9, s * 7.6));
+      }
+    P.push(part(bx(210, 0.25, 0.4), 0xdcc13a, 0, 0.5, 7.9), part(bx(210, 0.25, 0.4), 0xdcc13a, 0, 0.5, -7.9));
+    const [m] = asMesh(P),
+      [x, z] = SITE.w(0, 145);
+    m.position.set(x, -3.0, z);
+    m.rotation.y = SITE.ryS;
+    scene.add(m);
+  }
+  const ship = (parts, len, u, d, hp) => target(parts, 'ship', hp, len * 0.3, u, d, SITE.ryS);
+  const hullUp = (P) => P; /* ship models are built with their keel 1.5 m below zero; asMesh puts the lowest point at the waterline */
+  ship(hullUp(M.freighter()), 95, -17, 188, 150);
+  ship(hullUp(M.tanker()), 112, 18, 190, 180);
+  ship(hullUp(M.patrol()), 32, -60, 175, 60);
+  /* a Ukuru-class kaibokan (77.7 m x 9.1 m): the coastal escort that patrols up and down the shore off the port.
+     The hull is lofted from stations (flared bow, raked stem, tumblehome-free flush deck with bulwarks); the guns are the same Type 96 25 mm mounts as the bases. */
+  const UK = { L: 78, X0: -39, mounts: [[20.5, 3.0], [20.5, -3.0], [-3, 3.55], [-3, -3.55]] };
+  const ukuru = () => {
+    const P = [],
+      L = UK.L,
+      X0 = UK.X0,
+      N = 46,
+      GX_ = GX;
+    const tt = (x) => (x - X0) / L,
+      bowK = (t) => Math.max(0, (t - 0.55) / 0.45),
+      beamF = (t) => (t < 0.12 ? 0.6 + 0.4 * Math.sin((t / 0.12) * Z) : t < 0.6 ? 1 : Math.max(0.04, Math.pow(1 - Math.pow((t - 0.6) / 0.4, 1.7), 0.62))),
+      W = (x) => 4.55 * beamF(tt(x)),
+      deckY = (x) => 3.7 + 0.25 * Math.max(0, 1 - tt(x) / 0.15) + 1.0 * Math.pow(bowK(tt(x)), 2.2),
+      flare = (x) => 1 + 0.2 * Math.pow(bowK(tt(x)), 1.3),
+      keelY = (x) => -1.6 + 1.45 * Math.pow(Math.max(0, (tt(x) - 0.8) / 0.2), 1.6),
+      sideZ = (x, y) => W(x) * (1 + (flare(x) - 1) * Math.max(0, (y - 0.55) / (deckY(x) - 0.55)));
+    UK.deckY = deckY;
+    const RED = 0x6b2b25,
+      DARK = 0x232426,
+      GREY = 0x6a727b,
+      GREY2 = 0x777e86,
+      GREY3 = 0x666d74,
+      DECK = 0x5e5848,
+      GUN = 0x2c2e30,
+      WIN = 0x141c22;
+    const S = Array.from({ length: N }, (_, i) => {
+      const x = X0 + (L * i) / (N - 1),
+        w = W(x),
+        k = keelY(x),
+        d = deckY(x),
+        f = flare(x),
+        zi = Math.max(0.02, w * f - 0.16);
+      return {
+        p0: [x, k, 0],
+        p1: [x, k * 0.62, 0.7 * w],
+        p2: [x, 0, 0.985 * w],
+        p3: [x, 0.55, w],
+        p4: [x, d, w * f],
+        p5: [x, d + 0.85, w * f * 0.995],
+        p4i: [x, d, zi],
+        p5i: [x, d + 0.85, zi],
+      };
+    });
+    const mir = (p) => [p[0], p[1], -p[2]],
+      Rk = (k) => S.map((s) => s[k]),
+      Lk = (k) => S.map((s) => mir(s[k]));
+    const grid = (rows, hex) => {
+      const J = rows.length,
+        I = rows[0].length,
+        pos = [],
+        idx = [];
+      for (const r of rows) for (const p of r) pos.push(p[0], p[1], p[2]);
+      for (let j = 0; j < J - 1; j++)
+        for (let i = 0; i < I - 1; i++) {
+          const a = j * I + i,
+            b = a + 1,
+            c = a + I + 1,
+            d = a + I;
+          idx.push(a, b, c, a, c, d);
+        }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      P.push(part(g, hex, 0, 0, 0));
+    };
+    grid([Lk('p2'), Lk('p1'), Rk('p0'), Rk('p1'), Rk('p2')], RED);
+    grid([Rk('p2'), Rk('p3')], DARK);
+    grid([Lk('p3'), Lk('p2')], DARK);
+    grid([Rk('p3'), Rk('p4')], GREY);
+    grid([Lk('p4'), Lk('p3')], GREY);
+    grid([Rk('p4'), Rk('p5')], GREY);
+    grid([Lk('p5'), Lk('p4')], GREY);
+    grid([Rk('p5'), Rk('p5i')], GREY3);
+    grid([Lk('p5i'), Lk('p5')], GREY3);
+    grid([Rk('p5i'), Rk('p4i')], GREY2);
+    grid([Lk('p4i'), Lk('p5i')], GREY2);
+    grid([Rk('p4i'), Lk('p4i')], DECK);
+    {
+      const s0 = S[0],
+        keys = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5'],
+        cols = [RED, RED, DARK, GREY, GREY];
+      for (let q = 0; q < 5; q++) grid([[s0[keys[q]], s0[keys[q + 1]]], [mir(s0[keys[q]]), mir(s0[keys[q + 1]])]], cols[q]);
+    }
+    const dk = deckY,
+      box = (sx, sy, sz, hex, x, y, z, ry) => part(bx(sx, sy, sz), hex, x, y, z, 0, ry || 0, 0),
+      rod = (r, l, hex, x, y, z) => part(cyl(r, r, l, 8), hex, x, y, z, 0, 0, -Z), /* a cylinder lying along +x, centred */
+      wire = (x0, y0, x1, y1, z) => part(bx(Math.hypot(x1 - x0, y1 - y0), 0.02, 0.02), 0x1b1b1b, (x0 + x1) / 2, (y0 + y1) / 2, z, 0, 0, Math.atan2(y1 - y0, x1 - x0));
+    /* portholes along the topside */
+    for (let x = -31; x <= 4; x += 3.1) for (const s of [-1, 1]) P.push(box(0.34, 0.3, 0.07, WIN, x, 2.5, s * (sideZ(x, 2.5) + 0.02)));
+    for (let x = 22; x <= 33; x += 3.0) for (const s of [-1, 1]) P.push(box(0.3, 0.28, 0.07, WIN, x, 2.55, s * (sideZ(x, 2.55) + 0.02)));
+    /* anchors in their hawse pipes, windlass, capstan, bollards, jackstaff */
+    for (const s of [-1, 1]) {
+      P.push(box(0.34, 1.2, 0.2, 0x2b2d2f, 33.8, 3.0, s * (sideZ(33.8, 3.0) + 0.14)), box(0.9, 0.2, 0.2, 0x2b2d2f, 33.8, 2.55, s * (sideZ(33.8, 2.55) + 0.14)));
+      P.push(part(cyl(0.3, 0.3, 0.12, 10), 0x15171a, 35.2, 3.6, s * (sideZ(35.2, 3.6) + 0.04), Z));
+      for (const x of [30, 0, -26, -35]) P.push(part(cyl(0.16, 0.2, 0.5, 8), 0x3a3d40, x, dk(x) + 0.25, s * (W(x) * 0.93)));
+    }
+    P.push(box(1.7, 0.7, 1.7, 0x4a4d50, 31.0, dk(31) + 0.35, 0), part(cyl(0.45, 0.55, 0.9, 10), 0x4a4d50, 33, dk(33) + 0.45, 0), part(cyl(0.04, 0.04, 1.9, 6), 0x3a3a3a, 38.4, dk(38.4) + 0.95, 0));
+    /* 12 cm gun forward on the forecastle */
+    {
+      const x = 27,
+        y = dk(27);
+      P.push(part(cyl(1.7, 1.9, 0.5, 16), 0x585d62, x, y + 0.25, 0), part(cyl(1.0, 1.2, 0.5, 12), 0x41454a, x, y + 0.65, 0));
+      P.push(box(2.0, 1.45, 2.3, 0x737a81, x - 0.1, y + 1.5, 0), box(2.1, 0.12, 2.4, GREY3, x - 0.1, y + 2.28, 0), box(0.1, 0.6, 1.2, 0x15171a, x + 0.95, y + 1.55, 0));
+      P.push(rod(0.23, 1.6, 0x3a3d40, x + 1.3, y + 1.6, 0), rod(0.12, 4.6, GUN, x + 3.3, y + 1.6, 0), rod(0.17, 0.45, GUN, x + 5.6, y + 1.6, 0));
+      P.push(box(0.6, 0.5, 0.9, 0x6b5c40, x - 1.9, y + 0.3, 1.4), box(0.6, 0.5, 0.9, 0x6b5c40, x - 1.9, y + 0.3, -1.4));
+    }
+    /* bridge: house, upper bridge, compass bridge, wings, windows, searchlights, directors */
+    {
+      const x = 12,
+        y = dk(12);
+      P.push(box(10.5, 2.5, 7.0, GREY2, x, y + 1.25, 0), box(10.7, 0.14, 7.2, GREY3, x, y + 2.57, 0));
+      P.push(box(7.2, 2.1, 5.6, 0x7c838b, x + 0.4, y + 3.7, 0), box(7.4, 0.14, 5.8, GREY3, x + 0.4, y + 4.82, 0));
+      P.push(box(3.6, 0.9, 3.2, 0x757c84, x - 0.6, y + 5.35, 0), box(3.8, 0.1, 3.4, GREY3, x - 0.6, y + 5.85, 0));
+      P.push(box(3.6, 0.12, 10.6, GREY3, x + 0.6, y + 2.68, 0));
+      for (const s of [-1, 1]) {
+        P.push(box(3.6, 0.5, 0.05, GREY2, x + 0.6, y + 3.0, s * 5.3), box(0.05, 0.5, 2.0, GREY2, x + 2.4, y + 3.0, s * 4.3));
+        P.push(part(cyl(0.42, 0.42, 0.6, 12), 0x3d4044, x + 0.6, y + 3.3, s * 4.8), part(cyl(0.4, 0.4, 0.05, 12), 0xd8e4f0, x + 1.05, y + 3.4, s * 4.8, 0, 0, Z));
+        for (let k = -1; k <= 1; k++) P.push(box(0.8, 0.55, 0.06, WIN, x + 0.4 + k * 1.9, y + 3.9, s * 2.83), box(0.8, 0.5, 0.06, WIN, x + k * 2.8, y + 1.5, s * 3.53));
+        P.push(box(0.05, 1.5, 0.7, 0x3a3d40, x - 0.5, y + 1.0, s * 3.55 + s * 0.02));
+      }
+      for (let k = -2; k <= 2; k++) P.push(box(0.06, 0.6, 0.85, WIN, x + 4.03, y + 3.9, k * 1.05), box(0.06, 0.55, 0.8, WIN, x + 5.28, y + 1.5, k * 1.2));
+      P.push(part(cyl(0.8, 0.9, 0.9, 10), 0x6a7077, x - 0.6, y + 6.5, 0), box(0.5, 0.35, 1.4, 0x15171a, x - 0.1, y + 6.55, 0), box(0.18, 0.18, 2.6, 0x3a3d40, x - 0.6, y + 7.15, 0));
+      P.push(box(1.5, 0.9, 0.12, 0x3a3d40, x + 2.3, y + 5.45, 0), box(0.12, 0.5, 0.12, 0x3a3d40, x + 2.3, y + 4.95, 0)); /* Type 22 radar */
+      P.push(box(0.5, 0.3, 0.5, 0x5a5f62, x - 3.4, y + 2.9, 2.0), box(0.5, 0.3, 0.5, 0x5a5f62, x - 3.4, y + 2.9, -2.0));
+      /* mast with yard, crow's nest, Type 13 radar and the aerial wires */
+      const mx = x - 3.2,
+        my = y + 2.64;
+      P.push(part(cyl(0.14, 0.26, 14, 8), 0x4a4d50, mx, my + 7, 0));
+      P.push(box(0.1, 0.1, 5.4, 0x4a4d50, mx, my + 10.5, 0), part(cyl(0.75, 0.75, 0.08, 12), 0x3a3d40, mx, my + 8.2, 0), part(cyl(0.7, 0.7, 0.4, 12), 0x5a5f62, mx, my + 8.0, 0));
+      P.push(part(GX_.sph(8), 0xffe9a8, mx, my + 14.2, 0, 0, 0, 0, 0.12, 0.12, 0.12));
+      for (const z of [-0.9, 0.9]) P.push(box(0.08, 1.7, 0.08, 0x3a3d40, mx + 0.5, my + 12.4, z));
+      for (let r = 0; r < 4; r++) P.push(box(0.08, 0.06, 2.2, 0x2b2d2f, mx + 0.5, my + 11.7 + r * 0.45, 0));
+      P.push(wire(mx, my + 14, 38.4, dk(38.4) + 1.9, 0), wire(mx, my + 10.5, -38.4, dk(-38.4) + 3.2, 0), wire(mx, my + 10.5, mx - 6, y + 2.6, 2.7), wire(mx, my + 10.5, mx - 6, y + 2.6, -2.7));
+    }
+    /* funnel: hexagonal, as the class's simplified build had it */
+    {
+      const x = -3,
+        y = dk(-3);
+      P.push(box(6.5, 1.4, 5.2, 0x7a8189, x, y + 0.7, 0), box(6.7, 0.1, 5.4, GREY3, x, y + 1.45, 0));
+      P.push(part(cyl(1.45, 1.8, 5.0, 6), 0x6a7077, x, y + 3.9, 0), part(cyl(1.5, 1.5, 0.95, 6), 0x1b1c1e, x, y + 6.0, 0), part(cyl(1.58, 1.58, 0.12, 6), 0x303236, x, y + 6.5, 0));
+      P.push(box(0.05, 4.4, 0.5, 0x303236, x + 1.7, y + 3.6, 0), part(cyl(0.14, 0.14, 2.4, 8), 0x3a3d40, x - 1.9, y + 6.2, 0.7), part(cyl(0.12, 0.12, 2.0, 8), 0x3a3d40, x - 1.9, y + 6.0, -0.7));
+      for (const s of [-1, 1]) P.push(part(cyl(0.45, 0.45, 0.8, 10), 0x4a4d50, x - 1.8, y + 1.9, s * 1.9), part(cyl(0.35, 0.5, 0.4, 10), 0x303236, x - 1.8, y + 2.5, s * 1.9));
+    }
+    /* after deckhouse with the twin 12 cm mount on its roof */
+    {
+      const x = -22,
+        y = dk(-22);
+      P.push(box(11, 2.3, 6.6, GREY2, x + 1.5, y + 1.15, 0), box(11.2, 0.14, 6.8, GREY3, x + 1.5, y + 2.37, 0));
+      for (let k = 0; k < 4; k++) for (const s of [-1, 1]) P.push(box(0.8, 0.5, 0.06, WIN, x - 1.5 + k * 2.4, y + 1.4, s * 3.33));
+      P.push(box(0.05, 1.3, 0.8, 0x3a3d40, x + 7.04, y + 0.7, 1.4), box(0.05, 1.3, 0.8, 0x3a3d40, x + 7.04, y + 0.7, -1.4));
+      const gy = y + 2.44;
+      P.push(part(cyl(1.9, 2.0, 0.5, 16), 0x585d62, x, gy + 0.25, 0), box(2.6, 1.5, 3.0, 0x737a81, x - 0.2, gy + 1.3, 0), box(2.7, 0.12, 3.1, GREY3, x - 0.2, gy + 2.1, 0));
+      for (const s of [-1, 1]) P.push(rod(0.2, 1.4, 0x3a3d40, x + 1.2, gy + 1.3, s * 0.55), rod(0.11, 4.2, GUN, x + 3.1, gy + 1.3, s * 0.55), rod(0.15, 0.4, GUN, x + 5.2, gy + 1.3, s * 0.55));
+      P.push(box(0.1, 0.55, 1.9, 0x15171a, x + 1.1, gy + 1.4, 0));
+      for (const s of [-1, 1]) P.push(part(cyl(0.55, 0.55, 0.12, 12), 0xa8742e, x + 1.5, y + 1.3, s * 3.42, Z), part(cyl(0.56, 0.56, 0.1, 12), 0x3a3d40, x + 1.5, y + 1.3, s * 3.46, Z));
+    }
+    /* boats on davits, either side abaft the funnel */
+    for (const s of [-1, 1]) {
+      const x = -11,
+        y = dk(-11);
+      P.push(box(5.6, 0.7, 1.5, 0x8c8f91, x, y + 1.6, s * 3.4), box(1.4, 0.65, 1.0, 0x8c8f91, x + 3.2, y + 1.6, s * 3.4, 0.0), box(2.2, 0.45, 1.2, 0x4a4f52, x - 0.4, y + 2.15, s * 3.4), box(5.9, 0.08, 1.7, 0x2b2d2f, x, y + 1.97, s * 3.4));
+      for (const dx of [-2, 2]) P.push(part(cyl(0.07, 0.07, 2.3, 6), 0x303436, x + dx, y + 1.1, s * 3.4 + s * 0.9, s * 0.35), box(0.12, 0.12, 0.12, 0x303436, x + dx, y + 2.2, s * 3.9));
+    }
+    /* stern: depth-charge rails and drums, projectors, throwers, chutes, ensign staff */
+    {
+      for (const s of [-1, 1]) {
+        const z = s * 1.2;
+        P.push(box(7.4, 0.1, 0.1, 0x2b2d2f, -34.4, dk(-36) + 0.12, z - 0.25), box(7.4, 0.1, 0.1, 0x2b2d2f, -34.4, dk(-36) + 0.12, z + 0.25));
+        for (let i = 0; i < 8; i++) P.push(part(cyl(0.3, 0.3, 0.8, 10), i % 3 ? 0x303436 : 0x3a3f42, -37.8 + i * 0.9, dk(-36) + 0.55, z, Z));
+        P.push(part(cyl(0.18, 0.24, 1.0, 8), 0x3a3d40, -31.8, dk(-32) + 0.55, s * 2.7, 0, 0, 0), part(cyl(0.12, 0.14, 0.8, 8), 0x2b2d2f, -31.8, dk(-32) + 1.2, s * 2.9, s * 0.65));
+        for (let i = 0; i < 4; i++) P.push(part(cyl(0.1, 0.14, 0.8, 8), 0x3a3d40, -29.2 + i * 1.4, dk(-28) + 0.5, s * 3.4, s * 0.6), part(cyl(0.2, 0.2, 0.12, 8), 0x2b2d2f, -29.2 + i * 1.4, dk(-28) + 0.08, s * 3.3));
+        P.push(box(1.0, 0.5, 0.9, 0x2b2d2f, -39.0, 3.0, s * 0.9));
+      }
+      const x = -38.3,
+        y = dk(-38.3);
+      P.push(part(cyl(0.05, 0.05, 3.3, 6), 0x555555, x, y + 1.65, 0), box(0.03, 0.75, 1.15, 0xf2f2f2, x - 0.02, y + 2.9, 0.62), part(cyl(0.22, 0.22, 0.04, 14), 0xc62a2a, x - 0.04, y + 2.9, 0.62, 0, 0, Z));
+      P.push(part(bx(0.5, 1.0, 0.1), 0x40444a, -35.5, dk(-35.5) + 0.5, 3.2));
+    }
+    /* the four 25 mm twin mounts stand on tubs: the gun heads are added as live meshes (see below) */
+    for (const [mx, mz] of UK.mounts) {
+      const y = dk(mx);
+      P.push(part(cyl(1.35, 1.5, 0.9, 14), 0x585d62, mx, y + 0.45, mz), part(cyl(1.2, 1.2, 0.06, 14), 0x15171a, mx, y + 0.93, mz));
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 9) * Math.PI * 1.6 + 0.3;
+        P.push(box(0.4, 0.3, 0.2, 0x7d7452, mx + Math.cos(a) * 1.45, y + 1.0, mz + Math.sin(a) * 1.45, -a));
+      }
+    }
+    return P;
+  };
+  {
+    /* the patrol: a racetrack along the coast 420 m out, 1.9 km long, with a U-turn at each end */
+    const u0 = -350,
+      u1 = 1500,
+      d0 = 420,
+      R = 60,
+      Ls = u1 - u0,
+      per = 2 * Ls + 2 * Math.PI * R,
+      e = ship(ukuru(), 78, u0, d0, 140),
+      y0 = e.m.position.y,
+      oy = 1.6 - e.s1 / 2; /* mesh-local y = model y + oy */
+    const MAT = () => new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }),
+      guns = [];
+    /* the same Type 96 25 mm twin mounts as the bases: AA.gun entries that ride on the hull and fire under the Ground Fire option */
+    for (const [mx, mz] of UK.mounts) {
+      const tur = new THREE.Group(),
+        bar = new THREE.Group(),
+        top = UK.deckY(mx) + 0.96 + oy;
+      tur.position.set(mx, top + 0.25, mz);
+      tur.add(new THREE.Mesh(AA.mount.tur, MAT()));
+      bar.position.set(0, 0.65, 0);
+      bar.add(new THREE.Mesh(AA.mount.bar, MAT()));
+      tur.add(bar);
+      e.m.add(tur);
+      const g = { t: e, grp: new THREE.Group(), tur, bar, x: 0, z: 0, nr: 0, bias: new V(0, 0, 0), yaw: 0, pit: 0.5, acq: 0, mag: 30, rl: 0, cd: 0, side: 1, rec: 0, snd: 0, v: new V(0, 0, 0), piv: new V(), site: true, ship: true, loc: new V(mx, top + 0.9, mz) };
+      AA.gun.push(g);
+      guns.push(g);
+    }
+    /* wake astern and a bow wave */
+    {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 4;
+      const cx2 = c.getContext('2d'),
+        gr = cx2.createLinearGradient(0, 0, 64, 0);
+      gr.addColorStop(0, 'rgba(255,255,255,.8)');
+      gr.addColorStop(1, 'rgba(255,255,255,0)');
+      cx2.fillStyle = gr;
+      cx2.fillRect(0, 0, 64, 4);
+      const wl = 150,
+        wg = new THREE.BufferGeometry();
+      wg.setAttribute('position', new THREE.Float32BufferAttribute([-36, 0, -3.2, -36, 0, 3.2, -36 - wl, 0, -16, -36 - wl, 0, 16], 3));
+      wg.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 0, 1, 1], 2));
+      wg.setIndex([0, 2, 1, 1, 2, 3]);
+      const wk = new THREE.Mesh(wg, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, side: 2, opacity: 0.55 }));
+      wk.position.y = 1.6 - e.s1 / 2 + 1.65;
+      wk.frustumCulled = false;
+      e.m.add(wk);
+      const bw = new THREE.BufferGeometry();
+      bw.setAttribute('position', new THREE.Float32BufferAttribute([37, 0, 0, 24, 0, 5.4, 24, 0, 3.6, 37, 0, 0, 24, 0, -3.6, 24, 0, -5.4], 3));
+      bw.setIndex([0, 1, 2, 3, 4, 5]);
+      const bwm = new THREE.Mesh(bw, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false, side: 2 }));
+      bwm.position.y = wk.position.y + 0.05;
+      bwm.frustumCulled = false;
+      e.m.add(bwm);
+    }
+    const tmp = new V();
+    e.m.matrixAutoUpdate = true;
+    SITE.patrol = { e, s: 0, sp: 8.5 };
+    SITE.pat = (dt) => {
+      const q = SITE.patrol,
+        m = e.m;
+      if (!e.dead) {
+        q.s = (q.s + q.sp * dt) % per;
+        let s = q.s,
+          u,
+          d,
+          h;
+        if (s < Ls) {
+          u = u0 + s;
+          d = d0;
+          h = 0;
+        } else if ((s -= Ls) < Math.PI * R) {
+          const a = s / R;
+          u = u1 + Math.sin(a) * R;
+          d = d0 + R - Math.cos(a) * R;
+          h = a;
+        } else if ((s -= Math.PI * R) < Ls) {
+          u = u1 - s;
+          d = d0 + 2 * R;
+          h = Math.PI;
+        } else {
+          s -= Ls;
+          const a = s / R;
+          u = u0 - Math.sin(a) * R;
+          d = d0 + R + Math.cos(a) * R;
+          h = Math.PI + a;
+        }
+        /* heading h in the (u,d) plane: 0 = along +u, turning toward +d (out to sea) */
+        const du = Math.cos(h),
+          dd = Math.sin(h),
+          [x, z] = SITE.w(u, d),
+          wx = SITE.A.x * du + SITE.S.x * dd,
+          wz = SITE.A.z * du + SITE.S.z * dd,
+          now = performance.now();
+        m.matrixAutoUpdate = true; /* the scene is frozen after the build */
+        m.position.set(x, y0 + Math.sin(now / 900) * 0.12, z);
+        m.rotation.set(0, Math.atan2(-wz, wx), Math.sin(now / 1300) * 0.015);
+      }
+      m.updateMatrixWorld(true);
+      for (const g of guns) {
+        g.tur.matrixAutoUpdate = g.bar.matrixAutoUpdate = true;
+        g.tur.rotation.y = g.yaw - m.rotation.y; /* AA.gun aims in world yaw; the mount rides on the hull */
+        g.bar.rotation.x = -g.pit;
+        g.bar.position.z = -0.12 * g.rec;
+        tmp.copy(g.loc);
+        m.localToWorld(tmp);
+        g.piv.copy(tmp);
+        g.x = tmp.x;
+        g.z = tmp.z;
+      }
+    };
+  }
+  /* cranes either side of the pier root: a tall gantry with a boom reaching toward the water */
+  const crane = () => {
+    const P = [];
+    for (const [x, z] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) P.push(part(bx(0.9, 16, 0.9), 0xa23b2a, x, 8, z));
+    P.push(part(bx(13, 1.4, 13), 0x8b2f22, 0, 16.5, 0), part(bx(5, 3.5, 6), 0xc9a227, -2, 19, 0));
+    P.push(part(bx(44, 1.2, 2.4), 0x8b2f22, 16, 18.4, 0), part(bx(0.25, 10, 0.25), 0x2a2a28, 34, 12.5, 0));
+    P.push(part(bx(1.4, 1.4, 1.4), 0x2a2a28, 34, 7, 0));
+    return P;
+  };
+  target(crane(), 'crane', 70, 15, -34, 40, SITE.ryS);
+  target(crane(), 'crane', 70, 15, 34, 40, SITE.ryS);
+  [['warehouse', -95, -45], ['warehouse', -45, -50], ['warehouse', 10, -52], ['hq', -8, -88], ['bunker', 80, -82]].forEach(([t, u, d]) =>
+    bld(t, u, d, SITE.ryA),
+  );
+  [[65, -25], [90, -25], [115, -25]].forEach(([u, d]) => bld('fuel', u, d, 0));
+  [['truck', -60, 10], ['supply', 55, 15], ['tanker', 100, 12], ['jeep', -20, 20]].forEach(([t, u, d], i) => bld(t, u, d, SITE.ryA + i));
+  /* ===== the airbase ===== */
+  const DR = -750; /* runway centreline, 750 m inland */
+  drape(-600, 600, DR - 18, DR + 18, RT, 10, 1, 0.3); /* runway 1,200 m x 36 m */
+  drape(-460, 460, DR - 70, DR - 56, cc(CT, 92, 3), 1, 1, 0.28); /* parallel taxiway */
+  for (const u of [-380, 380]) drape(u - 7, u + 7, DR - 56, DR - 18, cc(CT, 3, 8), 1, 1, 0.28); /* the two links to the runway */
+  drape(-300, 300, DR - 150, DR - 70, cc(CT, 60, 14), 1, 1, 0.3); /* the apron */
+  let sd = 4242;
+  const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647,
+    bodies = [0x4d5a3c, 0x5d6341, 0x5a5f48, 0x6b6f5a];
+  for (let i = 0; i < 9; i++) {
+    const u = -250 + i * 62,
+      o = { ang: rnd(), stripes: 0 };
+    target(M.fighter(bodies[i % 4], i % 3 ? 0x9a9a8a : 0xb22a24, o), 'plane', 14, 7, u, DR - 100, SITE.ryS + (rnd() - 0.5) * 0.25);
+  }
+  /* the base yard behind the apron: bare gravel ground for the hangars, offices and stores (as at the other two bases) */
+  const yc = document.createElement('canvas');
+  yc.width = yc.height = 256;
+  {
+    const g = yc.getContext('2d');
+    g.fillStyle = '#5a5240';
+    g.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 2600; i++) {
+      const v = 62 + Math.random() * 45 | 0;
+      g.fillStyle = 'rgba(' + v + ',' + (v - 8) + ',' + (v - 28) + ',0.5)';
+      g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 2 + Math.random() * 3);
+    }
+  }
+  const YT = new THREE.CanvasTexture(yc);
+  YT.wrapS = YT.wrapT = THREE.RepeatWrapping;
+  YT.anisotropy = 8;
+  drape(-330, 330, DR - 295, DR - 165, cc(YT, 66, 26), 1, 1, 0.27);
+  [['hangar', -210], ['hangar', -110], ['hangar', -10]].forEach(([t, u]) => bld(t, u, DR - 215, SITE.ryA + Z));
+  [['hq', -250, DR - 270], ['warehouse', 90, DR - 255], ['warehouse', 140, DR - 255], ['bunker', 230, DR - 230]].forEach(([t, u, d]) =>
+    bld(t, u, d, SITE.ryA),
+  );
+  [[210, DR - 175], [235, DR - 175]].forEach(([u, d]) => bld('fuel', u, d, 0));
+  [['truck', -160, DR - 150], ['supply', 40, DR - 160], ['tanker', 180, DR - 150], ['jeep', -60, DR - 130], ['apc', 120, DR - 165]].forEach(
+    ([t, u, d], i) => bld(t, u, d, SITE.ryA + 0.3 * i),
+  );
+  /* control tower on the yard, in front of the hangars (a target) */
+  {
+    const P = [],
+      c = 0xb8bcc0;
+    P.push(
+      part(bx(5, 14, 5), c, 0, 7, 0),
+      part(bx(7.6, 0.4, 7.6), 0x8e9398, 0, 14.2, 0),
+      part(bx(7, 2.4, 7), 0x5d6a74, 0, 15.6, 0),
+      part(bx(7.2, 1.3, 7.2), 0x1e2a33, 0, 15.7, 0),
+      part(bx(7.8, 0.35, 7.8), 0x6a6e72, 0, 17.0, 0),
+      part(cyl(0.06, 0.06, 5, 5), 0x2b2d2f, 2, 19.5, 2),
+      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 3.5, 0),
+      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 10.5, 0),
+    );
+    target(P, 'tower', 60, 9, 0, DR - 190, SITE.ryA);
+  }
+  /* the bridge structure under the road deck */
+  {
+    const acc = new GX.Acc(),
+      br = RP2.filter((p) => p.b !== undefined);
+    for (let i = 0; i < br.length - 1; i++) {
+      const a = br[i],
+        b = br[i + 1],
+        L = Math.hypot(b.x - a.x, b.z - a.z) + 0.2,
+        yaw = Math.atan2(-(b.z - a.z), b.x - a.x),
+        y = (a.b + b.b) / 2,
+        cx = (a.x + b.x) / 2,
+        cz = (a.z + b.z) / 2;
+      acc.add(
+        [
+          part(bx(L, 0.9, 12.4), 0x8e9094, 0, -0.55, 0),
+          part(bx(L, 0.8, 0.3), 0x7d8084, 0, 0.35, 5.9),
+          part(bx(L, 0.8, 0.3), 0x7d8084, 0, 0.35, -5.9),
+        ],
+        GX.xf(cx, y, cz, yaw, 1),
+      );
+      if (i % 3 === 1 && y - H(cx, cz) > 1.5) {
+        const bot = Math.min(H(cx, cz), -8) - 6;
+        acc.add(
+          [
+            part(bx(4, 1.2, 9), 0x7d8084, 0, -1.4, 0),
+            part(cyl(1.6, 1.9, y - 1.8 - bot, 10), 0x74777b, 0, (bot + y - 1.8) / 2 - y, 0),
+          ],
+          GX.xf(cx, y, cz, yaw + Math.PI / 2, 1),
+        );
+      }
+    }
+    scene.add(new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true })));
+  }
+  /* perimeter fence round the whole airfield, with guard towers */
+  {
+    const acc = new GX.Acc(),
+      U0 = -650,
+      U1 = 650,
+      D0 = DR - 310,
+      D1 = DR + 80;
+    const put = (P, x, z, yaw, y0) => acc.add(P, GX.xf(x, y0 == null ? H(x, z) : y0, z, yaw, 1));
+    const edge = (u0, d0, u1, d1) => {
+      const L = Math.hypot(u1 - u0, d1 - d0),
+        n = Math.round(L / 6);
+      for (let i = 0; i < n; i++) {
+        const [ax, az] = SITE.w(u0 + ((u1 - u0) * i) / n, d0 + ((d1 - d0) * i) / n),
+          [bx2, bz] = SITE.w(u0 + ((u1 - u0) * (i + 1)) / n, d0 + ((d1 - d0) * (i + 1)) / n);
+        if (nearRoad((ax + bx2) / 2, (az + bz) / 2, 13) || nearRoad(ax, az, 13) || nearRoad(bx2, bz, 13)) continue;
+        const Ls = Math.hypot(bx2 - ax, bz - az),
+          yaw = Math.atan2(-(bz - az), bx2 - ax);
+        put(
+          [
+            part(bx(Ls, 0.035, 0.035), 0x75797c, 0, 0.5, 0),
+            part(bx(Ls, 0.035, 0.035), 0x75797c, 0, 1.1, 0),
+            part(bx(Ls, 0.035, 0.035), 0x75797c, 0, 1.7, 0),
+            part(bx(Ls, 0.03, 0.03), 0x3a3c3e, 0, 2.3, 0),
+            part(bx(Ls, 1.8, 0.012), 0x8a8e90, 0, 1.2, 0),
+          ],
+          (ax + bx2) / 2,
+          (az + bz) / 2,
+          yaw,
+          (H(ax, az) + H(bx2, bz)) / 2,
+        );
+        put([part(bx(0.14, 2.3, 0.14), 0x6b6e70, 0, 1.15, 0), part(bx(0.7, 0.05, 0.05), 0x4a4d4f, 0, 2.3, 0)], ax, az, yaw);
+      }
+    };
+    edge(U0, D0, U1, D0);
+    edge(U1, D0, U1, D1);
+    edge(U1, D1, U0, D1);
+    edge(U0, D1, U0, D0);
+    const gt = (u, d) => {
+      const g = 0x4d5240,
+        P = [];
+      for (const sx of [-1, 1])
+        for (const sz of [-1, 1]) P.push(part(bx(0.18, 6.4, 0.18), g, sx, 3.2, sz, sz * 0.05, 0, -sx * 0.05));
+      for (const y of [1.6, 3.4, 5.0])
+        P.push(part(bx(2.1, 0.1, 0.1), g, 0, y, 1), part(bx(2.1, 0.1, 0.1), g, 0, y, -1), part(bx(0.1, 0.1, 2.1), g, 1, y, 0), part(bx(0.1, 0.1, 2.1), g, -1, y, 0));
+      P.push(
+        part(bx(3.0, 0.2, 3.0), 0x5a5f4c, 0, 6.5, 0),
+        part(bx(2.5, 1.5, 2.5), 0x6a6f58, 0, 7.35, 0),
+        part(bx(2.6, 0.06, 0.7), 0x1e2a33, 0, 7.6, 1.28),
+        part(bx(0.7, 0.06, 2.6), 0x1e2a33, 1.28, 7.6, 0),
+        part(bx(0.7, 0.06, 2.6), 0x1e2a33, -1.28, 7.6, 0),
+        part(new THREE.ConeGeometry(2.3, 1.1, 4).rotateY(Math.PI / 4), 0x4a4f3c, 0, 8.6, 0),
+      );
+      const [x, z] = SITE.w(u, d);
+      put(P, x, z, SITE.ryA);
+    };
+    [[U0 + 4, D0 + 4], [U1 - 4, D0 + 4], [U1 - 4, D1 - 4], [U0 + 4, D1 - 4], [-320, D0 + 4], [320, D0 + 4], [-320, D1 - 4], [320, D1 - 4]].forEach(([u, d]) => gt(u, d));
+    scene.add(new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true })));
+  }
+  delete scene.add;
+  /* the site is some 7 km from your airfield: beyond 6.5 km none of its hundred-odd meshes is drawn (they leave the camera's layer) */
+  {
+    const cs = [SITE.w(0, 100), SITE.w(0, -800)],
+      all = SITE_OBJ.concat(AA.gun.filter((g) => g.site && !g.ship).map((g) => g.grp));
+    let far = null,
+      tm = 0;
+    SITE.vis = (dt) => {
+      if ((tm -= dt) > 0) return;
+      tm = 0.4;
+      const d = Math.min(...cs.map((c) => Math.hypot(cam.position.x - c[0], cam.position.z - c[1]))),
+        f = d > 6500;
+      if (f === far) return;
+      far = f;
+      for (const o of all) o.traverse((q) => (q.layers.mask = f ? 2 : 1));
+    };
+  }
+}
 /* ---------- aftermath: burning wrecks, smoke columns, craters and scorch marks that last for the rest of the flight ---------- */
 const AF = {
   g: null,
@@ -10008,13 +10750,13 @@ const AF = {
     this.scr.instanceMatrix.needsUpdate = this.rim.instanceMatrix.needsUpdate = true;
   },
   /* a burning wreck: flames and a smoke column; sz scales the whole thing, life is in seconds */
-  fire(p, sz, life) {
-    if (!this.g || HR(p.x, p.z) < 0.5) return;
+  fire(p, sz, life, wet) {
+    if (!this.g || (!wet && HR(p.x, p.z) < 0.5)) return;
     const max = [3, 6, 10][this.fx()];
     while (this.em.length >= max) this.drop(this.em.shift());
     const fl = this.fl.filter((f) => !f.used).slice(0, 2);
     fl.forEach((f) => (f.used = true));
-    this.em.push({ x: p.x, y: H(p.x, p.z), z: p.z, sz, life, t: 0, acc: 0, fl });
+    this.em.push({ x: p.x, y: wet ? p.y : H(p.x, p.z), z: p.z, sz, life, t: 0, acc: 0, fl });
   },
   drop(e) {
     e.fl.forEach((f) => ((f.used = false), (f.s.visible = false)));
@@ -10035,7 +10777,7 @@ const AF = {
     const big = t.type == 'fuel' || t.type == 'tanker',
       sz = Math.max(0.5, Math.min(1.8, t.r / 9)) * (big ? 1.3 : 1);
     this.mark(t.c.x, t.c.z, Math.max(3, t.r * 1.15 + 1.5), 0);
-    this.fire(t.c, sz, big ? 420 : t.kind == 'bld' ? 240 : t.kind == 'veh' ? 110 : 150);
+    this.fire(t.c, sz, big ? 420 : t.type == 'ship' ? 300 : t.kind == 'bld' ? 240 : t.kind == 'veh' ? 110 : 150, t.type === 'ship');
   },
   crater(p, r) {
     this.build();
@@ -13923,6 +14665,9 @@ function menuPick(i) {
 $$('goMenu').onclick = () => toggleMenu();
 
 function reset() {
+  try {
+    roamExit(true);
+  } catch (e) {}
   resetWeapons();
   paused = false;
   invT = 0;
@@ -14002,6 +14747,11 @@ function drawMinimap() {
   g.beginPath();
   RP.forEach((q, i) => (i ? g.lineTo(q.x, q.z) : g.moveTo(q.x, q.z)));
   g.stroke(); /* road */
+  for (const L of [RP2, RSPUR]) {
+    g.beginPath();
+    L.forEach((q, i) => (i ? g.lineTo(q.x, q.z) : g.moveTo(q.x, q.z)));
+    g.stroke();
+  }
   const sq = (x, z, px, col) => {
     g.fillStyle = col;
     g.fillRect(x - lw(px / 2), z - lw(px / 2), lw(px), lw(px));
@@ -14014,7 +14764,7 @@ function drawMinimap() {
   if (trn.mode === 'free')
     T.forEach((q) => {
       if (q.kind === 'st' && !q.dead) sq(q.c.x, q.c.z, 3.5, '#ff5a4a');
-      else if (q.kind === 'aa' && !q.dead) sq(q.c.x, q.c.z, 3, '#ff4ad8');
+      else if (q.kind === 'aa' && !q.dead && (!q.site || trn.mode === 'free')) sq(q.c.x, q.c.z, 3, '#ff4ad8');
     });
   CV.list.forEach((v) => {
     if (!v.dead) {
@@ -15462,8 +16212,44 @@ function orbReset() {
   orbEl = 0.27;
   orbDist = 13.5;
 }
+/* Roam camera (Y): a free camera that works like photo mode's, but the flight carries on and every flight key still works.
+   Only the mouse moves it: left-drag looks, right-drag moves along the ground, middle-drag up and down, wheel in and out
+   (Shift = bigger steps, Ctrl + wheel = field of view). It shares its position and angles with PHOTO. */
+const ROAM = { on: false, fov0: 65 };
+function roamEnter() {
+  if (ROAM.on || PHOTO.on || !started || BL.on || RPL.on) return;
+  ROAM.on = true;
+  ROAM.fov0 = cam.fov;
+  camMode = 0;
+  orbitOn = false;
+  PHE.setFromQuaternion(cam.quaternion, 'YXZ');
+  PHOTO.pos.copy(cam.position);
+  PHOTO.yaw = PHE.y;
+  PHOTO.pitch = PHE.x;
+  PHOTO.fov = cam.fov;
+  note('ROAM CAMERA - MOUSE MOVES IT, ' + kbText('clear') + ' RETURNS TO CHASE');
+}
+function roamExit(quiet) {
+  if (!ROAM.on) return;
+  ROAM.on = false;
+  PHOTO.drag = false;
+  cam.fov = ROAM.fov0;
+  cam.updateProjectionMatrix();
+  orbReset();
+  camMode = 0;
+  if (!quiet) note('CHASE CAMERA');
+}
+const PHE_R = new THREE.Euler();
+function roamCam() {
+  cam.position.copy(PHOTO.pos);
+  cam.quaternion.setFromEuler(PHE_R.set(PHOTO.pitch, PHOTO.yaw, 0, 'YXZ'));
+  if (Math.abs(cam.fov - PHOTO.fov) > 0.01) {
+    cam.fov = PHOTO.fov;
+    cam.updateProjectionMatrix();
+  }
+}
 cv.addEventListener('mousedown', (e) => {
-  if (PHOTO.on) {
+  if (PHOTO.on || ROAM.on) {
     PHOTO.drag = e.button === 2 ? 2 : e.button === 1 ? 3 : 1; /* left drag looks around, right drag moves the camera along the ground, middle drag moves it up and down */
     e.preventDefault();
     return;
@@ -15478,7 +16264,7 @@ addEventListener('mouseup', () => {
   PHOTO.drag = false;
 });
 addEventListener('mousemove', (e) => {
-  if (PHOTO.on) {
+  if (PHOTO.on || ROAM.on) {
     if (PHOTO.drag === 2 || PHOTO.drag === 3) {
       /* right-drag moves the camera horizontally (sideways and forward / back along the ground, whichever way it is looking),
          middle-drag moves it up and down; the picture follows the cursor. Steps are a fraction of the distance to the aircraft or
@@ -15518,7 +16304,7 @@ addEventListener('mousemove', (e) => {
 cv.addEventListener(
   'wheel',
   (e) => {
-    if (PHOTO.on) {
+    if (PHOTO.on || ROAM.on) {
       e.preventDefault();
       if (e.ctrlKey || e.altKey) photoFov(PHOTO.fov * Math.exp(e.deltaY * 0.001));
       else {
@@ -15586,7 +16372,7 @@ const BIND = [
   ['rocket', '', ['KeyR'], 6],
   ['bomb', '', ['KeyZ'], 2],
   ['camera', 'chase / cockpit', ['KeyC'], 3],
-  ['clear', 'return', ['KeyY'], null],
+  ['clear', 'chase / roam camera', ['KeyY'], null],
   ['diff1', 'low', ['Digit1', 'Numpad1'], null],
   ['diff2', 'medium', ['Digit2', 'Numpad2'], null],
   ['diff3', 'hard', ['Digit3', 'Numpad3'], null],
@@ -15691,16 +16477,16 @@ const KBDOC = [
   ['Wheel brakes', ['brake'], 'on the ground only', 4],
   ['Guns', ['guns'], '', 5],
   ['Rocket / bomb', ['rocket', 'bomb'], '', 5],
-  ['Camera', ['camera'], '', 4],
+  ['Camera', ['camera', 'clear'], 'Y roams: the mouse moves the camera, the flight carries on', 4],
   ['Trim (Hardcore)', ['trimDn', 'trimUp', 'trimRL', 'trimRR', 'trimAL', 'trimAR', 'trimC'], 'elevator, rudder, aileron; hold to move the tab', 4],
   ['Bail out', ['bail'], 'press twice; controller: hold both bumpers (then drag the mouse to look)', 4],
   ['Photo mode', ['photo'], 'free camera and JPG snapshots (also in the pause menu)', 4],
   [
     'Mouse',
     () =>
-      'Chase view: drag to circle the plane, wheel to zoom, ' +
+      'Chase view: drag to circle the plane, wheel to zoom. ' +
       kbText('clear') +
-      ' returns. Cockpit view: drag to look around (release recenters)',
+      ' switches to the roam camera (left-drag looks, right-drag moves along the ground, middle-drag up and down, wheel in and out, Shift for bigger steps, Ctrl + wheel zoom) and back to chase. Cockpit view: drag to look around (release recenters)',
     '',
     0,
   ],
@@ -15903,7 +16689,8 @@ function pollPad() {
   if (e(PB.rocket)) fireRocket();
   if (e(PB.bomb)) dropBomb();
   if (e(PB.camera)) {
-    if (orbitOn) orbReset();
+    if (ROAM.on) roamExit();
+    else if (orbitOn) orbReset();
     else camMode ^= 1;
   }
   if (!mod && e(PB.flapUp)) ACT.flapUp();
@@ -15955,6 +16742,7 @@ const keys = {};
 const ACT = {
   gear: () => toggleGear(),
   camera: () => {
+    if (ROAM.on) return roamExit();
     camMode ^= 1;
     if (camMode == 1) orbReset();
   },
@@ -15970,7 +16758,9 @@ const ACT = {
   diff2: () => setDiff(1),
   diff3: () => setDiff(2),
   clear: () => {
-    if (orbitOn) orbReset();
+    /* Y: chase camera <-> roam camera */
+    if (ROAM.on) roamExit();
+    else roamEnter();
   },
   flapDn: () => {
     if (DM.on && DM.hyd) return note('HYDRAULICS - FLAPS JAMMED');
@@ -17406,6 +18196,7 @@ function windNow(o) {
 function updWX(dt) {
   WX.update(dt);
   DECK.update(dt);
+  if (SITE.vis) SITE.vis(dt);
 }
 WX.hour = WX.time === 'local' ? WX.localHour() : WX_HOUR[WX.time];
 WX.windNew();
@@ -17791,6 +18582,7 @@ function photoSpot(k) {
 }
 function photoEnter() {
   if (!started || PHOTO.on) return;
+  roamExit(true);
   PHOTO.fromMenu = pmOpen;
   PHOTO.prevPaused = pmOpen ? pmPrev : paused;
   if (pmOpen) pmShow(false);
@@ -18223,6 +19015,7 @@ function frame(now) {
     AF.update(dt);
     _afT += dt * 6;
     AFLD.update(dt);
+    if (SITE.pat) SITE.pat(dt);
   } else if (RPL.on) {
     AA.hide();
     AF.hide();
@@ -18322,8 +19115,12 @@ function frame(now) {
   }
   if (BL.on) bailCam(dt);
   if (PHOTO.on) photoCam(dt);
+  else if (ROAM.on) {
+    if (BL.on || RPL.on) roamExit(true);
+    else roamCam();
+  }
   {
-    const gh = H(cam.position.x, cam.position.z) + (PHOTO.on ? 0.3 : 1);
+    const gh = H(cam.position.x, cam.position.z) + (PHOTO.on || ROAM.on ? 0.3 : 1);
     if (cam.position.y < gh) cam.position.y = gh;
   }
   sun.target.position.copy(pos);
@@ -18331,7 +19128,7 @@ function frame(now) {
   sky.position.copy(cam.position);
   terrU.uTime.value = now / 1000;
   {
-    const nn = PHOTO.on ? 0.3 : !orbitOn && (camMode == 1 || lb > 0.3) ? 0.12 : 1;
+    const nn = PHOTO.on || ROAM.on ? 0.3 : !orbitOn && (camMode == 1 || lb > 0.3) ? 0.12 : 1;
     if (cam.near !== nn) {
       cam.near = nn;
       cam.updateProjectionMatrix();

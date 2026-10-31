@@ -600,7 +600,7 @@ with sync_playwright() as p:
     check("maneuver trainers: the pilot is recorded, the green ring replaces the old aim target, and the coach points at the ring", ae3["n"] > 50 and ae3["ok"] and ae3["ring"] and ae3["aimHidden"] and ae3["fd"] == "block" and ae3["txt"], str(ae3))
     # ---- ground fire: Type 96 AA guns and 150 cm searchlights at both bases, the airfield's 3.7-inch gun for show
     pg.evaluate("()=>{paused=false;trn.mode='free';PP.off=true;reset()}"); pg.wait_for_timeout(300)
-    check("ground fire: two guns and two searchlights at each base, shootable", pg.evaluate("()=>AA.gun.length===4&&AA.lamp.filter(l=>!l.fr).length===4&&T.filter(t=>t.kind==='aa').length===8&&AA.gun.slice(0,2).every(g=>Math.hypot(g.x-DEPOT[0],g.z-DEPOT[1])<250)&&AA.gun.slice(2).every(g=>Math.hypot(g.x-BASE[0],g.z-BASE[1])<250)"))
+    check("ground fire: two guns and two searchlights at each base, shootable", pg.evaluate("()=>AA.gun.filter(g=>!g.site).length===4&&AA.lamp.filter(l=>!l.fr&&!l.site).length===4&&T.filter(t=>t.kind==='aa'&&!t.site).length===8&&AA.gun.slice(0,2).every(g=>Math.hypot(g.x-DEPOT[0],g.z-DEPOT[1])<250)&&AA.gun.filter(g=>!g.site).slice(2).every(g=>Math.hypot(g.x-BASE[0],g.z-BASE[1])<250)"))
     check("ground fire: the airfield has a 3.7-inch gun and a searchlight for show (not targets)", pg.evaluate("()=>AA.fg.length===1&&AA.lamp.filter(l=>l.fr).length===1&&T.every(t=>t.kind!=='aa'||t.m!==AA.fg[0].grp)"))
     check("ground fire: Settings switch is saved and on by default", pg.evaluate("()=>$$('aaOn').checked===true&&AA.on===true"))
     r = pg.evaluate("""()=>{
@@ -665,6 +665,38 @@ with sync_playwright() as p:
       WX.setWx('clear'); return [off,on,spr,blocked,free,fogIn,above,below,!DECK.on]}""")
     check("cloud deck: overcast has a solid layer (clear has none), beams cannot pass it, inside it is a white-out, above it is clear sky, below it is overcast again", all(dk), str(dk))
     pg.evaluate("()=>{WX.setWx('clear');WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
+    # ---- the roam camera ----
+    pg.evaluate("()=>{PP.off=true;trn.mode='free';placeAt(0,300,420,-200,300,70)}"); pg.wait_for_timeout(500)
+    pg.keyboard.press('KeyY'); pg.wait_for_timeout(400)
+    rm0 = pg.evaluate("()=>({on:ROAM.on,c:cam.position.toArray()})")
+    pg.mouse.move(400,225); pg.mouse.down(button='right'); pg.mouse.move(400,150,steps=6); pg.mouse.up(button='right'); pg.wait_for_timeout(400)
+    rm1 = pg.evaluate("()=>cam.position.toArray()")
+    check("roam camera: Y starts it and the mouse moves the camera", rm0['on'] and abs(rm1[0]-rm0['c'][0])+abs(rm1[2]-rm0['c'][2]) > 0.5, str([rm0, rm1]))
+    pg.keyboard.press('KeyY'); pg.wait_for_timeout(600)
+    check("roam camera: Y again returns to the chase camera", pg.evaluate("()=>!ROAM.on&&camMode===0&&cam.position.distanceTo(pos)<40"))
+    pg.keyboard.press('KeyY'); pg.wait_for_timeout(300); pg.keyboard.press('KeyC'); pg.wait_for_timeout(300)
+    check("roam camera: C leaves it", pg.evaluate("()=>!ROAM.on"))
+    # ---- the port and the airbase ----
+    sit = pg.evaluate("""()=>{ trn.mode='free'; const n=SITES.length; const kinds=SITES.every(t=>t.kind==='st'&&T.includes(t));
+      const types=['ship','crane','plane'].map(k=>SITES.filter(t=>t.type===k).length);
+      const vis=SITES.every(t=>t.m.visible);
+      const ship=SITES.find(t=>t.type==='ship'), pl=SITES.find(t=>t.type==='plane'), cr=SITES.find(t=>t.type==='crane');
+      [ship,pl,cr].forEach(t=>killT(t)); const dead=[ship,pl,cr].every(t=>t.dead);
+      resetWeapons(); const back=[ship,pl,cr].every(t=>!t.dead&&t.m.scale.y===1)&&ship.m.rotation.z===0;
+      return [n, kinds, types, vis, dead, back, SITE.inside(2000,-7200,0), SITE.inside(0,300,0)]}""")
+    check("port and airbase: ships, cranes and parked fighters are free-flight targets, killable, and reset restores them", sit[0] >= 30 and sit[1] and sit[2][0] >= 3 and sit[2][1] >= 2 and sit[2][2] >= 9 and sit[3] and sit[4] and sit[5] and sit[6] and not sit[7], str(sit))
+    rd = pg.evaluate("""()=>{ const p0=RP2[0], pe=RP2[RP2.length-1]; const wet=RP2.filter(p=>HR(p.x,p.z)<-1);
+      const raised=wet.every(p=>p.b!==undefined&&p.b>-7); const ex=SITE.w(0,-95);
+      return [Math.hypot(p0.x-ex[0],p0.z-ex[1]), Math.hypot(pe.x-0,pe.z+1700), wet.length, raised, SITES.some(t=>t.type==='tower'), nearRoad(RSPUR[4].x,RSPUR[4].z,5)]}""")
+    check("coast road: runs from the port quay to the airfield island, every wet stretch is a raised bridge, the airbase has a control tower and a gate spur", rd[0] < 30 and rd[1] < 250 and rd[2] > 50 and rd[3] and rd[4] and rd[5], str(rd))
+    pt = pg.evaluate("""()=>{ trn.mode='free'; const e=SITE.patrol.e, m=e.m; const p0=m.position.clone(); let wet=true, far=0;
+      for(let k=0;k<1200;k++){ SITE.pat(0.5); if(HR(m.position.x,m.position.z)>-8) wet=false; far=Math.max(far,m.position.distanceTo(p0)) }
+      killT(e); const x=m.position.x; SITE.pat(1); const stops=e.dead&&m.position.x===x; resetWeapons(); SITE.pat(1);
+      const gs=AA.gun.filter(g=>g.ship); const riding=gs.length===4&&gs.every(g=>g.piv.distanceTo(m.position)<30&&g.t===e);
+      return [wet, far, stops, !e.dead, e.type, riding]}""")
+    check("patrol ship: the Ukuru-class escort carries four of the base's 25 mm mounts, patrols up and down the coast over open water, stops when sunk and sails again after reset", pt[0] and pt[1] > 1500 and pt[2] and pt[3] and pt[4] == 'ship' and pt[5], str(pt))
+    sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
+    check("port and airbase: their guns only exist in free flight", sg is not None and sg[0] >= 4 and sg[1] and sg[2], str(sg))
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
     check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))
     pg.evaluate("()=>{PP.off=true}")
