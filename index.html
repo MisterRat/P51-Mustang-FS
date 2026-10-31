@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.12';
+const VERSION = '4.13';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1321,7 +1321,10 @@ const SITE = (() => {
    and from the second base, where the convoy ends, back to the port */
 const ROAD2C = new THREE.CatmullRomCurve3(
     [
-      SITE.w(0, -95),
+      SITE.w(40, 5),
+      SITE.w(40, -55),
+      SITE.w(30, -108),
+      SITE.w(-90, -130),
       SITE.w(-220, -300),
       SITE.w(-560, -520),
       SITE.w(-740, -760),
@@ -1347,8 +1350,9 @@ const ROAD2C = new THREE.CatmullRomCurve3(
       [3120, -6200],
       [2640, -6680],
       SITE.w(260, -300),
-      SITE.w(110, -95),
-      SITE.w(30, -95),
+      SITE.w(130, -160),
+      SITE.w(60, -118),
+      SITE.w(30, -108),
     ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
     false,
     'catmullrom',
@@ -1732,10 +1736,13 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
       g.restore();
       g.globalAlpha = 1;
     }
+  /* hedgerows and walls do not run up and down big hills: skip a line where the ground is steep */
+  const steep = (x, z) => Math.hypot(HR(x + 12, z) - HR(x - 12, z), HR(x, z + 12) - HR(x, z - 12)) / 24 > 0.1;
   const seg = (u0, v0, u1, v1, type) => {
     const a = U2W(u0, v0),
       b = U2W(u1, v1);
     if (Math.hypot((a[0] + b[0]) / 2 - cx, (a[1] + b[1]) / 2 - cz) > PL.R * 0.9) return;
+    for (let q = 0; q <= 6; q++) if (steep(a[0] + ((b[0] - a[0]) * q) / 6, a[1] + ((b[1] - a[1]) * q) / 6)) return;
     const A = px(a[0], a[1]),
       B = px(b[0], b[1]);
     if (type < 0.56) {
@@ -1851,6 +1858,7 @@ const FARM = { a: 0.31, cs: 340, hedges: [] };
         x = s.x0 + dx * u,
         z = s.z0 + dz * u;
       if (rnd() < 0.08) continue;
+      if (Math.hypot(HR(x + 10, z) - HR(x - 10, z), HR(x, z + 10) - HR(x, z - 10)) / 20 > 0.1) continue;
       if (HR(x, z) < 3.2 || HR(x + 8, z) < 3.2 || HR(x - 8, z) < 3.2 || HR(x, z + 8) < 3.2 || HR(x, z - 8) < 3.2)
         continue;
       if (!nearRoad(x, z, 1800) || nearRoad(x, z, 26) || inCompound(x, z)) continue;
