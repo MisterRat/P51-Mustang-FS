@@ -635,12 +635,35 @@ with sync_playwright() as p:
     pg.evaluate("()=>{WX.setTime('night')}"); pg.wait_for_timeout(2500)
     lits = [pg.evaluate(wxl_js, a) for a in (["clear", 1500], ["fog", 1500], ["fog", 200], ["storm", 2500])]
     check("ground fire: a searchlight lights you in clear weather but fog limits it to a few hundred metres", lits[0] > 0 and lits[1] == 0 and lits[2] > 0 and lits[3] == 0, str(lits))
-    occ = pg.evaluate("""()=>{ WX.setWx('overcast'); const L=AA.lamp[0]; const r=CSH.root.position; let c=null,bd=1e9;
+    occ = pg.evaluate("""()=>{ WX.setWx('partly'); const L=AA.lamp[0]; const r=CSH.root.position; let c=null,bd=1e9;
       for(const k of CLOUDS){ if(!k.userData.wx) continue; const d=Math.hypot(k.position.x+r.x-L.p.x,k.position.z+r.z-L.p.z); if(d<bd&&k.position.y>L.p.y+600){bd=d;c=k;} }
       const cx=c.position.x+r.x, cy=c.position.y, cz=c.position.z+r.z; pos.set(L.p.x+2*(cx-L.p.x), L.p.y+2*(cy-L.p.y), L.p.z+2*(cz-L.p.z));
       let lit=0; for(let i=0;i<120;i++){ L.mode='track'; L.lost=0; const dx=pos.x-L.p.x,dy=pos.y-L.p.y,dz=pos.z-L.p.z; L.yaw=Math.atan2(dx,dz); L.el=Math.atan2(dy,Math.hypot(dx,dz)); updAA(1/60); if(i>30&&L.lit) lit++; }
       return [L.occ, L.spl.visible, lit]}""")
     check("ground fire: a beam stops at a cloud, glows its underside and does not light a plane behind it", occ[0] and occ[1] and occ[2] == 0, str(occ))
+    pg.evaluate("()=>{WX.setWx('clear');WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
+    # ---- aftermath: scorch, fires, smoke, craters ----
+    af = pg.evaluate("""()=>{ reset(); const ts=T.filter(t=>!t.dead&&t.kind==='bld').slice(0,2); ts.forEach(t=>killT(t));
+      const a=[AF.em.length, AF.scr.count]; AF.crater(new V(ts[0].c.x+40,0,ts[0].c.z),9); const c=AF.scr.count;
+      for(let i=0;i<60*8;i++) AF.update(1/60); const sm=AF.sm.filter(m=>m.on).length; const lit=AF.fl.filter(f=>f.s.visible).length;
+      reset(); return [a[0],a[1],c,sm,lit,AF.scr.count+AF.em.length+AF.sm.filter(m=>m.on).length]}""")
+    check("aftermath: two destroyed buildings burn with scorch marks, a bomb leaves a crater, smoke rises, and reset clears it all", af[0] == 2 and af[1] == 2 and af[2] == 3 and af[3] > 4 and af[4] >= 2 and af[5] == 0, str(af))
+    # ---- the working airfield and the ships ----
+    wk = pg.evaluate("""()=>{ const mv=AFLD.a.filter(o=>o.kind!=='ship'); const p0=mv.map(o=>[o.x,o.z]); pos.set(500,500,500);
+      const ev=mv.map(()=>false); for(let i=0;i<60*60;i++){ AFLD.update(1/60); mv.forEach((o,k)=>{ if(Math.hypot(o.x-p0[k][0],o.z-p0[k][1])>1) ev[k]=true }) } const moved=ev.filter(Boolean).length;
+      const sh=AFLD.a.filter(o=>o.kind==='ship'); const sea=sh.every(o=>HR(o.x,o.z)<-8);
+      for(let i=0;i<60*400;i++) AFLD.update(1/60); const sea2=sh.every(o=>HR(o.x,o.z)<-8);
+      return [mv.length, moved, sh.length, sea, sea2]}""")
+    check("working airfield: the taxiing fighter, vehicles and crew all move about, and three ships stay on open water", wk[0] >= 7 and wk[1] == wk[0] and wk[2] == 3 and wk[3] and wk[4], str(wk))
+    # ---- the cloud deck ----
+    dk = pg.evaluate("""()=>{ WX.setWx('clear'); const off=!DECK.on; WX.setWx('overcast'); updWX(0.1); const on=DECK.on&&DECK.base===1700; const spr=CLOUDS.every(c=>!c.userData.wx);
+      let sx=0,sz=0; for(let i=0;i<400;i++){ if(DECK.cover(i*97-19000,i*53-9000)){sx=i*97-19000;sz=i*53-9000;break} }
+      const blocked=aaCloudT(new V(sx,0,sz),0,1,0,3000)<3000; const free=!DECK.on||aaCloudT(new V(sx,0,sz),0,1,0,1000)===Infinity;
+      cam.position.set(sx,DECK.base+200,sz); DECK.update(0.1); const fogIn=scene.fog.far<200&&DECK.k>0.9;
+      cam.position.set(sx,DECK.top+300,sz); DECK.update(0.1); DECK.update(0.1); const above=DECK.above&&WX.deckAbove&&WX.rainK===0&&scene.fog.far>5000&&sky.visible;
+      cam.position.set(sx,100,sz); DECK.update(0.1); DECK.update(0.1); const below=!DECK.above&&!WX.deckAbove&&scene.fog.far<=WX_SET.overcast.fogF+1;
+      WX.setWx('clear'); return [off,on,spr,blocked,free,fogIn,above,below,!DECK.on]}""")
+    check("cloud deck: overcast has a solid layer (clear has none), beams cannot pass it, inside it is a white-out, above it is clear sky, below it is overcast again", all(dk), str(dk))
     pg.evaluate("()=>{WX.setWx('clear');WX.setTime('midday');reset()}"); pg.wait_for_timeout(300)
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
     check("convoy: the start is far enough back (over 3.5 km) to line up without breaking off", cvs > 3500, str(round(cvs)))

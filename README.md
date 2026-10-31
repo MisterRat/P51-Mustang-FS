@@ -28,6 +28,9 @@ by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://di
 | **Trainers** | Takeoff, Landing (with ILS), Building Bombing and Convoy Strafing and the six aerobatic trainers are guided by a green ring on the line a hidden sim pilot flew first (put the white flight-path marker in the ring to follow it); the aerobatics are Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
 | **Combat** | Machine guns, rockets and bombs. Enemies come in Low (40%), Medium (65%) and Hard (100%) performance. |
 | **Ground fire** | Each enemy base has two Type 96 25 mm twin AA guns and two 150 cm searchlights. At night the beams sweep, lock on and dazzle, and the guns fire at what they light. Switch it off in Settings. |
+| **Wrecks and smoke** | Destroyed targets burn with a smoke column you can see for miles. Bombs leave craters and scorch marks. They stay for the rest of the flight. |
+| **A busy airfield, and ships** | A fighter taxis, vehicles drive and ground crew walk around your airfield. A freighter, a tanker and a patrol boat sail the sea nearby. |
+| **A solid cloud deck** | Overcast, rain and thunderstorm have a real cloud layer: grey from below, white-out inside it, and clear sky and sun above it. |
 | **Weather and time** | Pick your clock, dawn to night, and clear, cloud, fog or rain. |
 | **Photo mode** | Press **F9** for a free camera. Drag to look, right-drag to pan, wheel to dolly, Ctrl+wheel to zoom. Save JPG snapshots. |
 | **Graphics** | Auto, Low, Medium and High, so it runs on a phone and looks good on a PC. |
