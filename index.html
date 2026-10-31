@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.14';
+const VERSION = '4.15';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1344,7 +1344,12 @@ const ROAD2C = new THREE.CatmullRomCurve3(
       [1680, -5120],
       [1680, -4520],
       [1680, -3920],
-      [1690, -3500],
+      [1690, -3800],
+      [1730, -3680],
+      [1790, -3585],
+      [1805, -3527],
+      [1795, -3499],
+      [1785, -3471],
     ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
     false,
     'catmullrom',
@@ -1353,7 +1358,11 @@ const ROAD2C = new THREE.CatmullRomCurve3(
   RP2 = ROAD2C.getSpacedPoints(Math.ceil(ROAD2C.getLength() / 18)),
   ROAD3C = new THREE.CatmullRomCurve3(
     [
-      [5400, -4350],
+      [5311, -4363],
+      [5317, -4397],
+      [5323, -4432],
+      [5285, -4480],
+      [5220, -4535],
       [5160, -4580],
       [4680, -5060],
       [4200, -5540],
