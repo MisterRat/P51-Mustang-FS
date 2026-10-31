@@ -287,7 +287,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <label>Move <select id="phSpd"><option value="8">Slow</option><option value="30" selected>Normal</option><option value="120">Fast</option></select></label>
 <label><input type="checkbox" id="phStamp"> Stamp info on the photo</label><label><input type="checkbox" id="phGrid"> Thirds grid</label></div>
 <div class="r more">Camera spot: <button data-s="chase">Behind</button><button data-s="side">Beside</button><button data-s="front">In front</button><button data-s="top">Above</button><button data-s="cockpit">Cockpit</button><span id="phMsg" style="color:var(--acc)"></span></div>
-<div class="r more dim">W A S D move &middot; Q E down / up &middot; Z C roll &middot; left-drag looks &middot; right-drag moves along the ground &middot; middle-drag moves up / down &middot; wheel moves in / out (Shift = bigger steps for all of them) &middot; Ctrl + wheel zooms (FOV) &middot; Shift = fast &middot; H HUD on / off &middot; F hides this panel</div></div>
+<div class="r more dim">W A S D move &middot; Q E down / up &middot; Z C roll &middot; left-drag looks &middot; right-drag moves along the ground &middot; middle-drag moves up / down &middot; wheel moves in / out (hold ` = 6x bigger steps for the mouse) &middot; Shift = fast keys &middot; H HUD on / off &middot; F hides this panel</div></div>
 <div id="phGridV" style="position:fixed;inset:0;pointer-events:none;display:none;z-index:28;background:linear-gradient(to right,transparent 33.2%,rgba(255,255,255,.45) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.45) 66.6%,transparent 66.8%),linear-gradient(to bottom,transparent 33.2%,rgba(255,255,255,.45) 33.3%,transparent 33.5%,transparent 66.5%,rgba(255,255,255,.45) 66.6%,transparent 66.8%)"></div>
 <div class="p" id="msg"></div>
 
@@ -483,7 +483,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>STALL</td><td>The wing is stalled. Release the stick, lower the nose, add power. The STALL readout on the left panel shakes within a few km/h of the stall.</td></tr>
 <tr><td>PULL UP</td><td>Low and descending fast.</td></tr>
 <tr><td>ILS</td><td>The landing trainer teaches the instrument landing system. The ILS panel (beside the artificial horizon) is a cross-pointer: the <b>vertical needle</b> is the localizer (left / right of the runway centreline) and the <b>horizontal needle</b> is the glide slope (your height against a 3&deg; slope that meets the runway 200 m past the threshold). Each needle points toward where the beam is, so fly <b>toward</b> the needle: needle right = turn right, needle below the centre = descend. Red LOC / GS flags mean no beam yet. The beam reaches about 25 km out and 40&deg; either side of the runway, for both ends (36 and 18; in free flight the nearer end is used, switched on with L). The distance (DME) to the threshold is shown at the top. Standard needles are full scale at 5&deg; and 1.4&deg;. In the landing trainer the green ring leads you around the circuit and then sits on the centreline and the slope. Catch the slope from below. <b>Hardcore &gt; ILS realism</b> uses the real sensitivity (2.5&deg; and 0.7&deg;), a narrower cone, the outer and middle marker beacons with lamps and tones, and capture call-outs.</td></tr>
-<tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, left-drag looks around, right-drag moves the camera along the ground (sideways and forward / back), middle-drag moves it up and down, the wheel moves it in and out in small steps (it never runs out), Ctrl + wheel changes the field of view, and holding Shift makes the drags and the wheel move in larger steps. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
+<tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, left-drag looks around, right-drag moves the camera along the ground (sideways and forward / back), middle-drag moves it up and down, the wheel moves it in and out in small steps (it never runs out), and holding the backtick key (`) makes the drags and the wheel move six times as far. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
 <tr><td>Time &amp; weather</td><td>Settings &gt; Time of day &amp; weather. <b>Time</b>: your local clock, dawn, morning, midday, afternoon, evening or night; tick &ldquo;Time passes&rdquo; to run a day in 24 minutes. <b>Weather</b>: clear, partly cloudy, overcast, rain, thunderstorm or fog. Overcast, rain, storm and fog cut how far you can see and dim the sun. Overcast, rain and thunderstorm have a <b>solid cloud deck</b> (about 1,700 m, 1,300 m and 1,000 m up, 450 to 900 m thick, with a few gaps in overcast): you see its grey underside from below, you fly through white-out inside it (the view shrinks to about 100 m, and icing can build), and you climb out onto a bright white top with clear sky, full sun and no rain above it. Searchlight beams and gun crews cannot see through it. At night you get a moon, stars, runway lights, lit building windows, the hangars and the tower, and wingtip and tail lights (red left, green right, white tail). Rain streaks past the canopy; a thunderstorm adds lightning and thunder. Fly the runway lights in, and watch your altitude. <b>Night:</b> the instrument panel dims, and with the landing gear down the landing light puts a pool of light on the ground ahead of the nose.</td></tr>
 <tr><td>DAMAGE</td><td>Enemy hits hurt one system at a time (Settings &gt; Battle damage). <b>Engine</b>: less power, smoke, then fire or a dead engine. <b>Wing</b>: the plane rolls toward the damaged side and the aileron weakens (lost when badly hit). <b>Tail</b>: weaker elevator and rudder. <b>Fuel tank</b>: a leak. <b>Hydraulics</b>: flaps jam and the gear will not retract. A fire burns the hull: dive fast for about 3 seconds to put it out. Land and stop with the throttle at idle to repair everything. If it is hopeless, bail out (J twice, or hold both bumpers, or Pause menu &gt; Bail out): the canopy blows off, you climb out of the seat, fall clear and the parachute opens. <b>Drag the mouse</b> (or use the right stick) to look all around, down at the ground and up at the canopy. You need about 100 m of height when you climb out for the parachute to open in time; Enter restarts at any time. The aircraft is lost.</td></tr>
 <tr><td>Sound</td><td>The engine note follows the throttle and propeller speed, with wind, tyre rumble, guns, rockets, bombs and explosions (heard late when far away), and a chirp and squeal of rubber when you touch down fast. Warning tones: a pulsing buzzer for a stall, a steady wail past the redline, a two-tone warble in a spin, and fast beeps for overstress. Settings &gt; Sound has the overall volume and a separate Engine &amp; Wind volume; U mutes.</td></tr>
@@ -514,7 +514,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Wrecks, smoke and craters</td><td>A destroyed building, vehicle, gun or fuel store leaves a scorch mark and burns for a while, with a smoke column you can see from miles away (fuel and tanker fires burn longest). Bombs leave craters, rockets small scorch marks, and a bandit that hits the ground or your own crash leaves a burning wreck. Smoke leans downwind. They stay for the rest of the flight and are cleared when you restart. Graphics Low shows fewer fires at once.</td></tr>
 <tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water a freighter, a tanker and a patrol boat sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
 <tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate and, over a long bridge across the sea, to your airfield. Red squares on the map and the compass point to the targets.</td></tr>
-<tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out, Shift for bigger steps, Ctrl+wheel for field of view) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
+<tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out; hold the backtick key ` for six times bigger steps) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.10';
+const VERSION = '4.11';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -16214,7 +16214,7 @@ function orbReset() {
 }
 /* Roam camera (Y): a free camera that works like photo mode's, but the flight carries on and every flight key still works.
    Only the mouse moves it: left-drag looks, right-drag moves along the ground, middle-drag up and down, wheel in and out
-   (Shift = bigger steps, Ctrl + wheel = field of view). It shares its position and angles with PHOTO. */
+   (hold ` = six times bigger steps; there is no wheel zoom). It shares its position and angles with PHOTO. */
 const ROAM = { on: false, fov0: 65 };
 function roamEnter() {
   if (ROAM.on || PHOTO.on || !started || BL.on || RPL.on) return;
@@ -16268,12 +16268,12 @@ addEventListener('mousemove', (e) => {
     if (PHOTO.drag === 2 || PHOTO.drag === 3) {
       /* right-drag moves the camera horizontally (sideways and forward / back along the ground, whichever way it is looking),
          middle-drag moves it up and down; the picture follows the cursor. Steps are a fraction of the distance to the aircraft or
-         the ground, whichever is nearer, so they stay fine near the ground; Shift makes each one six times bigger */
+         the ground, whichever is nearer, so they stay fine near the ground; holding ` makes each one six times bigger */
       const ref = Math.max(
           0.3,
           Math.min(cam.position.distanceTo(pos), cam.position.y - H(cam.position.x, cam.position.z) + 1.5),
         ),
-        k = ((2 * Math.tan((PHOTO.fov * Math.PI) / 360) * ref) / innerHeight) * (keys.ShiftLeft || keys.ShiftRight || e.shiftKey ? 6 : 1),
+        k = ((2 * Math.tan((PHOTO.fov * Math.PI) / 360) * ref) / innerHeight) * (keys.Backquote ? 6 : 1) /* hold ` for six times bigger steps (Shift and Ctrl are the throttle) */,
         sy = Math.sin(PHOTO.yaw),
         cy = Math.cos(PHOTO.yaw);
       if (PHOTO.drag === 2) {
@@ -16306,15 +16306,14 @@ cv.addEventListener(
   (e) => {
     if (PHOTO.on || ROAM.on) {
       e.preventDefault();
-      if (e.ctrlKey || e.altKey) photoFov(PHOTO.fov * Math.exp(e.deltaY * 0.001));
-      else {
+      {
         /* the wheel flies the camera along the view line in small steps (a few percent of the distance to the aircraft or to the
-           ground, whichever is nearer, so it stays fine near the ground); Shift makes the steps six times bigger */
+           ground, whichever is nearer, so it stays fine near the ground); holding ` makes the steps six times bigger */
         const ref = Math.max(
             0.3,
             Math.min(cam.position.distanceTo(pos), cam.position.y - H(cam.position.x, cam.position.z) + 1.5),
           ),
-          dd = ref * (Math.exp(Math.max(-150, Math.min(150, e.deltaY)) * 0.0004 * (e.shiftKey ? 6 : 1)) - 1);
+          dd = ref * (Math.exp(Math.max(-150, Math.min(150, e.deltaY)) * 0.0004 * (keys.Backquote ? 6 : 1)) - 1);
         PHOTO.pos.addScaledVector(PHV1.set(0, 0, -1).applyQuaternion(cam.quaternion), -dd);
       }
       return;
@@ -16486,7 +16485,7 @@ const KBDOC = [
     () =>
       'Chase view: drag to circle the plane, wheel to zoom. ' +
       kbText('clear') +
-      ' switches to the roam camera (left-drag looks, right-drag moves along the ground, middle-drag up and down, wheel in and out, Shift for bigger steps, Ctrl + wheel zoom) and back to chase. Cockpit view: drag to look around (release recenters)',
+      ' switches to the roam camera (left-drag looks, right-drag moves along the ground, middle-drag up and down, wheel in and out; hold ` for six times bigger steps) and back to chase. Cockpit view: drag to look around (release recenters)',
     '',
     0,
   ],

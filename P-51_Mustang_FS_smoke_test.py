@@ -673,6 +673,23 @@ with sync_playwright() as p:
     rm1 = pg.evaluate("()=>cam.position.toArray()")
     check("roam camera: Y starts it and the mouse moves the camera", rm0['on'] and abs(rm1[0]-rm0['c'][0])+abs(rm1[2]-rm0['c'][2]) > 0.5, str([rm0, rm1]))
     pg.keyboard.press('KeyY'); pg.wait_for_timeout(600)
+    pg.keyboard.press('KeyY'); pg.wait_for_timeout(300)
+    pg.evaluate("()=>{paused=true}")  # freeze the flight so the step size (which depends on the distance to the plane) is the same each time
+    P0 = pg.evaluate("()=>PHOTO.pos.toArray()")
+    def rdrag(key):
+        pg.evaluate("(p)=>PHOTO.pos.set(...p)", P0); pg.wait_for_timeout(200)
+        c0 = pg.evaluate("()=>PHOTO.pos.toArray()")
+        if key: pg.keyboard.down(key)
+        pg.mouse.move(400,225); pg.mouse.down(button='right'); pg.mouse.move(400,220,steps=1); pg.mouse.up(button='right'); pg.wait_for_timeout(300)
+        if key: pg.keyboard.up(key)
+        c1 = pg.evaluate("()=>PHOTO.pos.toArray()")
+        return ((c1[0]-c0[0])**2 + (c1[2]-c0[2])**2) ** 0.5
+    d0 = rdrag(None); d_sh = rdrag('Shift'); d_bq = rdrag('Backquote')
+    fov0 = pg.evaluate("()=>PHOTO.fov"); pg.keyboard.down('Control'); pg.mouse.wheel(0, 300); pg.wait_for_timeout(200); pg.keyboard.up('Control')
+    pg.evaluate("()=>{paused=false}")
+    check("roam and photo camera: the backtick key makes mouse steps six times bigger, Shift does not, and the wheel no longer changes the field of view",
+          d0 > 0.1 and abs(d_sh / d0 - 1) < 0.2 and 5.5 < d_bq / d0 < 6.5 and abs(pg.evaluate("()=>PHOTO.fov") - fov0) < 0.01, f"{d0:.2f} {d_sh:.2f} {d_bq:.2f}")
+    pg.keyboard.press('KeyY'); pg.wait_for_timeout(600)
     check("roam camera: Y again returns to the chase camera", pg.evaluate("()=>!ROAM.on&&camMode===0&&cam.position.distanceTo(pos)<40"))
     pg.keyboard.press('KeyY'); pg.wait_for_timeout(300); pg.keyboard.press('KeyC'); pg.wait_for_timeout(300)
     check("roam camera: C leaves it", pg.evaluate("()=>!ROAM.on"))
