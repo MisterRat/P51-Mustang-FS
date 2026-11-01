@@ -75,4 +75,5 @@ Built with [three.js](https://threejs.org/) r128 (MIT), inlined in the file.
 ## License
 Free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0). Commercial use needs written permission. See [`LICENSE`](LICENSE).
 
+| Kamome Field and ADF | A small island airfield 43 km out to sea (runway 07/25, tower, hangars, radio beacon KMM). The ADF radio compass has a needle that always points at a beacon; the ADF Navigation mission coaches you to find the island with it and land. Beyond the mapped land the world is open sea. |
 | Port, airbase and coast road | A free-flight port (pier, ships, cranes) and a fenced second airbase (control tower, gravel yard, parked fighters), joined by enemy roads (port to airbase to the depot, and the second base back to the port), with a Ukuru-class escort patrolling the coast under Ground Fire |

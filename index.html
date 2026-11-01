@@ -88,6 +88,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 body.mob #ils{right:calc(var(--mm) + 100px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));padding:2px}
 body.mob #ils canvas{width:84px;height:84px}
 #hz{right:12px;top:calc(208px + env(safe-area-inset-top,0px));padding:6px}
+#adf{right:104px;top:calc(370px + env(safe-area-inset-top,0px));padding:6px;display:none;cursor:pointer}
+#adf canvas{display:block}
+body.mob #adf{right:calc(8px + env(safe-area-inset-right,0px));top:calc(var(--mm) + 22px + 84px + env(safe-area-inset-top,0px));padding:3px}
+body.mob #adf canvas{width:96px;height:121px}
 #help{left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;max-width:340px}
 #help.h{display:none}
 #tq{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:62px;text-align:center;font-size:12px}
@@ -257,6 +261,7 @@ body.mob.editing #tc{display:block}
 <div class="p" id="hud"></div>
 <div class="p" id="mm"><canvas id="mmc" width="176" height="176"></canvas></div>
 <div class="p" id="hz"><canvas id="ah" width="120" height="120"></canvas></div>
+<div class="p" id="adf" title="ADF radio compass: click to change station"><canvas id="adfc" width="170" height="214"></canvas></div>
 <div class="p" id="ils" style="display:none"><canvas id="ilsc" width="150" height="150"></canvas></div>
 <div class="p" id="help"><div class="hk" id="hkBody"></div>
 <div class="ht"><b style="color:var(--acc)">CONTROLS &ndash; PHONE</b> (swipe to hide)<br>
@@ -513,6 +518,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. <b>Weather limits them:</b> a beam stops at the first cloud and only lights its underside, so a target behind a cloud is not lit; rain cuts the beam to about 3 km, a thunderstorm to 1.5 km and fog to about 300 m. The gun crews cannot see through cloud either, and by day see only as far as the weather lets them (about 700 m in fog); at night in fog they fire only at what a beam or the close range lights up. The lights can still follow you by sound. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Wrecks, smoke and craters</td><td>A destroyed building, vehicle, gun or fuel store leaves a scorch mark and burns for a while, with a smoke column you can see from miles away (fuel and tanker fires burn longest). Bombs leave craters, rockets small scorch marks, and a bandit that hits the ground or your own crash leaves a burning wreck. Smoke leans downwind. They stay for the rest of the flight and are cleared when you restart. Graphics Low shows fewer fires at once.</td></tr>
 <tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water a freighter, a tanker and a patrol boat sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
+<tr><td>ADF Navigation (mission) and Kamome Field</td><td>A small island airfield, <b>Kamome Field</b>, lies 43 km out over the sea to the north-north-west of your airfield (fog hides it until you are within about 15 km). It has a 1,300 m runway, 07 / 25 (heading 070 / 250), a tower, two hangars and a radio beacon, <b>KMM</b>. The <b>ADF radio compass</b> (the round dial on the right) has a red needle that always points at the beacon: the top of the dial is your nose, so the needle straight up means you are flying at the station. Needle to the right: turn right. A crosswind drifts you, so correct a few degrees toward the needle and do not chase it. The dial also shows the beacon bearing, distance and flying time. In free flight, click the dial to switch between KMM and your own field (HOM). The <b>ADF Navigation</b> mission starts you high over your airfield pointed the wrong way and coaches you in five steps: point at the beacon, home on the needle, let down and look for the island, pass over the station (the needle swings to the tail), then land on the runway. The ADF can be hidden in the pause menu (Instruments). Beyond the mapped land the world is open sea.</td></tr>
 <tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate to the depot where the convoy starts, and another from the second base, where the convoy ends, back to the port. No road reaches your airfield. Red squares on the map and the compass point to the targets.</td></tr>
 <tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out; hold the backtick key ` for six times bigger steps) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
@@ -585,7 +591,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.16';
+const VERSION = '4.18';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1398,6 +1404,50 @@ const ROAD2C = new THREE.CatmullRomCurve3(
     return o;
   })();
 
+/* Kamome Field: a small island airfield about 43 km out (north-north-west of the home airfield), for navigation training with the ADF radio compass.
+   Local frame: u runs along the runway (heading 070), v across it. The island is flat and level around the runway and falls to the sea. */
+const ISL = (() => {
+  const F = { x: -14000, z: -40500 },
+    hdg = (70 * Math.PI) / 180,
+    ux = Math.sin(hdg),
+    uz = -Math.cos(hdg),
+    vx = -uz,
+    vz = ux,
+    H0 = 14,
+    loc = (x, z) => {
+      const dx = x - F.x,
+        dz = z - F.z;
+      return [dx * ux + dz * uz, dx * vx + dz * vz];
+    };
+  return {
+    F,
+    hdg,
+    ux,
+    uz,
+    vx,
+    vz,
+    H0,
+    len: 1300,
+    wid: 40,
+    ident: 'KMM',
+    name: 'KAMOME FIELD',
+    loc,
+    w: (u, v) => [F.x + ux * u + vx * v, F.z + uz * u + vz * v],
+    /* island height at x, z, or null when this point is far from the island */
+    h(x, z) {
+      if (Math.abs(x - F.x) > 3600 || Math.abs(z - F.z) > 3600) return null;
+      const [u, v] = loc(x, z),
+        e = Math.hypot(u / 2700, v / 1350);
+      if (e > 1.6) return null;
+      const hills = e > 0.55 ? 7 * fbm(x * 0.6, z * 0.6) * ss(0.55, 0.8, e) * (1 - ss(0.9, 1.1, e)) : 0;
+      return { h: H0 + hills + (-8 - H0 - 12) * ss(0.55, 1.1, e) - 30 * ss(1.1, 1.5, e), e };
+    },
+    onRwy(x, z, m) {
+      const [u, v] = loc(x, z);
+      return Math.abs(u) < 650 + m && Math.abs(v) < 20 + m;
+    },
+  };
+})();
 function HR(x, z) {
   const dz = Math.max(0, z - RW.zS, RW.zN - z),
     d = Math.hypot(Math.max(0, Math.abs(x) - 60), dz);
@@ -1413,6 +1463,18 @@ function HR(x, z) {
   if (pw > 0)
     r =
       r * (1 - pw) + (30 + 15 * Math.sin(x * 0.0011 + 1) * Math.cos(z * 0.0013) + 6 * Math.sin((x + z) * 0.0021)) * pw;
+  {
+    /* the world beyond the terrain mesh is open sea (there is nothing to see there, so nothing to hit) */
+    const ed = Math.max(Math.abs(x), Math.abs(z));
+    if (ed > 11500) {
+      const w = ss(11500, 12800, ed);
+      r = r * (1 - w) + -40 * w;
+    }
+    if (ed > 12000) {
+      const o = ISL.h(x, z);
+      if (o) r = o.h;
+    }
+  }
   const sp = SITE.pad(x, z);
   if (sp > 0) r = r * (1 - sp) + SITE.H0 * sp;
   const sq = SITE.pad2(x, z);
@@ -2106,7 +2168,8 @@ const GX = (() => {
 })();
 
 let TREES = null;
-const CLOUDS = [];
+const CLOUDS = [],
+  CIRRUS = [];
 /* vegetation: conifers, broadleaf trees, palms on the beaches and shrubs, with hedgerow trees on the farmland, near and far levels */
 const TWIND = { value: 0 },
   TREEM = [];
@@ -3082,6 +3145,73 @@ function updGrass(cx, cy, cz, force) {
 }
 
 /* ---------- airfield dressing ---------- */
+/* the wake every ship at sea uses: ONE flat quad with ONE shared painted texture (bow spray along the hull, a churned white trail, and two foam
+   lines spreading back at the classic Kelvin angle). Drawn for a 78 m ship; k scales it to other lengths. */
+let WAKE_MAT = null;
+function shipWakeMesh(k, y) {
+  const W = 512,
+    Hh = 256,
+    XB = 42,
+    XL = 250,
+    ZH = 32;
+  if (!WAKE_MAT) {
+    const c = document.createElement('canvas');
+    c.width = W;
+    c.height = Hh;
+    const g2 = c.getContext('2d'),
+      px = (x) => ((XB - x) / XL) * W,
+      pz = (z) => (1 - (z + ZH) / (2 * ZH)) * Hh,
+      blob = (x, z, r, a) => {
+        const gx = px(x),
+          gz = pz(z),
+          rr = (r / XL) * W,
+          gr = g2.createRadialGradient(gx, gz, 0, gx, gz, rr);
+        gr.addColorStop(0, 'rgba(255,255,255,' + a + ')');
+        gr.addColorStop(1, 'rgba(255,255,255,0)');
+        g2.fillStyle = gr;
+        g2.fillRect(gx - rr, gz - rr, rr * 2, rr * 2);
+      };
+    for (let n = 0; n < 900; n++) {
+      const x = -34 - Math.pow(Math.random(), 1.7) * 200,
+        kk = (-34 - x) / 200,
+        z = (Math.random() - 0.5) * (7 + 16 * kk) * (1 - 0.4 * kk);
+      blob(x, z, 1.2 + Math.random() * 2.2, 0.5 * (1 - kk) * (1 - kk) + 0.04);
+    }
+    for (const sg of [1, -1])
+      for (let n = 0; n < 420; n++) {
+        const kk = Math.pow(Math.random(), 1.2),
+          x = -30 - kk * 200,
+          z = sg * (4.2 + (-30 - x) * 0.19) + (Math.random() - 0.5) * (1 + 2 * kk);
+        if (Math.abs(z) < ZH - 1) blob(x, z, 0.9 + Math.random() * 1.4 + kk, 0.55 * (1 - kk) + 0.05);
+      }
+    for (const sg of [1, -1])
+      for (let n = 0; n < 260; n++) {
+        const kk = Math.random(),
+          x = 38 - kk * 52,
+          z = sg * (0.5 + 4.3 * Math.min(1, (38 - x) / 10) + Math.random() * (0.8 + 2.5 * kk));
+        blob(x, z, 0.8 + Math.random() * 1.2, 0.55 * (1 - kk * kk));
+      }
+    for (const sg of [1, -1])
+      for (let n = 0; n < 150; n++) {
+        const kk = Math.random(),
+          x = 30 - kk * 60,
+          z = sg * (4.6 + kk * 11) + (Math.random() - 0.5) * 1.2;
+        blob(x, z, 0.8 + Math.random(), 0.3 * (1 - kk));
+      }
+    const tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 4;
+    WAKE_MAT = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, opacity: 0.9 });
+  }
+  const wg = new THREE.BufferGeometry();
+  wg.setAttribute('position', new THREE.Float32BufferAttribute([XB, 0, -ZH, XB, 0, ZH, XB - XL, 0, -ZH, XB - XL, 0, ZH], 3));
+  wg.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 0, 1, 1], 2));
+  wg.setIndex([0, 2, 1, 1, 2, 3]);
+  const wk = new THREE.Mesh(wg, WAKE_MAT);
+  wk.scale.setScalar(k);
+  wk.position.y = y;
+  wk.frustumCulled = false;
+  return wk;
+}
 let WSOCK = null;
 {
   const lam = (c) => new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }),
@@ -3180,13 +3310,109 @@ let WSOCK = null;
 /* ---------- the working airfield: vehicles, ground crew and a taxiing fighter that move about the apron ---------- */
 const AFLD = {
   a: [],
-  add(P, pts, sp, wait, kind) {
+  /* opt: { stops: seconds to stand at each waypoint, hose: [x, z offset] } - a truck that stops beside each aircraft and runs a fuel hose out to it */
+  add(P, pts, sp, wait, kind, opt) {
     const a = new GX.Acc();
     a.add(P, GX.xf(0, 0, 0, 0));
     const m = new THREE.Mesh(a.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
     m.position.set(pts[0][0], 0.12, pts[0][1]);
     scene.add(m);
-    this.a.push({ m, pts, sp, wait, kind, i: 1, dir: 1, w: wait * Math.random(), v: 0, yaw: 0, x: pts[0][0], z: pts[0][1], init: false });
+    const o = { m, pts, sp, wait, kind, i: 1, dir: 1, w: wait * Math.random(), v: 0, yaw: 0, x: pts[0][0], z: pts[0][1], init: false, opt, at: 0 };
+    if (opt && opt.hose) {
+      o.hs = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 0.1), new THREE.MeshLambertMaterial({ color: 0x1b1b1a }));
+      o.hs.visible = false;
+      scene.add(o.hs);
+    }
+    this.a.push(o);
+  },
+  /* the repair-test routine: a fighter taxis to the hangar, stops, a mechanic walks out and inspects it, walks back in, and the fighter
+     taxis out to a run-up spot for a test before coming back. cfg: path (run-up spot first, hangar stand last), door, spot, stand heading */
+  addRepair(PP, MP, cfg) {
+    const mk = (P, x, z) => {
+      const a = new GX.Acc();
+      a.add(P, GX.xf(0, 0, 0, 0));
+      const m = new THREE.Mesh(a.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
+      m.position.set(x, 0.12, z);
+      scene.add(m);
+      return { m, ctl: true, init: false, v: 0, yaw: 0, x, z, pts: [[x, z]] };
+    };
+    const P0 = cfg.path[0],
+      pl = mk(PP, P0[0], P0[1]),
+      man = mk(MP, cfg.door[0], cfg.door[1]);
+    pl.kind = 'plane';
+    man.kind = 'walk';
+    man.m.visible = false;
+    this.a.push(pl, man);
+    this.rp = { pl, man, cfg, ph: 6, t: 3, k: 1 };
+  },
+  /* one step of a scripted mover: turn toward the point, roll once lined up; true on arrival */
+  mv(o, tx, tz, dt, sp, rate, walk) {
+    const dx = tx - o.x,
+      dz = tz - o.z,
+      d = Math.hypot(dx, dz);
+    if (d < 0.6) return true;
+    let err = Math.atan2(-dz, dx) - o.yaw;
+    err = Math.atan2(Math.sin(err), Math.cos(err));
+    o.yaw += Math.max(-rate * dt, Math.min(rate * dt, err));
+    const go = walk ? 1 : Math.max(0, 1 - Math.abs(err) / 0.7);
+    o.v += (sp * go - o.v) * Math.min(1, 2.5 * dt);
+    const st = Math.min(d, o.v * dt);
+    o.x += (dx / d) * st;
+    o.z += (dz / d) * st;
+    o.m.position.set(o.x, 0.12 + (walk ? Math.abs(Math.sin(this_t(o))) * 0.05 : 0), o.z);
+    o.m.rotation.y = o.yaw;
+    return false;
+  },
+  repair(dt) {
+    const R = this.rp;
+    if (!R) return;
+    const { pl, man, cfg } = R,
+      path = cfg.path,
+      last = path.length - 1;
+    R.t += dt;
+    const near = !crashed && pos.y < 20 && Math.hypot(pos.x - pl.x, pos.z - pl.z) < 40; /* give way to the player */
+    if (R.ph === 0) {
+      /* taxi in to the hangar stand */
+      if (!near && this.mv(pl, path[R.k][0], path[R.k][1], dt, 5, 0.7)) {
+        if (R.k === last) (R.ph = 1), (R.t = 0), (pl.v = 0);
+        else R.k++;
+      }
+    } else if (R.ph === 1) {
+      /* the engine stops; after a moment the mechanic comes out of the hangar */
+      if (R.t > 2.5) {
+        man.x = cfg.door[0];
+        man.z = cfg.door[1];
+        man.yaw = 0;
+        man.m.visible = true;
+        R.ph = 2;
+      }
+    } else if (R.ph === 2) {
+      if (this.mv(man, cfg.spot[0], cfg.spot[1], dt, 1.4, 4, true)) (R.ph = 3), (R.t = 0), (man.yaw = cfg.face);
+    } else if (R.ph === 3) {
+      /* he looks the aircraft over */
+      man.m.rotation.y = man.yaw;
+      man.m.position.y = 0.12;
+      if (R.t > 8) R.ph = 4;
+    } else if (R.ph === 4) {
+      if (this.mv(man, cfg.door[0], cfg.door[1], dt, 1.4, 4, true)) {
+        man.m.visible = false;
+        R.ph = 5;
+        R.t = 0;
+        R.k = last - 1;
+      }
+    } else if (R.ph === 5) {
+      /* taxi out to the run-up spot */
+      if (R.t > 2 && !near && this.mv(pl, path[R.k][0], path[R.k][1], dt, 5, 0.7)) {
+        if (R.k === 0) (R.ph = 6), (R.t = 0), (pl.v = 0);
+        else R.k--;
+      }
+    } else if (R.ph === 6) {
+      /* a pause at the run-up spot (the engine test), then back in */
+      if (R.t > 7) {
+        R.ph = 0;
+        R.k = 1;
+      }
+    }
   },
   /* a ship on a straight run of open water, found by searching rings around the airfield (deterministic) */
   addShip(P, L, r0, r1, sp, seed) {
@@ -3218,39 +3444,7 @@ const AFLD = {
       const g = new GX.Acc();
       g.add(P, GX.xf(0, 0, 0, 0));
       const m = new THREE.Mesh(g.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
-      /* the wake: a long fading strip behind the stern */
-      const c = document.createElement('canvas');
-      c.width = 64;
-      c.height = 4;
-      const cx2 = c.getContext('2d'),
-        gr = cx2.createLinearGradient(0, 0, 64, 0);
-      gr.addColorStop(0, 'rgba(255,255,255,.75)');
-      gr.addColorStop(1, 'rgba(255,255,255,0)');
-      cx2.fillStyle = gr;
-      cx2.fillRect(0, 0, 64, 4);
-      const wl = L * 1.9,
-        wg = new THREE.BufferGeometry();
-      wg.setAttribute(
-        'position',
-        new THREE.Float32BufferAttribute(
-          [-L * 0.45, 0, -L * 0.07, -L * 0.45, 0, L * 0.07, -L * 0.45 - wl, 0, -L * 0.3, -L * 0.45 - wl, 0, L * 0.3],
-          3,
-        ),
-      );
-      wg.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 0, 1, 1], 2));
-      wg.setIndex([0, 2, 1, 1, 2, 3]);
-      const wk = new THREE.Mesh(
-        wg,
-        new THREE.MeshBasicMaterial({
-          map: new THREE.CanvasTexture(c),
-          transparent: true,
-          depthWrite: false,
-          side: THREE.DoubleSide,
-          opacity: 0.8,
-        }),
-      );
-      wk.position.y = -1.3;
-      wk.frustumCulled = false;
+      const wk = shipWakeMesh(L / 78, -1.3); /* the same painted wake as the patrol boat, scaled to the ship (one shared texture) */
       m.add(wk);
       m.position.set(pts[0][0], -6.4, pts[0][1]);
       scene.add(m);
@@ -3264,6 +3458,24 @@ const AFLD = {
       if (!o.init) {
         o.init = true;
         o.m.matrixAutoUpdate = true; /* the scenery's matrices were frozen when it was built */
+        if (o.hs) o.hs.matrixAutoUpdate = true;
+      }
+      if (o.ctl) continue; /* the repair routine drives these */
+      if (o.hs) {
+        /* fuelling: while the truck stands at an aircraft a hose lies from its side to the wing root */
+        const sp = o.pts[o.at],
+          on = o.w > 0 && Math.hypot(sp[0] - o.x, sp[1] - o.z) < 1.5;
+        o.hs.visible = on;
+        if (on) {
+          const ax = o.x + 1.3,
+            az = o.z + 0.6,
+            bx = o.opt.hose[0],
+            bz = sp[1] + o.opt.hose[1],
+            L = Math.hypot(bx - ax, bz - az);
+          o.hs.position.set((ax + bx) / 2, 0.8, (az + bz) / 2);
+          o.hs.scale.set(L, 1, 1);
+          o.hs.rotation.y = Math.atan2(-(bz - az), bx - ax);
+        }
       }
       const tg = o.pts[o.i],
         dx = tg[0] - o.x,
@@ -3274,12 +3486,13 @@ const AFLD = {
       /* give way to the player's aircraft, on the ground or just above it */
       if (o.kind !== 'ship' && !crashed && pos.y < 20 && Math.hypot(pos.x - o.x, pos.z - o.z) < (o.kind === 'plane' ? 40 : 26)) hold = true;
       if (d < (o.kind === 'ship' ? 60 : 0.6)) {
+        if (o.opt) o.at = o.i; /* arrived at this waypoint */
         o.i += o.dir;
         if (o.i < 0 || o.i >= o.pts.length) {
           o.dir = -o.dir;
           o.i += 2 * o.dir;
           o.w = o.wait * (0.6 + 0.8 * Math.random());
-        }
+        } else if (o.opt && o.opt.stops) o.w = o.opt.stops * (0.8 + 0.4 * Math.random());
         continue;
       }
       /* turn toward the next point, and only roll forward once roughly lined up */
@@ -3302,6 +3515,7 @@ const AFLD = {
       o.m.position.set(o.x, 0.12 + (o.kind === 'walk' ? Math.abs(Math.sin(this_t(o))) * 0.05 : 0), o.z);
       o.m.rotation.y = o.yaw;
     }
+    this.repair(dt);
   },
 };
 let _afT = 0;
@@ -3321,6 +3535,110 @@ function this_t(o) {
     BL.push([x - 1.2, z - 0.6, yaw, bl, bw]);
   };
   const wheel = (x, z, r, w) => part(cyl(r, r, w, 10), 0x151515, x, r, z, Z);
+  /* ---- smooth lifting surfaces: a lofted aerofoil section (rounded nose, thin tail) through any number of stations, so wings and
+     fins are tapered and rounded instead of boxes. Station = [z, xLeadingEdge, xTrailingEdge, yCentre, thickness]; z runs ascending. ---- */
+  const FR = [
+    [0, 0],
+    [0.04, 0.45],
+    [0.15, 0.8],
+    [0.35, 1],
+    [0.65, 0.75],
+    [0.9, 0.22],
+    [1, 0],
+    [0.9, -0.18],
+    [0.65, -0.55],
+    [0.35, -0.8],
+    [0.15, -0.7],
+    [0.04, -0.42],
+  ];
+  const foil = (st) => {
+    const n = FR.length,
+      pos = [],
+      idx = [];
+    for (const [z, xl, xt, y, t] of st) for (const [u, v] of FR) pos.push(xl + (xt - xl) * u, y + (v * t) / 2, z);
+    const V = (i, j) => i * n + (j % n);
+    const qd = [];
+    for (let i = 0; i < st.length - 1; i++) for (let j = 0; j < n; j++) qd.push([V(i, j), V(i + 1, j), V(i, j + 1), V(i + 1, j + 1)]);
+    /* work out which way round the triangles must go so the upper surface faces up */
+    const P = (k) => [pos[k * 3], pos[k * 3 + 1], pos[k * 3 + 2]],
+      a = P(V(0, 3)),
+      b = P(V(1, 3)),
+      c = P(V(0, 4)),
+      ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]),
+      fl = ny < 0;
+    for (const [p0, p1, p2, p3] of qd) {
+      if (fl) idx.push(p0, p2, p1, p1, p2, p3);
+      else idx.push(p0, p1, p2, p2, p1, p3);
+    }
+    /* the two ends: a fan around the section centre, copied vertices so the edge stays crisp */
+    for (const end of [0, st.length - 1]) {
+      const base = pos.length / 3,
+        [z, xl, xt, y] = st[end];
+      for (let j = 0; j < n; j++) pos.push(pos[V(end, j) * 3], pos[V(end, j) * 3 + 1], pos[V(end, j) * 3 + 2]);
+      pos.push((xl + xt) / 2, y, z);
+      const cc = base + n,
+        up = end ? 1 : -1; /* the outward direction along z */
+      for (let j = 0; j < n; j++) {
+        const p = base + j,
+          q = base + ((j + 1) % n),
+          // the sign of the z component of (q-p)x(cc-p) decides the winding
+          cz = (pos[q * 3] - pos[p * 3]) * (pos[cc * 3 + 1] - pos[p * 3 + 1]) - (pos[q * 3 + 1] - pos[p * 3 + 1]) * (pos[cc * 3] - pos[p * 3]);
+        if (cz * up > 0) idx.push(p, q, cc);
+        else idx.push(p, cc, q);
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  };
+  /* a wing from a chord table [[|z|, chord]...]: the quarter-chord line sits at x = qx(z); thickness is tk x chord; y rises with dihedral.
+     Returns a builder for the whole wing or for a slice of it (z0..z1, chord fraction f0..f1 from the nose) made a little fatter by infl. */
+  const mkWing = (tbl, qx, y0, dih, tk) => {
+    const cz = (z) => {
+      z = Math.abs(z);
+      for (let i = 0; i < tbl.length - 1; i++)
+        if (z <= tbl[i + 1][0]) return tbl[i][1] + ((tbl[i + 1][1] - tbl[i][1]) * (z - tbl[i][0])) / (tbl[i + 1][0] - tbl[i][0] || 1);
+      return tbl[tbl.length - 1][1];
+    };
+    const W = {
+      c: cz,
+      y: (z) => y0 + dih * Math.abs(z),
+      top: (z) => y0 + dih * Math.abs(z) + (tk * cz(z)) / 2,
+      build(z0, z1, f0, f1, infl) {
+        f0 = f0 || 0;
+        f1 = f1 == null ? 1 : f1;
+        infl = infl || 0;
+        const zs = new Set([z0, z1]);
+        for (const [z] of tbl) for (const s of [-1, 1]) if (s * z > z0 && s * z < z1) zs.add(s * z);
+        return foil(
+          [...zs]
+            .sort((p, q) => p - q)
+            .map((z) => {
+              const c = cz(z),
+                xq = qx(z);
+              return [z, xq + 0.25 * c - f0 * c + (f0 ? 0 : infl), xq + 0.25 * c - f1 * c - (f1 < 1 ? 0 : infl), W.y(z), tk * c + infl];
+            }),
+        );
+      },
+    };
+    return W;
+  };
+  /* a fin standing up from the fuselage (root buried inside it): quarter-chord at x = xq0 - sweep*h, chord c0 -> c1, height h;
+     f0..f1 is the part of the chord (a fin takes 0..0.62, a rudder 0.62..1). Built lying along z; stand it up with rx = -Z. */
+  const mkFin = (xq0, sweep, c0, c1, h, f0, f1, tfac) =>
+    foil(
+      [-0.2, 0.0, h * 0.5, h * 0.9, h].map((z) => {
+        const k = Math.max(0, z) / h,
+          c = c0 + (c1 - c0) * k,
+          xq = xq0 - sweep * Math.max(0, z);
+        return [z, xq + 0.25 * c - f0 * c, xq + 0.25 * c - f1 * c, 0, (tfac || 0.11) * c * (k > 0.9 ? 0.6 : 1)];
+      }),
+    );
+  const PW = mkWing([[0, 2.7], [1.0, 2.6], [2.4, 2.2], [3.6, 1.85], [4.7, 1.4], [5.15, 1.0], [5.4, 0.55]], (z) => 0.6 - 0.05 * Math.abs(z), Y - 0.45, 0.02, 0.15),
+    PT = mkWing([[0, 1.15], [1.0, 1.0], [1.6, 0.75], [1.9, 0.4], [1.97, 0.15]], () => -4.35, Y + 0.2, 0.012, 0.09),
+    KW = mkWing([[0, 2.6], [1.2, 2.5], [3.0, 2.05], [4.4, 1.5], [5.2, 1.05], [5.5, 0.65], [5.62, 0.3]], (z) => 0.2 - 0.03 * Math.abs(z), Y - 0.45, 0.022, 0.15);
   /* a parked P-51 style fighter, nose toward local +x */
   const fighter = (body, trim, o) => {
     o = o || {};
@@ -3331,17 +3649,15 @@ function this_t(o) {
     P.push(part(new THREE.ConeGeometry(0.32, 0.9, 12), o.spin || 0x1d1d1d, 5.05, Y, 0, 0, 0, -Z));
     P.push(part(bx(1.5, 0.5, 0.7), under, -0.2, Y - 0.85, 0));
     P.push(part(sph(), 0x27384a, -0.6, Y + 0.62, 0, 0, 0, 0, 1.15, 0.5, 0.45));
-    P.push(part(sph(), body, -1.9, Y + 0.5, 0, 0, 0, 0, 1.6, 0.34, 0.42));
-    P.push(part(bx(2.3, 0.2, 9.2), body, 0, Y - 0.45, 0));
+    P.push(part(PW.build(-5.4, 5.4), body, 0, 0, 0));
+    P.push(part(PT.build(-1.97, 1.97), body, 0, 0, 0));
     for (const s of [-1, 1]) {
-      P.push(part(bx(1.5, 0.16, 1.15), o.tip || body, 0.25, Y - 0.45, s * 5.15));
-      P.push(part(bx(1.15, 0.1, 1.9), body, -4.1, Y + 0.25, s * 1.9));
       P.push(part(bx(0.12, 0.95, 0.12), 0x6d7176, 0.3, 0.58, s * 1.35));
       P.push(wheel(0.3, s * 1.35, 0.4, 0.22));
       P.push(part(bx(0.14, 0.5, 0.7), under, 0.3, Y - 0.75, s * 1.35));
     }
-    P.push(part(bx(1.4, 1.7, 0.12), body, -4.0, Y + 1.0, 0, 0, 0, 0.25));
-    P.push(part(bx(0.5, 1.3, 0.13), trim, -4.55, Y + 0.95, 0, 0, 0, 0.25));
+    P.push(part(mkFin(-3.9, 0.35, 1.6, 0.75, 1.55, 0, 0.62), body, 0, Y + 0.1, 0, -Z)); /* fin, rooted in the fuselage */
+    P.push(part(mkFin(-3.9, 0.35, 1.6, 0.75, 1.55, 0.62, 1, 0.07), trim, 0, Y + 0.1, 0, -Z)); /* rudder */
     P.push(part(bx(0.08, 1.0, 0.08), 0x6d7176, -4.0, 0.7, 0));
     P.push(part(sph(), 0x151515, -4.0, 0.17, 0, 0, 0, 0, 0.17, 0.17, 0.17));
     const a = o.ang || 0;
@@ -3350,8 +3666,8 @@ function this_t(o) {
     if (o.stripes) {
       let k = 0;
       for (const z of [2.3, 2.75, 3.2, 3.65, 4.1]) {
-        P.push(part(bx(2.34, 0.21, 0.4), k++ % 2 ? 0x15151a : 0xf1f1ec, 0, Y - 0.45, z));
-        P.push(part(bx(2.34, 0.21, 0.4), k % 2 ? 0x15151a : 0xf1f1ec, 0, Y - 0.45, -z));
+        P.push(part(PW.build(z - 0.2, z + 0.2, 0, 1, 0.02), k++ % 2 ? 0x15151a : 0xf1f1ec, 0, 0, 0));
+        P.push(part(PW.build(-z - 0.2, -z + 0.2, 0, 1, 0.02), k % 2 ? 0x15151a : 0xf1f1ec, 0, 0, 0));
       }
       for (const [x, c] of [
         [-3.5, 0xf1f1ec],
@@ -3361,10 +3677,49 @@ function this_t(o) {
         P.push(part(cyl(0.43, 0.43, 0.3), c, x, Y, 0, 0, 0, -Z));
     } else
       for (const s of [-1, 1]) {
-        P.push(part(bx(0.9, 0.21, 0.9), 0x23346a, 0, Y - 0.45, s * 3.1));
+        P.push(part(cyl(0.42, 0.42, 0.04), 0x23346a, 0.05, PW.top(3.1) + 0.012, s * 3.1));
       }
     if (o.tanks)
       for (const s of [-1, 1]) P.push(part(cyl(0.3, 0.3, 2.4, 10), 0xa5aaaf, 0.4, Y - 0.88, s * 2.7, 0, 0, -Z));
+    return P;
+  };
+  /* a parked Nakajima Ki-84 Hayate: olive-green top, grey belly, red hinomaru, white tail band, orange wing-edge strips, nose toward +x */
+  const ki84 = (body, o) => {
+    o = o || {};
+    const P = [],
+      under = 0x9a9d90,
+      red = 0xb5141c,
+      steel = 0x2b2c27;
+    P.push(part(cyl(0.6, 0.28, 6.1), body, -0.65, Y, 0, 0, 0, -Z)); /* fuselage */
+    P.push(part(cyl(0.28, 0.1, 1.6), body, -4.45, Y + 0.05, 0, 0, 0, -Z)); /* tail cone */
+    P.push(part(bx(4.2, 0.2, 0.62), under, -0.8, Y - 0.5, 0)); /* grey belly */
+    P.push(part(cyl(0.7, 0.62, 1.25), steel, 3.0, Y, 0, 0, 0, -Z)); /* radial cowl */
+    P.push(part(cyl(0.725, 0.725, 0.14), 0x15150f, 2.85, Y, 0, 0, 0, -Z)); /* cooling-gill rings */
+    P.push(part(cyl(0.725, 0.725, 0.14), 0x15150f, 3.2, Y, 0, 0, 0, -Z));
+    P.push(part(new THREE.ConeGeometry(0.3, 0.75, 12), 0xdfe0da, 3.98, Y, 0, 0, 0, -Z)); /* white spinner */
+    for (const s of [-1, 1]) P.push(part(bx(0.7, 0.07, 0.07), steel, 2.0, Y - 0.1, s * 0.62)); /* exhaust stacks */
+    P.push(part(sph(), 0x27384a, -0.35, Y + 0.6, 0, 0, 0, 0, 1.25, 0.44, 0.4)); /* canopy */
+    for (const x of [-0.95, -0.35, 0.2]) P.push(part(bx(0.05, 0.5, 0.74), body, x, Y + 0.62, 0)); /* frame bars */
+    P.push(part(sph(), body, -2.5, Y + 0.45, 0, 0, 0, 0, 2.5, 0.3, 0.38)); /* long dorsal fairing */
+    P.push(part(KW.build(-5.62, 5.62), body, 0, 0, 0));
+    P.push(part(PT.build(-1.97, 1.97), body, 0.1, 0, 0)); /* tailplane */
+    for (const s of [-1, 1]) {
+      P.push(part(s > 0 ? KW.build(1.8, 4.8, 0, 0.17, 0.02) : KW.build(-4.8, -1.8, 0, 0.17, 0.02), 0xe39a2c, 0, 0, 0)); /* orange leading-edge strip */
+      P.push(part(cyl(0.56, 0.56, 0.04), red, -0.12, KW.top(3.9) + 0.012, s * 3.9)); /* hinomaru on the wing */
+      P.push(part(bx(0.12, 0.95, 0.12), 0x6d7176, 0.3, 0.58, s * 1.4));
+      P.push(wheel(0.3, s * 1.4, 0.4, 0.22));
+      P.push(part(bx(0.14, 0.5, 0.7), under, 0.3, Y - 0.75, s * 1.4));
+      P.push(part(cyl(0.34, 0.34, 0.05), red, -1.9, Y, s * 0.5, Z)); /* hinomaru on the fuselage */
+      P.push(part(bx(0.6, 0.18, 0.02), 0xdfe0da, -4.65, Y + 0.85, s * 0.07)); /* tail numerals, simplified */
+      P.push(part(bx(0.4, 0.18, 0.02), 0xdfe0da, -4.6, Y + 0.6, s * 0.07));
+    }
+    P.push(part(cyl(0.33, 0.33, 0.55), 0xdfe0da, -3.1, Y, 0, 0, 0, -Z)); /* white band ahead of the tail */
+    P.push(part(mkFin(-4.15, 0.45, 1.7, 0.8, 1.7, 0, 0.64), body, 0, Y + 0.05, 0, -Z)); /* fin, rooted in the fuselage */
+    P.push(part(mkFin(-4.15, 0.45, 1.7, 0.8, 1.7, 0.64, 1, 0.07), body, 0, Y + 0.05, 0, -Z)); /* rudder */
+    P.push(part(bx(0.08, 0.95, 0.08), 0x6d7176, -4.3, 0.88, 0)); /* tailwheel */
+    P.push(part(sph(), 0x151515, -4.3, 0.17, 0, 0, 0, 0, 0.17, 0.17, 0.17));
+    const a = o.ang || 0;
+    for (const k of [0, 1]) P.push(part(bx(0.07, 3.3, 0.22), 0x181818, 4.4, Y, 0, a + k * Z)); /* four blades */
     return P;
   };
   const fuelTruck = (c) => {
@@ -3452,9 +3807,17 @@ function this_t(o) {
     P.push(part(sph(), 0x3b4228, 0, 1.74, 0, 0, 0, 0, 0.16, 0.1, 0.16));
     return P;
   };
-  AFLD.add(fighter(0xb7bcc2, 0xb22a24, { stripes: 1, ang: 0.4 }), [[-140, 303], [-33, 303]], 5.5, 14, 'plane');
+  /* the fighter that taxis about is going to and from the hangar for repair tests: it stands at the first hangar, a mechanic walks out to look it over,
+     goes back in, and it taxis to the run-up spot at the east end of the taxiway and back */
+  AFLD.addRepair(fighter(0xb7bcc2, 0xb22a24, { stripes: 1, ang: 0.4 }), crew(0x6f7a8a), {
+    path: [[-40, 303], [-100, 303], [-100, 150], [-165, 150]],
+    door: [-176.5, 145.5],
+    spot: [-172.4, 150],
+    face: 0,
+  });
   AFLD.add(jeep(), [[-62, 150], [-62, 270]], 7, 6, 'veh');
-  AFLD.add(fuelTruck(0x56603f), [[-62, 335], [-62, 485]], 5, 8, 'veh');
+  /* the fuel bowser works down the line of fighters, just behind their tails, and stands at each one to fuel it */
+  AFLD.add(fuelTruck(0x56603f), [[-123, 336], [-123, 360], [-123, 384], [-123, 408], [-123, 432], [-123, 456]], 4, 9, 'veh', { stops: 9, hose: [-108.4, 1.8] });
   AFLD.add(crew(0x8b7d5a), [[-97, 338], [-97, 372]], 1.4, 5, 'walk');
   AFLD.add(crew(0x6f7a8a), [[-97, 398], [-97, 436]], 1.3, 8, 'walk');
   AFLD.add(crew(0xa89b84), [[-172, 160], [-172, 205]], 1.4, 6, 'walk');
@@ -3503,7 +3866,7 @@ function this_t(o) {
   AFLD.addShip(tanker(), 112, 2500, 6500, 5.5, 2);
   AFLD.addShip(patrol(), 32, 2000, 5000, 11, 3);
   AFLD.hullSteps = hullSteps;
-  AFLD.models = { freighter, tanker, patrol, fighter }; /* the port and the airbase reuse these models */
+  AFLD.models = { freighter, tanker, patrol, fighter, ki84 }; /* the port and the airbase reuse these models */
   /* soft contact shadows under everything parked */
   {
     const c = document.createElement('canvas');
@@ -3814,27 +4177,21 @@ function driftClouds(dt) {
   CSH.wt -= dt;
   if (CSH.wt <= 0) {
     CSH.wt = 2;
-    const H2 = 13000;
-    for (const s of CLOUDS) {
-      const wx = s.position.x + r.position.x,
-        wz = s.position.z + r.position.z;
-      let ch = false; /* wrap at the edge of the world: the shadow map repeats, so it still lines up */
-      if (wx > H2) {
-        s.position.x -= 26000;
-        ch = true;
-      } else if (wx < -H2) {
-        s.position.x += 26000;
-        ch = true;
-      }
-      if (wz > H2) {
-        s.position.z -= 26000;
-        ch = true;
-      } else if (wz < -H2) {
-        s.position.z += 26000;
-        ch = true;
-      }
+    const H2 = 13000,
+      px = cam.position.x,
+      pz = cam.position.z;
+    /* the field follows the aircraft: a cloud that falls more than half a tile away is moved a whole tile (26 km) across,
+       so there are clouds wherever you fly and the shadow map (which repeats every tile) still lines up */
+    const wrap = (s, ox, oz) => {
+      const wx = s.position.x + ox - px,
+        wz = s.position.z + oz - pz;
+      let ch = false;
+      if (Math.abs(wx) > H2) (s.position.x -= 26000 * Math.round(wx / 26000)), (ch = true);
+      if (Math.abs(wz) > H2) (s.position.z -= 26000 * Math.round(wz / 26000)), (ch = true);
       if (ch) s.updateMatrix();
-    }
+    };
+    for (const s of CLOUDS) wrap(s, r.position.x, r.position.z);
+    for (const s of CIRRUS) wrap(s, 0, 0);
   }
 }
 {
@@ -3898,6 +4255,7 @@ function driftClouds(dt) {
     s.position.set((Math.random() - 0.5) * 26000, 5500 + Math.random() * 1800, (Math.random() - 0.5) * 26000);
     s.scale.set(7000 + Math.random() * 4000, 1300, 1);
     scene.add(s);
+    CIRRUS.push(s);
   }
   CSH.tex = new THREE.CanvasTexture(csc);
   CSH.tex.wrapS = CSH.tex.wrapT = THREE.RepeatWrapping;
@@ -10166,6 +10524,103 @@ function updAA(dt) {
 }
 
 /* ---------- the port and the airbase (free flight): ground, buildings, ships, aircraft and cranes, all of them targets ---------- */
+/* ---------- the open sea and Kamome Field (the distant island airfield) ---------- */
+{
+  /* open sea out to 60 km under everything: the terrain mesh ends at 13 km and the world beyond is water */
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(120000, 120000).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: new THREE.Color(0.1, 0.24, 0.42) }));
+  sea.position.y = -8.4;
+  sea.frustumCulled = false;
+  sea.renderOrder = -3;
+  scene.add(sea);
+  const SEGI = 64,
+    SIZE = 6400,
+    ig = new THREE.PlaneGeometry(SIZE, SIZE, SEGI, SEGI);
+  ig.rotateX(-Math.PI / 2);
+  const ip = ig.attributes.position,
+    icol = new Float32Array(ip.count * 3),
+    c1 = new THREE.Color(),
+    c2 = new THREE.Color();
+  for (let i = 0; i < ip.count; i++) {
+    const x = ip.getX(i) + ISL.F.x,
+      z = ip.getZ(i) + ISL.F.z,
+      o = ISL.h(x, z),
+      h = o ? o.h : -40,
+      r = hash(x * 0.01, z * 0.01) * 0.08;
+    ip.setY(i, Math.max(h, -8));
+    if (h < -8) c1.setRGB(0.1, 0.24, 0.42).lerp(c2.setRGB(0.5, 0.68, 0.74), ss(-14, -8.05, h) * 0.8);
+    else if (h < 1.5) c1.setRGB(0.68 + r, 0.6 + r, 0.43);
+    else c1.setRGB(0.27 + r, 0.45 + r, 0.17).lerp(c2.setRGB(0.33, 0.5, 0.2), o && o.e < 0.5 ? 1 : 0);
+    icol[i * 3] = c1.r;
+    icol[i * 3 + 1] = c1.g;
+    icol[i * 3 + 2] = c1.b;
+  }
+  ig.setAttribute('color', new THREE.BufferAttribute(icol, 3));
+  ig.computeVertexNormals();
+  const isl = new THREE.Mesh(ig, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  isl.position.set(ISL.F.x, 0, ISL.F.z);
+  scene.add(isl);
+  /* the runway: one painted slab (edge lines, centre dashes, threshold bars and the numbers 07 / 25) */
+  const cv = document.createElement('canvas');
+  cv.width = 2048;
+  cv.height = 128;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#3a3c3f';
+  g.fillRect(0, 0, 2048, 128);
+  for (let i = 0; i < 1800; i++) {
+    const v = (48 + Math.random() * 26) | 0;
+    g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+    g.fillRect(Math.random() * 2048, Math.random() * 128, 3, 2);
+  }
+  g.fillStyle = '#e6e6dc';
+  g.fillRect(0, 5, 2048, 3);
+  g.fillRect(0, 120, 2048, 3);
+  for (let x = 120; x < 1930; x += 70) g.fillRect(x, 62, 38, 4);
+  for (const e of [0, 1])
+    for (let k = 0; k < 8; k++) g.fillRect(e ? 2048 - 78 : 20, 14 + k * 13, 56, 6);
+  g.font = 'bold 54px sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.save();
+  g.translate(190, 64);
+  g.rotate(Math.PI / 2);
+  g.fillText('07', 0, 0);
+  g.restore();
+  g.save();
+  g.translate(2048 - 190, 64);
+  g.rotate(-Math.PI / 2);
+  g.fillText('25', 0, 0);
+  g.restore();
+  const rt = new THREE.CanvasTexture(cv);
+  rt.anisotropy = 8;
+  const rw = new THREE.Mesh(new THREE.PlaneGeometry(ISL.len, ISL.wid).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: rt }));
+  rw.position.set(0, ISL.H0 + 0.15, 0);
+  /* buildings, taxiway and the radio beacon mast, all merged into one mesh */
+  const { part, bx, cyl } = GX,
+    P = [],
+    add = (x, y, z, w, h, d, hex) => P.push(part(bx(1, 1, 1), hex, x, y + h / 2, z, 0, 0, 0, w, h, d)),
+    Y0 = ISL.H0;
+  add(0, Y0 + 0.08, -42, 1220, 0.12, 14, 0x55575a); /* taxiway */
+  add(-30, Y0 + 0.08, -85, 190, 0.12, 60, 0x626468); /* apron */
+  add(-120, Y0, -105, 44, 14, 30, 0x6b7560); /* hangars */
+  add(-60, Y0, -112, 44, 14, 30, 0x6b7560);
+  add(10, Y0, -108, 12, 8, 12, 0xb8b4a4); /* control tower */
+  add(10, Y0 + 8, -108, 15, 3, 15, 0x20303c);
+  add(10, Y0 + 11, -108, 17, 0.8, 17, 0x8a8a84);
+  for (let k = 0; k < 3; k++) P.push(part(cyl(5, 5, 7, 14), 0xc9c9c0, 70 + k * 14, Y0 + 3.5, -125));
+  P.push(part(cyl(0.4, 0.6, 34, 8), 0x8a2a20, 140, Y0 + 17, 100)); /* the KMM beacon mast */
+  add(140, Y0, 108, 6, 3.2, 5, 0x8a8a84);
+  const acc = new GX.Acc();
+  acc.add(P, GX.xf(0, 0, 0, 0));
+  const bm = new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
+  const grp = new THREE.Group();
+  grp.add(rw, bm);
+  grp.position.set(ISL.F.x, 0, ISL.F.z);
+  grp.rotation.y = Math.atan2(-ISL.uz, ISL.ux);
+  grp.updateMatrix();
+  scene.add(grp);
+  ISL.bx = ISL.w(140, 100)[0]; /* the beacon */
+  ISL.bz = ISL.w(140, 100)[1];
+}
 const SITES = [],
   SITE_OBJ = [];
 {
@@ -10530,69 +10985,8 @@ const SITES = [],
       AA.gun.push(g);
       guns.push(g);
     }
-    /* the wake: ONE flat quad with a painted texture (bow spray along the hull, a churned white trail, and two foam lines spreading back at the classic Kelvin angle) */
     {
-      const W = 512,
-        Hh = 256,
-        XB = 42,
-        XL = 250,
-        ZH = 32,
-        c = document.createElement('canvas');
-      c.width = W;
-      c.height = Hh;
-      const g2 = c.getContext('2d'),
-        px = (x) => ((XB - x) / XL) * W,
-        pz = (z) => (1 - (z + ZH) / (2 * ZH)) * Hh,
-        blob = (x, z, r, a) => {
-          const gx = px(x),
-            gz = pz(z),
-            rr = (r / XL) * W,
-            gr = g2.createRadialGradient(gx, gz, 0, gx, gz, rr);
-          gr.addColorStop(0, 'rgba(255,255,255,' + a + ')');
-          gr.addColorStop(1, 'rgba(255,255,255,0)');
-          g2.fillStyle = gr;
-          g2.fillRect(gx - rr, gz - rr, rr * 2, rr * 2);
-        };
-      /* churned water astern: wide at the stern, thinning and fading with distance */
-      for (let n = 0; n < 900; n++) {
-        const x = -34 - Math.pow(Math.random(), 1.7) * 200,
-          k = (-34 - x) / 200,
-          z = (Math.random() - 0.5) * (7 + 16 * k) * (1 - 0.4 * k);
-        blob(x, z, 1.2 + Math.random() * 2.2, 0.5 * (1 - k) * (1 - k) + 0.04);
-      }
-      /* the two foam lines of the wake, at about 11 degrees either side of the track */
-      for (const sg of [1, -1])
-        for (let n = 0; n < 420; n++) {
-          const k = Math.pow(Math.random(), 1.2),
-            x = -30 - k * 200,
-            z = sg * (4.2 + (-30 - x) * 0.19) + (Math.random() - 0.5) * (1 + 2 * k);
-          if (Math.abs(z) < ZH - 1) blob(x, z, 0.9 + Math.random() * 1.4 + k, 0.55 * (1 - k) + 0.05);
-        }
-      /* spray along each side of the hull from the bow, fading aft */
-      for (const sg of [1, -1])
-        for (let n = 0; n < 260; n++) {
-          const k = Math.random(),
-            x = 38 - k * 52,
-            z = sg * (0.5 + 4.3 * Math.min(1, (38 - x) / 10) + Math.random() * (0.8 + 2.5 * k));
-          blob(x, z, 0.8 + Math.random() * 1.2, 0.55 * (1 - k * k));
-        }
-      /* a short, low bow wave rolling off each side */
-      for (const sg of [1, -1])
-        for (let n = 0; n < 150; n++) {
-          const k = Math.random(),
-            x = 30 - k * 60,
-            z = sg * (4.6 + k * 11) + (Math.random() - 0.5) * 1.2;
-          blob(x, z, 0.8 + Math.random(), 0.3 * (1 - k));
-        }
-      const tex = new THREE.CanvasTexture(c);
-      tex.anisotropy = 4;
-      const wg = new THREE.BufferGeometry();
-      wg.setAttribute('position', new THREE.Float32BufferAttribute([XB, 0, -ZH, XB, 0, ZH, XB - XL, 0, -ZH, XB - XL, 0, ZH], 3));
-      wg.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 0, 1, 1], 2));
-      wg.setIndex([0, 2, 1, 1, 2, 3]);
-      const wk = new THREE.Mesh(wg, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: 2, opacity: 0.9 }));
-      wk.position.y = 1.6 - e.s1 / 2 + 1.65;
-      wk.frustumCulled = false;
+      const wk = shipWakeMesh(1, 1.6 - e.s1 / 2 + 1.65);
       e.m.add(wk);
     }
     const tmp = new V();
@@ -10680,7 +11074,7 @@ const SITES = [],
   for (let i = 0; i < 9; i++) {
     const u = -250 + i * 62,
       o = { ang: rnd(), stripes: 0 };
-    target(M.fighter(bodies[i % 4], i % 3 ? 0x9a9a8a : 0xb22a24, o), 'plane', 14, 7, u, DR - 100, SITE.ryS + (rnd() - 0.5) * 0.25);
+    target(M.ki84(bodies[i % 4], o), 'plane', 14, 7, u, DR - 100, SITE.ryS + (rnd() - 0.5) * 0.25);
   }
   /* the base yard behind the apron: bare gravel ground for the hangars, offices and stores (as at the other two bases) */
   const yc = document.createElement('canvas');
@@ -11101,6 +11495,7 @@ const TRN_NAMES = {
   wingover: 'WINGOVER TRAINER',
   lowyoyo: 'LOW YO-YO TRAINER',
   highyoyo: 'HIGH YO-YO TRAINER',
+  adf: 'ADF NAVIGATION TRAINER',
 };
 function placeAt(x, y, z, tx, tz, spd) {
   const dx = tx - x,
@@ -11173,6 +11568,7 @@ function trainerReset() {
     const tg = ROADC.getTangentAt(0);
     placeAt(DEPOT[0] - tg.x * 4500, 350, DEPOT[1] - tg.z * 4500, DEPOT[0], DEPOT[1], 110); /* far enough back to line up on the convoy without breaking off */
   } else if (m === 'bomb') placeAt(BASE[0] - 2200, 700, BASE[1] + 1800, BASE[0], BASE[1], 120);
+  else if (m === 'adf') placeAt(0, 2500, 200, 10000, 200, 125); /* high over the home field, pointed the wrong way (east) */
   else if (AERO[m]) aeroStart(m);
   coachHide();
 }
@@ -11227,7 +11623,7 @@ function updTrainer(dt) {
     pitch = Math.asin(Math.max(-1, Math.min(1, fwd.y))) * 57.3,
     R = Math.round,
     flapDeg = ANG[flapLvl];
-  if (!AERO[m] && !crashed && !trn.done && !trn.recEnd) rpRecGen(dt, false);
+  if (!AERO[m] && m !== 'adf' && !crashed && !trn.done && !trn.recEnd) rpRecGen(dt, false);
   if (crashed) {
     if (!AERO[m] && trn.rec && !trn.recEnd) {
       trn.recEnd = true;
@@ -11258,6 +11654,71 @@ function updTrainer(dt) {
 }
 /* one object per mission; each method gets the shared per-frame context built in updTrainer */
 const TRAINERS = {
+  /* ADF navigation: home on the beacon of a distant island airfield and land there */
+  adf(c) {
+    const { T0, R, kmh, gnd, agl } = c,
+      b = adfInfo(BEACONS[0]),
+      onR = ISL.onRwy(pos.x, pos.z, 10),
+      side = b.rel > 0 ? 'right' : 'left';
+    if (trn.step === 0 && Math.abs(b.rel) < 8) {
+      trn.hold = (trn.hold || 0) + c.dt;
+      if (trn.hold > 3) trn.step = 1;
+    } else if (trn.step === 0) trn.hold = 0;
+    if (trn.step === 1 && b.dist < 10000) trn.step = 2;
+    if (trn.step <= 2 && b.dist < 500) trn.step = 3;
+    if (trn.step === 3 && gnd && onR) trn.step = 4;
+    if (trn.step === 4 && gnd && kmh < 6) {
+      trn.done = true;
+      trn.sum =
+        'Landed at Kamome Field in ' +
+        fmtT(trn.t) +
+        ', found by radio compass alone. The needle took you straight to a small island in open sea: that is how crews found tiny airfields in the Pacific.';
+      note('ADF NAVIGATION COMPLETE');
+      return;
+    }
+    const rl = Math.abs(R(b.rel)) + ' deg ' + side,
+      dk = (b.dist / 1000).toFixed(1);
+    if (trn.step === 0) {
+      trn.title = 'Step 1/5: Point at the beacon';
+      T0(
+        'The ADF needle (right of the screen) always points at the KMM radio beacon on Kamome Field, 43 km away. The top of the dial is your nose.\nTurn until the needle sits straight up: then the nose points at the beacon. Needle on the right: turn right.',
+        Math.abs(b.rel) < 8 ? 'Needle is up. Hold it there for 3 seconds.' : 'Needle ' + rl + ' of the nose: turn ' + side + '.',
+        Math.abs(b.rel) < 8 ? 'ok' : 'warn',
+      );
+    } else if (trn.step === 1) {
+      trn.title = 'Step 2/5: Home on the needle';
+      const dr = Math.abs(b.rel) > 12;
+      T0(
+        'Hold the heading with the needle up. A crosswind pushes you sideways, so the needle drifts off the top: turn a few degrees toward it to put it back. Do not chase it with big turns.\n' +
+          dk +
+          ' km to go, about ' +
+          fmtT(b.dist / Math.max(20, Math.hypot(vel.x, vel.z))) +
+          ' flying time.',
+        dr ? 'Needle ' + rl + ': turn ' + side + ' a few degrees.' : 'On the line. Distance ' + dk + ' km.',
+        dr ? 'warn' : 'ok',
+      );
+    } else if (trn.step === 2) {
+      trn.title = 'Step 3/5: Let down and look';
+      const lo = pos.y < 900;
+      T0(
+        'About 10 km out. Keep the needle up, ease the throttle back and descend to 600 m. The island is low and flat: you will see its runway and the radio mast from a few kilometres. Fly over the mast.\n' +
+          dk +
+          ' km to the beacon.',
+        lo ? 'Height ' + R(pos.y) + ' m. Keep the needle up.' : 'Height ' + R(pos.y) + ' m: descend towards 600 m.',
+        lo ? 'ok' : 'warn',
+      );
+    } else if (trn.step === 3) {
+      trn.title = 'Step 4/5: Over the station, then land';
+      T0(
+        'You are over the beacon: the needle swings round to point behind you (station passage). Now join the circuit: the runway runs 070 / 250 degrees (07 and 25). Lower the gear (G) and flaps, about 170 km/h on final, and land on the runway.\nThe runway numbers are painted at each end.',
+        gearOn ? 'Gear down. Speed ' + R(kmh) + ' km/h. Height ' + R(agl) + ' m.' : 'Gear UP: press G before landing.',
+        gearOn ? 'ok' : 'warn',
+      );
+    } else {
+      trn.title = 'Step 5/5: Stop on the runway';
+      T0('Down on Kamome Field. Brake to a stop on the runway (B or the brake button).', 'Speed ' + R(kmh) + ' km/h.', 'ok');
+    }
+  },
   takeoff(c) {
     const { dt, name, kmh, agl, gnd, footer, pitch, R, flapDeg, T0 } = c;
     if (!gnd && !trn.lifted) {
@@ -14761,6 +15222,7 @@ const MENU = [
   ['splits', 'Split S', 'Roll inverted and pull through a half loop down. Needs height.'],
   ['wingover', 'Wingover', 'Climbing turn over the top and a diving turn back: reverse course at the same height.'],
   ['lowyoyo', 'Low Yo-Yo', 'Dive below a turning target to gain speed, then zoom up onto his tail.'],
+  ['adf', 'ADF Navigation: Kamome Field', 'Fly 43 km out over the sea with the ADF radio compass, find the island airfield by its radio beacon and land there. Fuel is topped up.'],
   ['highyoyo', 'High Yo-Yo', 'Pull up out of a turn plane to bleed a speed excess, then drop onto his tail.'],
 ];
 let menuOpen = false,
@@ -14843,6 +15305,107 @@ let mmZ = 1,
 $$('mm').onclick = () => {
   mmZ = (mmZ + 1) % MMR.length;
 };
+/* ---------- ADF radio compass: the needle points at a radio beacon, relative to the nose ---------- */
+const BEACONS = [
+  { id: 'KMM', name: 'KAMOME FIELD', x: ISL.bx, z: ISL.bz },
+  { id: 'HOM', name: 'HOME FIELD', x: 70, z: 380 },
+];
+let adfSel = 0,
+  adfT = 0;
+function adfInfo(bc) {
+  const dx = bc.x - pos.x,
+    dz = bc.z - pos.z,
+    hdg = (Math.atan2(fwd.x, -fwd.z) * 180) / Math.PI,
+    brg = (Math.atan2(dx, -dz) * 180) / Math.PI;
+  let rel = brg - hdg;
+  rel = ((((rel + 180) % 360) + 360) % 360) - 180;
+  return { dist: Math.hypot(dx, dz), brg: (brg + 360) % 360, hdg: (hdg + 360) % 360, rel };
+}
+$$('adf').onclick = () => {
+  if (trn.mode === 'free') adfSel = (adfSel + 1) % BEACONS.length;
+};
+function drawADF() {
+  const now = performance.now();
+  if (now - adfT < 66) return;
+  adfT = now;
+  const el = $$('adf');
+  if (!started || UI.hid.adf || (trn.mode !== 'free' && trn.mode !== 'adf')) {
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'block';
+  const bc = BEACONS[trn.mode === 'adf' ? 0 : adfSel],
+    b = adfInfo(bc),
+    c = $$('adfc'),
+    g = c.getContext('2d'),
+    cx = 85,
+    cy = 85,
+    r = 76;
+  g.clearRect(0, 0, 170, 214);
+  /* the compass card turns with the heading; the needle shows the beacon relative to the nose */
+  g.save();
+  g.translate(cx, cy);
+  g.fillStyle = '#10161c';
+  g.beginPath();
+  g.arc(0, 0, r, 0, 7);
+  g.fill();
+  g.strokeStyle = '#9aa';
+  g.lineWidth = 2;
+  g.stroke();
+  g.save();
+  g.rotate((-b.hdg * Math.PI) / 180);
+  g.fillStyle = '#ddd';
+  g.strokeStyle = '#ccd';
+  g.font = 'bold 13px sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  for (let d = 0; d < 360; d += 10) {
+    const a = (d * Math.PI) / 180,
+      l = d % 30 === 0 ? 10 : 5;
+    g.lineWidth = d % 90 === 0 ? 2 : 1;
+    g.beginPath();
+    g.moveTo(Math.sin(a) * (r - 2), -Math.cos(a) * (r - 2));
+    g.lineTo(Math.sin(a) * (r - 2 - l), -Math.cos(a) * (r - 2 - l));
+    g.stroke();
+    if (d % 90 === 0) g.fillText(['N', 'E', 'S', 'W'][d / 90], Math.sin(a) * (r - 20), -Math.cos(a) * (r - 20));
+    else if (d % 30 === 0) g.fillText(String(d / 10), Math.sin(a) * (r - 20), -Math.cos(a) * (r - 20));
+  }
+  g.restore();
+  /* the needle: the red head points at the station */
+  g.save();
+  g.rotate((b.rel * Math.PI) / 180);
+  g.fillStyle = '#ff5a3c';
+  g.beginPath();
+  g.moveTo(0, -r + 14);
+  g.lineTo(7, 0);
+  g.lineTo(-7, 0);
+  g.closePath();
+  g.fill();
+  g.fillStyle = '#c8c8c8';
+  g.beginPath();
+  g.moveTo(0, r - 30);
+  g.lineTo(5, 0);
+  g.lineTo(-5, 0);
+  g.closePath();
+  g.fill();
+  g.restore();
+  g.fillStyle = '#fff';
+  g.beginPath();
+  g.moveTo(0, -r - 1);
+  g.lineTo(5, -r + 9);
+  g.lineTo(-5, -r + 9);
+  g.closePath();
+  g.fill(); /* the nose mark */
+  g.restore();
+  g.fillStyle = '#e8e8e0';
+  g.font = 'bold 14px sans-serif';
+  g.textAlign = 'center';
+  const sp = Math.max(20, Math.hypot(vel.x, vel.z)),
+    eta = b.dist / sp;
+  g.fillText('ADF  ' + bc.id, 85, 184);
+  g.font = '12px sans-serif';
+  g.fillText(String(Math.round(b.brg)).padStart(3, '0') + '°  ' + (b.dist / 1000).toFixed(1) + ' km  ' + fmtT(eta), 85, 201);
+}
 function drawMinimap() {
   const now = performance.now();
   if (now - mmT < 100) return;
@@ -15773,6 +16336,7 @@ const UI = {
     { id: 'cmp', label: 'Compass strip', sel: '#cmp', g: 'Instruments' },
     { id: 'mm', label: 'Minimap (O)', sel: '#mm', g: 'Instruments' },
     { id: 'hz', label: 'Artificial horizon', sel: '#hz', g: 'Instruments' },
+    { id: 'adf', label: 'ADF radio compass (free flight and the ADF trainer; click it to change station)', sel: '#adf', g: 'Instruments' },
     { id: 'ils', label: 'ILS needles (landing trainer; L in free flight)', sel: '#ils', g: 'Instruments' },
     { id: 'coach', label: 'Mission coach panel', sel: '#coach', g: 'Instruments' },
     { id: 'tq', label: 'Throttle and flaps gauge', sel: '#tq', g: 'Instruments', sc: 'desk' },
@@ -16136,7 +16700,7 @@ function swipeAway(id) {
     true,
   );
 }
-['hud', 'cmp', 'mm', 'hz', 'coach', 'help'].forEach(swipeAway);
+['hud', 'cmp', 'mm', 'hz', 'adf', 'coach', 'help'].forEach(swipeAway);
 refreshHelp();
 /* ---- nose art options ---- */
 const NAO = (() => {
@@ -17377,7 +17941,7 @@ function groundContact(dt, v) {
       return false;
     }
     const sink = -vel.y,
-      off = Math.abs(pos.x) > 45 || pos.z > RW.zS + 20 || pos.z < RW.zN - 20;
+      off = (Math.abs(pos.x) > 45 || pos.z > RW.zS + 20 || pos.z < RW.zN - 20) && !ISL.onRwy(pos.x, pos.z, 8);
     if (sink > 7 || up.y < 0.7 || (off && v > 20) || (!gearOn && v > 15)) {
       crash(sink > 7 ? 'HARD LANDING' : off ? 'OFF THE RUNWAY' : 'GEAR UP');
       return false;
@@ -19301,6 +19865,7 @@ function frame(now) {
   updDamage(dt);
   updHUD();
   drawMinimap();
+  drawADF();
   audioUpd();
   R.render(scene, cam);
   if (PHOTO.shot) photoCapture();

@@ -710,6 +710,12 @@ with sync_playwright() as p:
           rd[0] < 30 and rd[1] < 110 and rd[2] < 110 and rd[3] < 30 and rd[4] and rd[5] and rd[6] < 0.2 and rd[7] and rd[8] and rd[9] == 0, str(rd))
     fz = pg.evaluate("""()=>{ let m=1e9; for(const L of [RP,RP2,RP3]) for(const p of L){ const dx=p.x-SITE.O.x, dz=p.z-SITE.O.z, u=dx*SITE.A.x+dz*SITE.A.z, d=dx*SITE.S.x+dz*SITE.S.z; const e=Math.hypot(Math.max(0,Math.abs(u)-650,0), Math.max(0,-1060-d,d+670)); if(Math.abs(u)<650&&d>-1060&&d<-670) return -1; m=Math.min(m,Math.hypot(Math.max(0,Math.abs(u)-650),Math.max(0,-1060-d,d+670))) } return m }""")
     check("enemy roads keep outside the airbase fence (none across the runway)", fz is not None and fz > 20, str(fz))
+    isl = pg.evaluate("""()=>{ const [x,z]=ISL.w(0,0), [x2,z2]=ISL.w(600,0); const lvl=Math.max(Math.abs(HR(x,z)-ISL.H0),Math.abs(HR(x2,z2)-ISL.H0));
+      const sea=HR(20000,0)<-8 && HR(0,-25000)<-8; const d=Math.hypot(x,z-300);
+      const i=MENU.findIndex(m=>m[0]==='adf'); menuPick(i); const [sx,sz]=[pos.x,pos.z]; placeAt(0,2500,200,BEACONS[0].x,BEACONS[0].z,125); axes(); updTrainer(0.05); const b=adfInfo(BEACONS[0]);
+      return [lvl, sea, d, trn.mode, Math.abs(b.rel)<1, b.dist>40000 && b.dist<46000, ISL.onRwy(x,z,0)] }""")
+    check("Kamome Field: level runway, open sea beyond the mapped land, 43 km out, the ADF needle points at the beacon, the ADF mission starts", isl[0] < 0.01 and isl[1] and 40000 < isl[2] < 46000 and isl[3] == "adf" and isl[4] and isl[5] and isl[6], str(isl))
+    pg.evaluate("()=>{PP.off=true;const i=MENU.findIndex(m=>m[0]==='free');menuPick(i)}")
     sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
     check("port and airbase: their guns only exist in free flight", sg is not None and sg[0] >= 4 and sg[1] and sg[2], str(sg))
     cvs = pg.evaluate("""()=>{PP.off=true;const i=MENU.findIndex(x=>x[0]==='convoy');menuPick(i);return Math.hypot(pos.x-DEPOT[0],pos.z-DEPOT[1])}""")
