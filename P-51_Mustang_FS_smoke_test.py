@@ -475,7 +475,7 @@ with sync_playwright() as p:
     check("photo mode: right-drag moves along the ground (height unchanged), middle-drag moves up and down only", pm[0] > 0.1 and abs(pm[1]) < 1e-6 and pm[2] < 1e-6 and abs(pm[3]) > 0.1 and abs(pm[4]) < 1e-6, str(pm))
     check("photo mode: right-drag moves the camera (no turn), left-drag turns it (no move)", pr[0] > 0.1 and abs(pr[1]) < 1e-6 and abs(pr[2]) > 0.01 and abs(pr[3]) < 1e-6, str(pr))
     wd = pg.evaluate("""()=>{const p=PHOTO.pos.clone(),f=PHOTO.fov;cv.dispatchEvent(new WheelEvent('wheel',{deltaY:-200,cancelable:true}));const d=PHOTO.pos.distanceTo(p),f1=PHOTO.fov;cv.dispatchEvent(new WheelEvent('wheel',{deltaY:-200,ctrlKey:true,cancelable:true}));return [d,f1-f,PHOTO.fov-f1]}""")
-    check("photo mode: the wheel moves the camera in and out, Ctrl + wheel changes the FOV", wd[0] > 0.1 and abs(wd[1]) < 1e-6 and abs(wd[2]) > 0.5, str(wd))
+    check("photo mode: the wheel moves the camera in and out; the lens zoom is gone (wheel and Ctrl + wheel leave the FOV alone)", wd[0] > 0.1 and abs(wd[1]) < 1e-6 and abs(wd[2]) < 1e-6, str(wd))
     pg.evaluate("()=>{$$('phWx').value='storm';$$('phWx').onchange({target:$$('phWx')});photoSpot('side');PHOTO.hud=true;PHOTO.stamp=true;PHOTO.res=0;photoSync();PHOTO.last=null;PHOTO.shot=true}")
     pg.wait_for_function("()=>!!PHOTO.last", timeout=60000)
     check("photo mode: a JPG with the HUD and info stamp is made", pg.evaluate("()=>PHOTO.last.type==='image/jpeg'&&PHOTO.last.bytes>8000&&/^P51_v.*\\.jpg$/.test(PHOTO.last.name)"))

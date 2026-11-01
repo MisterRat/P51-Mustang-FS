@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.15';
+const VERSION = '4.16';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -10530,33 +10530,70 @@ const SITES = [],
       AA.gun.push(g);
       guns.push(g);
     }
-    /* wake astern and a bow wave */
+    /* the wake: ONE flat quad with a painted texture (bow spray along the hull, a churned white trail, and two foam lines spreading back at the classic Kelvin angle) */
     {
-      const c = document.createElement('canvas');
-      c.width = 64;
-      c.height = 4;
-      const cx2 = c.getContext('2d'),
-        gr = cx2.createLinearGradient(0, 0, 64, 0);
-      gr.addColorStop(0, 'rgba(255,255,255,.8)');
-      gr.addColorStop(1, 'rgba(255,255,255,0)');
-      cx2.fillStyle = gr;
-      cx2.fillRect(0, 0, 64, 4);
-      const wl = 150,
-        wg = new THREE.BufferGeometry();
-      wg.setAttribute('position', new THREE.Float32BufferAttribute([-36, 0, -3.2, -36, 0, 3.2, -36 - wl, 0, -16, -36 - wl, 0, 16], 3));
+      const W = 512,
+        Hh = 256,
+        XB = 42,
+        XL = 250,
+        ZH = 32,
+        c = document.createElement('canvas');
+      c.width = W;
+      c.height = Hh;
+      const g2 = c.getContext('2d'),
+        px = (x) => ((XB - x) / XL) * W,
+        pz = (z) => (1 - (z + ZH) / (2 * ZH)) * Hh,
+        blob = (x, z, r, a) => {
+          const gx = px(x),
+            gz = pz(z),
+            rr = (r / XL) * W,
+            gr = g2.createRadialGradient(gx, gz, 0, gx, gz, rr);
+          gr.addColorStop(0, 'rgba(255,255,255,' + a + ')');
+          gr.addColorStop(1, 'rgba(255,255,255,0)');
+          g2.fillStyle = gr;
+          g2.fillRect(gx - rr, gz - rr, rr * 2, rr * 2);
+        };
+      /* churned water astern: wide at the stern, thinning and fading with distance */
+      for (let n = 0; n < 900; n++) {
+        const x = -34 - Math.pow(Math.random(), 1.7) * 200,
+          k = (-34 - x) / 200,
+          z = (Math.random() - 0.5) * (7 + 16 * k) * (1 - 0.4 * k);
+        blob(x, z, 1.2 + Math.random() * 2.2, 0.5 * (1 - k) * (1 - k) + 0.04);
+      }
+      /* the two foam lines of the wake, at about 11 degrees either side of the track */
+      for (const sg of [1, -1])
+        for (let n = 0; n < 420; n++) {
+          const k = Math.pow(Math.random(), 1.2),
+            x = -30 - k * 200,
+            z = sg * (4.2 + (-30 - x) * 0.19) + (Math.random() - 0.5) * (1 + 2 * k);
+          if (Math.abs(z) < ZH - 1) blob(x, z, 0.9 + Math.random() * 1.4 + k, 0.55 * (1 - k) + 0.05);
+        }
+      /* spray along each side of the hull from the bow, fading aft */
+      for (const sg of [1, -1])
+        for (let n = 0; n < 260; n++) {
+          const k = Math.random(),
+            x = 38 - k * 52,
+            z = sg * (0.5 + 4.3 * Math.min(1, (38 - x) / 10) + Math.random() * (0.8 + 2.5 * k));
+          blob(x, z, 0.8 + Math.random() * 1.2, 0.55 * (1 - k * k));
+        }
+      /* a short, low bow wave rolling off each side */
+      for (const sg of [1, -1])
+        for (let n = 0; n < 150; n++) {
+          const k = Math.random(),
+            x = 30 - k * 60,
+            z = sg * (4.6 + k * 11) + (Math.random() - 0.5) * 1.2;
+          blob(x, z, 0.8 + Math.random(), 0.3 * (1 - k));
+        }
+      const tex = new THREE.CanvasTexture(c);
+      tex.anisotropy = 4;
+      const wg = new THREE.BufferGeometry();
+      wg.setAttribute('position', new THREE.Float32BufferAttribute([XB, 0, -ZH, XB, 0, ZH, XB - XL, 0, -ZH, XB - XL, 0, ZH], 3));
       wg.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 0, 1, 1], 2));
       wg.setIndex([0, 2, 1, 1, 2, 3]);
-      const wk = new THREE.Mesh(wg, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, side: 2, opacity: 0.55 }));
+      const wk = new THREE.Mesh(wg, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: 2, opacity: 0.9 }));
       wk.position.y = 1.6 - e.s1 / 2 + 1.65;
       wk.frustumCulled = false;
       e.m.add(wk);
-      const bw = new THREE.BufferGeometry();
-      bw.setAttribute('position', new THREE.Float32BufferAttribute([37, 0, 0, 24, 0, 5.4, 24, 0, 3.6, 37, 0, 0, 24, 0, -3.6, 24, 0, -5.4], 3));
-      bw.setIndex([0, 1, 2, 3, 4, 5]);
-      const bwm = new THREE.Mesh(bw, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false, side: 2 }));
-      bwm.position.y = wk.position.y + 0.05;
-      bwm.frustumCulled = false;
-      e.m.add(bwm);
     }
     const tmp = new V();
     e.m.matrixAutoUpdate = true;
