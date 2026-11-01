@@ -486,30 +486,14 @@ with sync_playwright() as p:
     pg.wait_for_timeout(300)
     check("photo mode: leaving restores the game, the weather and the camera", pg.evaluate("()=>!PHOTO.on&&WX.wx==='partly'&&!document.body.classList.contains('phHide')&&plane.visible&&pmOpen"))
     pg.evaluate("()=>{pauseMenu(false);reset()}")
-    # ---- ILS
-    pg.evaluate("()=>{FM.on=false;menuPick(2)}"); pg.wait_for_timeout(1200)
-    onslope = "(x,z,dy)=>{pos.set(x,2.15+(z-400)*0.0524+dy,z);vel.set(0,-3,-58);q.setFromAxisAngle(UPV,0)}"
-    pg.evaluate(f"()=>({onslope})(0,4000,0)"); pg.wait_for_timeout(700)
-    check("ils: on the centreline and slope both needles are centred", pg.evaluate("()=>ILS.show&&ILS.locOK&&ILS.gsOK&&Math.abs(ILS.locD)<0.1&&Math.abs(ILS.gsD)<0.15"))
-    check("ils: the landing trainer draws no glowing path (just the ring)", pg.evaluate("()=>gSpr.every(s=>!s.visible)&&gRing.every(s=>!s.visible)"))
-    pg.evaluate(f"()=>({onslope})(100,4000,0)"); pg.wait_for_timeout(500)
-    std = pg.evaluate("()=>ILS.locD")
-    check("ils: right of the centreline the localizer needle is left of centre", std < -0.3)
-    pg.evaluate(f"()=>({onslope})(0,4000,60)"); pg.wait_for_timeout(500)
-    check("ils: above the slope the glide slope needle is below the centre", pg.evaluate("()=>ILS.gsD>0.5"))
-    pg.evaluate(f"()=>({onslope})(1500,4000,0)"); pg.wait_for_timeout(500)
-    check("ils: far off the line the beam is out of range (flags)", pg.evaluate("()=>!ILS.gsOK"))
-    pg.evaluate("()=>{FM.on=true;FM.opt.ils=true}")
-    pg.evaluate(f"()=>({onslope})(100,4000,0)"); pg.wait_for_timeout(500)
-    check("ils: Hardcore realism makes the needles twice as sensitive", pg.evaluate("()=>ILS.hc")==True and pg.evaluate("()=>ILS.locD")<std*1.6)
-    pg.evaluate(f"()=>({onslope})(0,600+7400,0)"); pg.wait_for_timeout(500)
-    check("ils: the outer marker lights in Hardcore", pg.evaluate("()=>ILS.om"))
-    pg.evaluate("()=>{FM.on=false}")
-    pg.evaluate("()=>{menuPick(0);ILS.free=true}"); pg.wait_for_timeout(800)
-    pg.evaluate("()=>{pos.set(0,250,-1700-4000);vel.set(0,-3,58);q.setFromAxisAngle(UPV,Math.PI)}"); pg.wait_for_timeout(600)
-    check("ils: free flight north of the runway uses the 18 end", pg.evaluate("()=>ILS.show&&ILS.end===1&&ILS.locOK"))
+    # ---- ILS is gone; the ADF radio compass is off by default in free flight and L switches it on
+    pg.evaluate("()=>{FM.on=false;menuPick(0)}"); pg.wait_for_timeout(800)
+    check("ils removed: no ILS object or panel remains", pg.evaluate("()=>typeof ILS==='undefined'&&!document.getElementById('ils')"))
+    check("adf: the radio compass is off by default in free flight", pg.evaluate("()=>{UI.hid.adf=1;drawADF.t=0;adfT=0;drawADF();return $$('adf').style.display==='none'}"))
+    check("adf: the L key switches it on", pg.evaluate("()=>{UIACT.guide();adfT=0;drawADF();return $$('adf').style.display==='block'&&UI.vis('adf')}"))
+    pg.evaluate("()=>{UIACT.guide();reset()}")
     # ---- Hardcore weather effects: wind, turbulence, wet runway, icing
-    pg.evaluate("()=>{ILS.free=false;reset();FM.on=true;Object.keys(FM.opt).forEach(k=>FM.opt[k]=false);window.__wx0=WX.wx;window.__run=(t)=>{for(let i=0;i<t*120;i++){if(crashed)break;step(1/120)}}}")
+    pg.evaluate("()=>{reset();FM.on=true;Object.keys(FM.opt).forEach(k=>FM.opt[k]=false);window.__wx0=WX.wx;window.__run=(t)=>{for(let i=0;i<t*120;i++){if(crashed)break;step(1/120)}}}")
     wo = pg.evaluate("""()=>{
       const o={};
       const air=(wind,from,spd)=>{reset();crashed=false;FM.opt.wind=wind;WX.setWind(from,spd,0);pos.set(0,1500,0);vel.set(0,0,-100);q.identity();thr=0.6;step(1/120);return [FM.ias,vel.length()]};
@@ -555,11 +539,9 @@ with sync_playwright() as p:
     pg.evaluate("()=>{WX.setWd('90');WX.setWs('strong')}")
     ws = pg.evaluate("()=>({f:WX.wnd.from,saved:JSON.parse(localStorage.getItem('p51wx')),sel:[$$('wxWd').value,$$('wxWs').value]})")
     check("wind: the direction and strength settings pick the wind and are saved", ws["f"] == 90 and ws["saved"]["wd"] == "90" and ws["saved"]["ws"] == "strong" and ws["sel"][0] != "x", str(ws))
-    pg.evaluate("()=>{menuPick(0);ILS.free=true;FM.opt.wind=true;FM.opt.ils=true;WX.setWd('auto');WX.setWs('normal');WX.setWind(0,10,0)}"); pg.wait_for_timeout(800)
+    pg.evaluate("()=>{menuPick(0);FM.opt.wind=true;WX.setWd('auto');WX.setWs('normal');WX.setWind(0,10,0)}"); pg.wait_for_timeout(800)
     pg.evaluate("()=>{WX.setWind(0,10,0);pos.set(0,250,-1700-4000);vel.set(0,-3,58);q.setFromAxisAngle(UPV,Math.PI)}"); pg.wait_for_timeout(700)
-    check("wind: the ILS picks the runway end facing into the wind (north wind: runway 36)", pg.evaluate("()=>ILS.show&&ILS.end===0"))
-    pg.evaluate("()=>{ILS.free=false;FM.on=false;Object.keys(FM.opt).forEach(k=>FM.opt[k]=true);WX.setWx(window.__wx0);reset()}")
-    pg.evaluate("()=>{ILS.free=false;reset()}")
+    pg.evaluate("()=>{FM.on=false;Object.keys(FM.opt).forEach(k=>FM.opt[k]=true);WX.setWx(window.__wx0);reset()}")
     tr = pg.evaluate("""()=>{
       const o={};
       FM.on=true;FM.opt.trim=true;reset();crashed=false;

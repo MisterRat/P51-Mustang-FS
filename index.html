@@ -83,11 +83,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #coachH.ok{color:#9be89b;background:rgba(40,110,40,.35)}#coachH.warn{color:#ffd37a;background:rgba(130,95,10,.35)}#coachH.bad{color:#ff9988;background:rgba(140,30,20,.4)}
 #mm{right:12px;top:calc(12px + env(safe-area-inset-top,0px));padding:6px;display:none;cursor:pointer}
 #mm canvas{display:block;border-radius:50%}
-#ils{right:164px;top:calc(208px + env(safe-area-inset-top,0px));padding:4px}
-#ils canvas{display:block}
-body.mob #ils{right:calc(var(--mm) + 100px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));padding:2px}
-body.mob #ils canvas{width:84px;height:84px}
 #hz{right:12px;top:calc(208px + env(safe-area-inset-top,0px));padding:6px}
+body.hide-adf #adf.mis{display:block!important}
 #adf{right:104px;top:calc(370px + env(safe-area-inset-top,0px));padding:6px;display:none;cursor:pointer}
 #adf canvas{display:block}
 body.mob #adf{right:calc(8px + env(safe-area-inset-right,0px));top:calc(var(--mm) + 22px + 84px + env(safe-area-inset-top,0px));padding:3px}
@@ -262,7 +259,6 @@ body.mob.editing #tc{display:block}
 <div class="p" id="mm"><canvas id="mmc" width="176" height="176"></canvas></div>
 <div class="p" id="hz"><canvas id="ah" width="120" height="120"></canvas></div>
 <div class="p" id="adf" title="ADF radio compass: click to change station"><canvas id="adfc" width="170" height="214"></canvas></div>
-<div class="p" id="ils" style="display:none"><canvas id="ilsc" width="150" height="150"></canvas></div>
 <div class="p" id="help"><div class="hk" id="hkBody"></div>
 <div class="ht"><b style="color:var(--acc)">CONTROLS &ndash; PHONE</b> (swipe to hide)<br>
 <b>Tilt</b> (hold sideways): turn like a steering wheel = roll &middot; top edge toward you = climb &middot; twist = rudder<br>
@@ -405,7 +401,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Without tilt</td><td>Drag on the right half of the screen as a virtual stick (drag down to pull up). Pinch zooms the camera in or out: it always stays directly behind the plane and never rotates. Double-tap resets the zoom. The camera button switches to the cockpit view.</td></tr>
 <tr><td>Graphics</td><td>Pause menu &gt; Graphics: Auto, Low, Medium or High (N cycles them). Auto picks Low or High and adjusts the resolution to keep the frame rate smooth. Low draws fewer, simpler trees and fewer clouds and no shadow; Medium is in between; High draws everything at full resolution, with detailed branching trees (several kinds of oak and conifer, with textured leaves and needles) around you; to see them, fly to the wooded hill about 4.6 km north-west of the start (heading 323). Close to your own aircraft (Medium and High) it also shows engraved panel lines, rivets, gun barrels, a pitot tube, fuel caps and wheel detail. Near the ground (Medium and High) blade tufts and wild flowers grow around you, fading out about 130 m away. Auto shrinks the zone of detailed trees and grass first, then the resolution, if the frame rate drops. The choice is saved.</td></tr>
 <tr><td>Install / offline</td><td>When the game is served from a web address (for example GitHub Pages) the browser can install it as an app (Add to Home Screen or Install) and it then runs full screen and offline.</td></tr>
-<tr><td>Hardcore mode</td><td>Pause menu &gt; Hardcore: a master switch and a switch for each real-aircraft detail (torque, spins, altitude, engine temperature, fuel, war emergency power, real-aircraft performance, load limits, trim, real flap and gear speeds, engine power limits, ILS realism, wind, turbulence, wet runway, icing). Off by default.</td></tr>
+<tr><td>Hardcore mode</td><td>Pause menu &gt; Hardcore: a master switch and a switch for each real-aircraft detail (torque, spins, altitude, engine temperature, fuel, war emergency power, real-aircraft performance, load limits, trim, real flap and gear speeds, engine power limits, wind, turbulence, wet runway, icing). Off by default.</td></tr>
 <tr><td>Layout</td><td>Swipe any instrument box off the screen to hide it. The pause menu has a checkbox for everything you can show or hide, and Move boxes lets you drag the boxes and buttons where you want them. Your choices are remembered, separately for landscape and portrait.</td></tr>
 <tr><td>Tips</td><td>iPhone and iPad ask permission for motion sensors the first time. If the page is shown inside another page the browser may block the sensors: open it in its own tab. Use Add to Home Screen for a full-screen app.</td></tr>
 </table>
@@ -424,14 +420,13 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <label><input type="checkbox" data-hc="wep"> <b>War emergency power.</b> The top 10% of the throttle is war emergency power (1,720 hp instead of 1,490 hp). Full throttle gives the same performance as before, 90% becomes the normal maximum, and running above 90% heats the engine if engine temperature is on.</label>
 <label><input type="checkbox" data-hc="perf"> <b>Real-aircraft performance.</b> Adds the extra drag the real P-51D has, so the top speed near sea level is about 610 km/h instead of about 685, the cruise speed, the climb rate and the glide ratio match the published figures, and lift acts square to the airflow, and the bandits fly with the same drag. Turn it off if you prefer the faster arcade speeds.</label>
 <label><input type="checkbox" data-hc="gload"> <b>Structural load limits.</b> With this on, the elevator keeps its full strength at high speed, so a hard pull can really overstress the airframe (in standard mode the plane simply stops at about 7 G). The airframe is rated +8 G / &minus;4 G at its design weight, less when heavy (full ordnance and fuel) and less above 400 mph indicated. The plane no longer stops you at 7 G: pull harder and the airframe is overstressed and stays damaged (it weakens the wing until you land and stop for repairs), and well beyond the limit the wing fails and you crash. The HUD shows the current limit next to your G.</label>
-<label><input type="checkbox" data-hc="wind"> <b>Weather: wind and gusts.</b> The weather brings a wind (calm in clear weather, up to 70 km/h in a thunderstorm) with gusts. The aircraft flies through the air, not over the ground: a headwind shortens the take-off and landing run and slows your ground speed, a tailwind does the opposite, and a crosswind pushes you sideways (crab into it in the air, and on the ground the tail wheel weathercocks into it, so you need rudder). The windsock by the tower shows it, the HUD shows wind direction, speed, and the head or tail and cross components, the clouds drift with it, and the ILS picks the runway end facing into the wind. Set the direction and strength in Settings, Time of day &amp; weather.</label>
+<label><input type="checkbox" data-hc="wind"> <b>Weather: wind and gusts.</b> The weather brings a wind (calm in clear weather, up to 70 km/h in a thunderstorm) with gusts. The aircraft flies through the air, not over the ground: a headwind shortens the take-off and landing run and slows your ground speed, a tailwind does the opposite, and a crosswind pushes you sideways (crab into it in the air, and on the ground the tail wheel weathercocks into it, so you need rudder). The windsock by the tower shows it, the HUD shows wind direction, speed, and the head or tail and cross components, the clouds drift with it. Set the direction and strength in Settings, Time of day &amp; weather.</label>
 <label><input type="checkbox" data-hc="turb"> <b>Weather: turbulence.</b> Rain, overcast and especially thunderstorms bump and roll the aircraft with updrafts and downdrafts, and a strong wind makes the air rough close to the ground. Ease the controls and slow down for rough air.</label>
 <label><input type="checkbox" data-hc="wet"> <b>Weather: wet runway.</b> After rain starts the runway and the grass are wet (and dry out slowly afterwards). The brakes grip about half as well, the steering is weaker, the tyres squeal less, and above about 160 km/h in heavy rain the aircraft hydroplanes: the brakes and steering hardly work. Land at the start of the runway and brake early.</label>
 <label><input type="checkbox" data-hc="ice"> <b>Weather: icing.</b> Cold, wet cloud below freezing coats the wing with ice. The air gets colder with height and with bad weather (the HUD shows the outside temperature and the ice build-up). Ice cuts the lift, adds drag and costs thrust, so the stall speed rises and the aircraft will not climb; leave the cloud or descend to warmer air to melt it. The cockpit also frosts over. Servicing on the ground clears it.</label>
 <label><input type="checkbox" data-hc="ops"> <b>Real flap settings and gear speed.</b> The flaps have the six real settings (10, 20, 30, 40 and 50 degrees) with the manual's speed limits: 10&deg; 644 km/h, 20&deg; 443, 30&deg; 362, 40&deg; 290, 50&deg; 265. They retract by themselves if you go faster. The landing gear will not come down above 170 mph (273 km/h), and the landing trainer follows the same limit.</label>
 <label><input type="checkbox" data-hc="pwr"> <b>Engine power limits.</b> War emergency power (the top 10% of the throttle) is allowed for 5 minutes: you get a warning at 4:30, and after 5:00 the engine overheats and loses most of its power until it cools. The engine may not turn faster than 3240 rpm: full throttle in a fast dive, above about 800 km/h, damages it the same way after 3 seconds.</label>
 <label><input type="checkbox" data-hc="trim"> <b>Trim tabs.</b> The elevator, rudder and aileron trim tabs work, as on the real aircraft (up to 10&deg; each way). The elevator trim sets the speed the aircraft flies hands-off: faster than that and the nose rises, slower and it drops, so re-trim after a change of speed, flaps or power. The rudder trim cancels the engine torque that pulls the nose left at full power, and the aileron trim removes a steady roll. Everything is trimmed for you at the start of a flight in the air and set for take-off on the runway. Keyboard and controller only (not on phones). With this off the aircraft trims itself.</label>
-<label><input type="checkbox" data-hc="ils"> <b>ILS realism.</b> The needles use the real sensitivity: the localizer needle is full scale at 2.5 degrees and the glide slope needle at only 0.7 degrees, twice as touchy as the standard ILS, so you must make small, steady corrections. The beam is a narrower cone in front of the runway. The outer marker (blue, about 7.4 km out) and the middle marker (amber, about 1 km out) light up on the display and sound their tones, and &ldquo;LOCALIZER CAPTURED&rdquo; and &ldquo;GLIDESLOPE CAPTURED&rdquo; are called when each needle settles on the centre.</label>
 </div>
 <h2>What it models</h2>
 <table class="t2">
@@ -487,7 +482,6 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <table class="t2">
 <tr><td>STALL</td><td>The wing is stalled. Release the stick, lower the nose, add power. The STALL readout on the left panel shakes within a few km/h of the stall.</td></tr>
 <tr><td>PULL UP</td><td>Low and descending fast.</td></tr>
-<tr><td>ILS</td><td>The landing trainer teaches the instrument landing system. The ILS panel (beside the artificial horizon) is a cross-pointer: the <b>vertical needle</b> is the localizer (left / right of the runway centreline) and the <b>horizontal needle</b> is the glide slope (your height against a 3&deg; slope that meets the runway 200 m past the threshold). Each needle points toward where the beam is, so fly <b>toward</b> the needle: needle right = turn right, needle below the centre = descend. Red LOC / GS flags mean no beam yet. The beam reaches about 25 km out and 40&deg; either side of the runway, for both ends (36 and 18; in free flight the nearer end is used, switched on with L). The distance (DME) to the threshold is shown at the top. Standard needles are full scale at 5&deg; and 1.4&deg;. In the landing trainer the green ring leads you around the circuit and then sits on the centreline and the slope. Catch the slope from below. <b>Hardcore &gt; ILS realism</b> uses the real sensitivity (2.5&deg; and 0.7&deg;), a narrower cone, the outer and middle marker beacons with lamps and tones, and capture call-outs.</td></tr>
 <tr><td>Photo mode</td><td>Pause menu &gt; <b>Photo mode</b>, or F9. The game freezes and you get a free camera: W A S D move, Q / E down and up, Z / C roll, left-drag looks around, right-drag moves the camera along the ground (sideways and forward / back), middle-drag moves it up and down, the wheel moves it in and out in small steps (it never runs out), and holding the backtick key (`) makes the drags and the wheel move six times as far. The panel sets the field of view, the time of day and the weather (these revert when you leave), the picture size (up to 4K), the JPG quality, and whether the HUD boxes and your aircraft are shown. &ldquo;Stamp info&rdquo; prints the version, date, mode, position, speed, game time and weather on the photo, which helps when reporting a problem. Enter or Space takes the photo and your browser saves the JPG. H switches the HUD, F hides the panel, Esc leaves. &ldquo;Action: running&rdquo; lets the flight continue while you move the camera.</td></tr>
 <tr><td>Time &amp; weather</td><td>Settings &gt; Time of day &amp; weather. <b>Time</b>: your local clock, dawn, morning, midday, afternoon, evening or night; tick &ldquo;Time passes&rdquo; to run a day in 24 minutes. <b>Weather</b>: clear, partly cloudy, overcast, rain, thunderstorm or fog. Overcast, rain, storm and fog cut how far you can see and dim the sun. Overcast, rain and thunderstorm have a <b>solid cloud deck</b> (about 1,700 m, 1,300 m and 1,000 m up, 450 to 900 m thick, with a few gaps in overcast): you see its grey underside from below, you fly through white-out inside it (the view shrinks to about 100 m, and icing can build), and you climb out onto a bright white top with clear sky, full sun and no rain above it. Searchlight beams and gun crews cannot see through it. At night you get a moon, stars, runway lights, lit building windows, the hangars and the tower, and wingtip and tail lights (red left, green right, white tail). Rain streaks past the canopy; a thunderstorm adds lightning and thunder. Fly the runway lights in, and watch your altitude. <b>Night:</b> the instrument panel dims, and with the landing gear down the landing light puts a pool of light on the ground ahead of the nose.</td></tr>
 <tr><td>DAMAGE</td><td>Enemy hits hurt one system at a time (Settings &gt; Battle damage). <b>Engine</b>: less power, smoke, then fire or a dead engine. <b>Wing</b>: the plane rolls toward the damaged side and the aileron weakens (lost when badly hit). <b>Tail</b>: weaker elevator and rudder. <b>Fuel tank</b>: a leak. <b>Hydraulics</b>: flaps jam and the gear will not retract. A fire burns the hull: dive fast for about 3 seconds to put it out. Land and stop with the throttle at idle to repair everything. If it is hopeless, bail out (J twice, or hold both bumpers, or Pause menu &gt; Bail out): the canopy blows off, you climb out of the seat, fall clear and the parachute opens. <b>Drag the mouse</b> (or use the right stick) to look all around, down at the ground and up at the canopy. You need about 100 m of height when you climb out for the parachute to open in time; Enter restarts at any time. The aircraft is lost.</td></tr>
@@ -497,7 +491,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>ENGINE OVERHEAT <small>(Hardcore)</small></td><td>Too long above 90% throttle. Reduce power until the temperature falls. The oil and coolant gauges and the HUD TEMP readout show it.</td></tr>
 <tr><td>LOW FUEL / OUT OF FUEL <small>(Hardcore)</small></td><td>Land soon. With no fuel the engine stops: glide to a landing. Landing and stopping at idle refuels you.</td></tr>
 <tr><td>ICING <small>(Hardcore)</small></td><td>Ice is building on the wing in cloud below freezing. Leave the cloud or descend to warmer air (the HUD shows the outside temperature and the ice). It cuts lift and thrust and adds drag; the cockpit frosts over.</td></tr>
-<tr><td>WIND, GUSTS, TURBULENCE <small>(Hardcore)</small></td><td>The HUD WIND line shows where the wind blows from, its speed, and the head or tail and the left or right cross component for the way you are pointing. Crab into a crosswind in the air; on the ground use rudder against the tail wheel's weathercock. The windsock by the tower shows the surface wind. The ILS picks the runway end into the wind. In rough air ease the controls and slow down.</td></tr>
+<tr><td>WIND, GUSTS, TURBULENCE <small>(Hardcore)</small></td><td>The HUD WIND line shows where the wind blows from, its speed, and the head or tail and the left or right cross component for the way you are pointing. Crab into a crosswind in the air; on the ground use rudder against the tail wheel's weathercock. The windsock by the tower shows the surface wind. In rough air ease the controls and slow down.</td></tr>
 <tr><td>WET RUNWAY <small>(Hardcore)</small></td><td>After rain the brakes are weaker and the steering is weak; above about 160 km/h in heavy rain the aircraft hydroplanes and the brakes hardly work. Touch down early and brake gently.</td></tr>
 <tr><td>REDLINE &ndash; COMPRESSIBILITY</td><td>Over about 755 km/h: buffet and stick jitter. Ease off.</td></tr>
 <tr><td>G LIMIT</td><td>Pulling more than about 6.5 G. Above about 4.5 G sustained the screen greys out and you black out.</td></tr>
@@ -591,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '4.18';
+const VERSION = '4.19';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -644,7 +638,6 @@ const HC_KEYS = [
   'wep',
   'perf',
   'gload',
-  'ils',
   'wind',
   'turb',
   'wet',
@@ -664,7 +657,6 @@ const FM = {
     wep: true,
     perf: true,
     gload: true,
-    ils: true,
     wind: true,
     turb: true,
     wet: true,
@@ -1440,7 +1432,8 @@ const ISL = (() => {
         e = Math.hypot(u / 2700, v / 1350);
       if (e > 1.6) return null;
       const hills = e > 0.55 ? 7 * fbm(x * 0.6, z * 0.6) * ss(0.55, 0.8, e) * (1 - ss(0.9, 1.1, e)) : 0;
-      return { h: H0 + hills + (-8 - H0 - 12) * ss(0.55, 1.1, e) - 30 * ss(1.1, 1.5, e), e };
+      /* flat to a short beach, then a steep drop to the sea floor (-40 m: the same depth the main map's edge shows, so the sea is seamless) */
+      return { h: H0 + hills - 22 * ss(0.78, 0.93, e) - 32 * ss(0.93, 1.12, e), e };
     },
     onRwy(x, z, m) {
       const [u, v] = loc(x, z);
@@ -3315,9 +3308,10 @@ const AFLD = {
     const a = new GX.Acc();
     a.add(P, GX.xf(0, 0, 0, 0));
     const m = new THREE.Mesh(a.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
-    m.position.set(pts[0][0], 0.12, pts[0][1]);
+    const y0 = (opt && opt.y) || 0.12; /* height of the ground it stands on (the island airfield is higher) */
+    m.position.set(pts[0][0], y0, pts[0][1]);
     scene.add(m);
-    const o = { m, pts, sp, wait, kind, i: 1, dir: 1, w: wait * Math.random(), v: 0, yaw: 0, x: pts[0][0], z: pts[0][1], init: false, opt, at: 0 };
+    const o = { y0, m, pts, sp, wait, kind, i: 1, dir: 1, w: wait * Math.random(), v: 0, yaw: 0, x: pts[0][0], z: pts[0][1], init: false, opt, at: 0 };
     if (opt && opt.hose) {
       o.hs = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 0.1), new THREE.MeshLambertMaterial({ color: 0x1b1b1a }));
       o.hs.visible = false;
@@ -3485,6 +3479,10 @@ const AFLD = {
       if (hold) o.w -= dt;
       /* give way to the player's aircraft, on the ground or just above it */
       if (o.kind !== 'ship' && !crashed && pos.y < 20 && Math.hypot(pos.x - o.x, pos.z - o.z) < (o.kind === 'plane' ? 40 : 26)) hold = true;
+      if (d < (o.kind === 'ship' ? 60 : 0.6) && o.opt && o.opt.loop) {
+        o.i = (o.i + 1) % o.pts.length; /* a patrol: round and round */
+        continue;
+      }
       if (d < (o.kind === 'ship' ? 60 : 0.6)) {
         if (o.opt) o.at = o.i; /* arrived at this waypoint */
         o.i += o.dir;
@@ -3512,7 +3510,7 @@ const AFLD = {
         o.m.rotation.set(Math.sin(o.ph * 0.7) * 0.012, o.yaw, Math.sin(o.ph * 0.6) * 0.01, 'YXZ');
         continue;
       }
-      o.m.position.set(o.x, 0.12 + (o.kind === 'walk' ? Math.abs(Math.sin(this_t(o))) * 0.05 : 0), o.z);
+      o.m.position.set(o.x, o.y0 + (o.kind === 'walk' ? Math.abs(Math.sin(this_t(o))) * 0.05 : 0), o.z);
       o.m.rotation.y = o.yaw;
     }
     this.repair(dt);
@@ -3815,7 +3813,8 @@ function this_t(o) {
     spot: [-172.4, 150],
     face: 0,
   });
-  AFLD.add(jeep(), [[-62, 150], [-62, 270]], 7, 6, 'veh');
+  /* the jeep is a perimeter patrol: it drives right round the paved area, outside its edge, and keeps going */
+  AFLD.add(jeep(), [[-54, 120], [-54, 490], [-64, 502], [-220, 502], [-230, 490], [-230, 124], [-220, 112], [-64, 112]], 7, 0, 'veh', { loop: true });
   /* the fuel bowser works down the line of fighters, just behind their tails, and stands at each one to fuel it */
   AFLD.add(fuelTruck(0x56603f), [[-123, 336], [-123, 360], [-123, 384], [-123, 408], [-123, 432], [-123, 456]], 4, 9, 'veh', { stops: 9, hose: [-108.4, 1.8] });
   AFLD.add(crew(0x8b7d5a), [[-97, 338], [-97, 372]], 1.4, 5, 'walk');
@@ -3866,7 +3865,7 @@ function this_t(o) {
   AFLD.addShip(tanker(), 112, 2500, 6500, 5.5, 2);
   AFLD.addShip(patrol(), 32, 2000, 5000, 11, 3);
   AFLD.hullSteps = hullSteps;
-  AFLD.models = { freighter, tanker, patrol, fighter, ki84 }; /* the port and the airbase reuse these models */
+  AFLD.models = { freighter, tanker, patrol, fighter, ki84, fuelTruck, cargoTruck, jeep, tug, crew, drums }; /* the port and the airbase reuse these models */
   /* soft contact shadows under everything parked */
   {
     const c = document.createElement('canvas');
@@ -10223,6 +10222,13 @@ AA.load();
   /* the player's airfield: a 3.7-inch gun behind the hangars and a searchlight beside the line-up, both on our side, for show only */
   fgun(-168, 100, 0.8);
   lamp(0, 0, -218, 372, 0.3, true);
+  /* Kamome Field: a 3.7-inch gun at the east end of the apron and a searchlight at the west */
+  {
+    const [gx, gz] = ISL.w(175, -75),
+      [lx, lz] = ISL.w(-215, -80);
+    fgun(gx, gz, 1.2);
+    lamp(lx, lz, 0, 0, 0.3, true);
+  }
 }
 const _aaF = new V(),
   _aaR = new V(),
@@ -10527,12 +10533,12 @@ function updAA(dt) {
 /* ---------- the open sea and Kamome Field (the distant island airfield) ---------- */
 {
   /* open sea out to 60 km under everything: the terrain mesh ends at 13 km and the world beyond is water */
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(120000, 120000).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: new THREE.Color(0.1, 0.24, 0.42) }));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(120000, 120000).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: new THREE.Color(0.113, 0.226, 0.378) /* the colour the shore shader paints at -40 m, so the sea is seamless */ }));
   sea.position.y = -8.4;
   sea.frustumCulled = false;
   sea.renderOrder = -3;
   scene.add(sea);
-  const SEGI = 64,
+  const SEGI = 256 /* 25 m cells */,
     SIZE = 6400,
     ig = new THREE.PlaneGeometry(SIZE, SIZE, SEGI, SEGI);
   ig.rotateX(-Math.PI / 2);
@@ -10547,16 +10553,47 @@ function updAA(dt) {
       h = o ? o.h : -40,
       r = hash(x * 0.01, z * 0.01) * 0.08;
     ip.setY(i, Math.max(h, -8));
-    if (h < -8) c1.setRGB(0.1, 0.24, 0.42).lerp(c2.setRGB(0.5, 0.68, 0.74), ss(-14, -8.05, h) * 0.8);
-    else if (h < 1.5) c1.setRGB(0.68 + r, 0.6 + r, 0.43);
-    else c1.setRGB(0.27 + r, 0.45 + r, 0.17).lerp(c2.setRGB(0.33, 0.5, 0.2), o && o.e < 0.5 ? 1 : 0);
+    /* the vertices carry only the grass: sand, shallows and deep water are painted per pixel from a height map (as on the main map) */
+    c1.setRGB(0.27 + r, 0.45 + r, 0.17).lerp(c2.setRGB(0.33, 0.5, 0.2), o && o.e < 0.5 ? 1 : 0);
     icol[i * 3] = c1.r;
     icol[i * 3 + 1] = c1.g;
     icol[i * 3 + 2] = c1.b;
   }
   ig.setAttribute('color', new THREE.BufferAttribute(icol, 3));
   ig.computeVertexNormals();
-  const isl = new THREE.Mesh(ig, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  {
+    /* the shore stays flat-lit (a vertex on the shore ramp facing away from the sun made a dark outline) */
+    const nn = ig.attributes.normal;
+    for (let i = 0; i < ip.count; i++) if (ip.getY(i) < 1) nn.setXYZ(i, 0, 1, 0);
+  }
+  /* island height map, 6.25 m texels: the fragment shader works the shore colours out from it, exactly as on the main map (SHORE_PAINT) */
+  const IT = 1024,
+    idat = new Uint8Array(IT * IT);
+  for (let j = 0; j < IT; j++)
+    for (let i = 0; i < IT; i++) {
+      const o = ISL.h(ISL.F.x + ((i + 0.5) / IT - 0.5) * SIZE, ISL.F.z + ((j + 0.5) / IT - 0.5) * SIZE),
+        h = o ? o.h : -40;
+      idat[j * IT + i] = Math.round(255 * Math.max(0, Math.min(1, (h + 64) / 100)));
+    }
+  const itex = new THREE.DataTexture(idat, IT, IT, THREE.LuminanceFormat, THREE.UnsignedByteType);
+  itex.magFilter = itex.minFilter = THREE.LinearFilter;
+  itex.wrapS = itex.wrapT = THREE.ClampToEdgeWrapping;
+  itex.generateMipmaps = false;
+  itex.needsUpdate = true;
+  const imat = new THREE.MeshLambertMaterial({ vertexColors: true });
+  imat.onBeforeCompile = (sh) => {
+    sh.uniforms.isTex = { value: itex };
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWP;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP=(modelMatrix*vec4(transformed,1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWP;uniform sampler2D isTex;\n' + TERR_NOISE)
+      .replace(
+        '#include <color_fragment>',
+        '#include <color_fragment>\nfloat shH=texture2D(isTex,(vWP.xz-vec2(' + ISL.F.x.toFixed(1) + ',' + ISL.F.z.toFixed(1) + '))/' + SIZE.toFixed(1) + '+0.5).r*100.0-64.0;float shM=1.0-smoothstep(-8.8,-6.2,shH);\n' + SHORE_PAINT,
+      );
+  };
+  const isl = new THREE.Mesh(ig, imat);
   isl.position.set(ISL.F.x, 0, ISL.F.z);
   scene.add(isl);
   /* the runway: one painted slab (edge lines, centre dashes, threshold bars and the numbers 07 / 25) */
@@ -10599,16 +10636,55 @@ function updAA(dt) {
     P = [],
     add = (x, y, z, w, h, d, hex) => P.push(part(bx(1, 1, 1), hex, x, y + h / 2, z, 0, 0, 0, w, h, d)),
     Y0 = ISL.H0;
-  add(0, Y0 + 0.08, -42, 1220, 0.12, 14, 0x55575a); /* taxiway */
-  add(-30, Y0 + 0.08, -85, 190, 0.12, 60, 0x626468); /* apron */
-  add(-120, Y0, -105, 44, 14, 30, 0x6b7560); /* hangars */
-  add(-60, Y0, -112, 44, 14, 30, 0x6b7560);
-  add(10, Y0, -108, 12, 8, 12, 0xb8b4a4); /* control tower */
-  add(10, Y0 + 8, -108, 15, 3, 15, 0x20303c);
-  add(10, Y0 + 11, -108, 17, 0.8, 17, 0x8a8a84);
-  for (let k = 0; k < 3; k++) P.push(part(cyl(5, 5, 7, 14), 0xc9c9c0, 70 + k * 14, Y0 + 3.5, -125));
+  /* local frame: x along the runway (u), z across it (v, negative on the apron side); runway v -20..20 */
+  const Yp = Y0 + 0.14,
+    slab = (u, v, w, d, hex) => add(u, Y0 + 0.04, v, w, 0.1, d, hex),
+    TXI = 0x55575a,
+    APR = 0x626468,
+    Zr = Math.PI / 2;
+  slab(0, -48, 1100, 14, TXI); /* the parallel taxiway */
+  for (const u of [-540, -20, 540]) slab(u, -30, 14, 24, TXI); /* three links from it to the runway: both ends and the middle */
+  slab(-40, -102, 290, 96, APR); /* the apron, flush with the taxiway */
+  slab(135, -108, 70, 60, 0x8a887c); /* gravel fuel yard beside it */
+  add(0, Yp - 0.02, -48, 1100, 0.04, 0.35, 0xc9b23a); /* taxiway centre line */
+  for (const u of [-540, -20, 540]) add(u, Yp - 0.02, -30, 0.35, 0.04, 22, 0xc9b23a);
+  add(-40, Yp - 0.02, -66, 280, 0.04, 0.35, 0xc9b23a); /* apron taxi line */
+  /* two arched hangars on the back of the apron, doors facing the runway */
+  for (const u of [-150, -80]) {
+    add(u, Y0 + 0.14, -135, 44, 7, 30, 0x8a929a);
+    P.push(part(cyl(15, 15, 44, 20), 0x7b848c, u, Y0 + 7.14, -135, 0, 0, Zr, 0.42, 1, 1));
+    add(u, Y0 + 0.14, -119.8, 28, 5.6, 0.4, 0x23272b);
+  }
+  add(-20, Y0 + 0.14, -142, 24, 5, 12, 0xb8b4a4); /* operations building */
+  add(-20, Y0 + 5.14, -142, 26, 0.5, 14, 0x6b6f66);
+  /* control tower at the east end of the apron */
+  add(75, Y0 + 0.14, -138, 5, 14, 5, 0xb8bcc0);
+  add(75, Y0 + 14.14, -138, 9, 4, 9, 0x9aa0a6);
+  add(75, Y0 + 14.9, -138, 9.2, 2.4, 9.2, 0x4a6a80);
+  add(75, Y0 + 18.14, -138, 10.5, 0.6, 10.5, 0x2b2e32);
+  for (let k = 0; k < 3; k++) P.push(part(cyl(5, 5, 7, 14), 0xc9c9c0, 118 + k * 14, Yp + 3.5, -128)); /* the fuel tanks, on their gravel yard */
+  add(104, Yp, -118, 3, 1.2, 3, 0x3a3d40); /* pump */
   P.push(part(cyl(0.4, 0.6, 34, 8), 0x8a2a20, 140, Y0 + 17, 100)); /* the KMM beacon mast */
   add(140, Y0, 108, 6, 3.2, 5, 0x8a8a84);
+  /* a windsock beside the runway */
+  P.push(part(cyl(0.15, 0.15, 8, 8), 0xdddddd, 20, Y0 + 4, 30));
+  P.push(part(cyl(0.6, 0.2, 3, 10), 0xff6a00, 22.2, Y0 + 7.6, 30, 0, 0, Zr));
+  /* the parked fighters, noses toward the runway, and the vehicles on the apron (the same models as at the home field) */
+  const MD = AFLD.models,
+    park = (m, u, v, yaw) => P.push(...m.map((q) => ({ g: q.g, hex: q.hex, m: new THREE.Matrix4().multiplyMatrices(GX.xf(u, Yp, v, yaw), q.m) })));
+  [
+    [-165, 0xb7bcc2, 0xb22a24, {}],
+    [-150, 0x5d6341, 0xd9b92a, { ang: 0.7 }],
+    [-135, 0xb7bcc2, 0x222d5a, { stripes: 1, ang: 1.1 }],
+    [-120, 0x5d6341, 0xb22a24, { ang: 0.2 }],
+    [-105, 0xb7bcc2, 0xd9b92a, { tanks: 1, ang: 0.9 }],
+    [-90, 0x5d6341, 0x1e4fa3, { ang: 0.4 }],
+  ].forEach((a, i) => park(MD.fighter(a[1], a[2], a[3]), a[0], -92, -Zr + (i % 3 - 1) * 0.03));
+  park(MD.cargoTruck(), 30, -82, 0.4);
+  park(MD.jeep(), 45, -92, -0.3);
+  park(MD.tug(), -60, -78, Zr);
+  park(MD.fuelTruck(0x9aa0a6), 108, -108, 0, 0);
+  park(MD.drums(), 98, -128, 0);
   const acc = new GX.Acc();
   acc.add(P, GX.xf(0, 0, 0, 0));
   const bm = new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
@@ -10618,6 +10694,10 @@ function updAA(dt) {
   grp.rotation.y = Math.atan2(-ISL.uz, ISL.ux);
   grp.updateMatrix();
   scene.add(grp);
+  /* the moving ones, each with a reason: the bowser fuels the fighters one by one, the jeep inspects the runway */
+  const wp = (u, v) => ISL.w(u, v);
+  AFLD.add(MD.fuelTruck(0x56603f), [wp(112, -106), wp(-90, -106), wp(-105, -106), wp(-120, -106), wp(-135, -106), wp(-150, -106), wp(-165, -106)], 4, 12, 'veh', { stops: 9, y: Yp });
+  AFLD.add(MD.jeep(), [wp(-500, -48), wp(500, -48)], 7, 25, 'veh', { y: Yp });
   ISL.bx = ISL.w(140, 100)[0]; /* the beacon */
   ISL.bz = ISL.w(140, 100)[1];
 }
@@ -11946,8 +12026,8 @@ const TRAINERS = {
     } else if (st === 4) {
       trn.title = onFinal ? 'Step 5/7: Final approach' : 'Step 5/7: Base and final turns';
       txt = onFinal
-        ? 'Fly the ILS down to the runway at 210 km/h. Keep the two needles on the cross: the vertical needle (localizer) is your left / right, the horizontal needle (glide slope) is your height. Use the ailerons for the localizer, the THROTTLE for the glide slope and the NOSE for the speed.\nFly TOWARD a needle: needle right of centre = turn right; needle below centre = go down.'
-        : 'Follow the green ring around the circuit: a RIGHT turn onto BASE, then a second right turn to intercept the ILS, rolling out lined up with the runway at 210 km/h.\nThe ILS needles come alive when you are within about 40 degrees of lined up. Bank no more than 30 degrees and descend gently, about 150 m at the turn onto final.\nIntercept the glide slope from BELOW: hold your height until the horizontal needle comes down to the centre, then descend.';
+        ? 'Fly down to the runway at 210 km/h, following the green ring: it sits on the centreline and on a 3 degree slope that meets the runway 200 m past the threshold. Use the ailerons to stay on the centreline, the THROTTLE for your height on the slope and the NOSE for the speed.\nThe coach below tells you how many metres high, low, left or right you are.'
+        : 'Follow the green ring around the circuit: a RIGHT turn onto BASE, then a second right turn onto final, rolling out lined up with the runway at 210 km/h.\nBank no more than 30 degrees and descend gently, about 150 m at the turn onto final.\nJoin the 3 degree slope from BELOW: hold your height until the ring comes up to you, then descend.';
       const hot = onFinal && kmh > 250 && dist < 1500,
         go = onFinal && ((kmh > 270 && dist < 800 && agl > 20) || (agl > 70 && dist < 200 && dist > -300));
       const sh = onFinal && agl < 30 && dist > 400;
@@ -11988,43 +12068,28 @@ const TRAINERS = {
         h =
           'ABOVE the glide slope by ' +
           R(err) +
-          ' m (the needle is below the centre): throttle to idle and lower the nose to descend, holding 210 km/h.';
+          ' m: throttle to idle and lower the nose to descend, holding 210 km/h.';
         l = 'warn';
       } else if (err < -25) {
         h =
           'BELOW the glide slope by ' +
           R(-err) +
-          ' m (the needle is above the centre): add throttle and hold the nose up a little. Do not let the speed fall.';
+          ' m: add throttle and hold the nose up a little. Do not let the speed fall.';
         l = 'warn';
       } else if (Math.abs(off) > 30) {
         h =
           R(Math.abs(off)) +
           ' m ' +
           (off > 0 ? 'right' : 'left') +
-          ' of the localizer (the needle is ' +
-          (off > 0 ? 'left' : 'right') +
-          ' of centre): bank gently ' +
+          ' of the centreline: bank gently ' +
           (off > 0 ? 'left' : 'right') +
           ' to line up.';
         l = 'warn';
       } else {
-        h = 'On the ILS: both needles centred (ideal height ' + R(ideal) + ' m). Speed good. Keep it steady.';
+        h = 'On the centreline and the slope (ideal height ' + R(ideal) + ' m). Speed good. Keep it steady.';
         l = 'ok';
       }
-      ln +=
-        ' | ideal ' +
-        R(ideal) +
-        ' m' +
-        (ILS.locOK && ILS.gsOK
-          ? ' | LOC ' +
-            Math.abs(ILS.locD).toFixed(1) +
-            (ILS.locD < 0 ? ' dots right of course' : ' dots left of course') +
-            ', GS ' +
-            Math.abs(ILS.gsD).toFixed(1) +
-            (ILS.gsD > 0 ? ' dots high' : ' dots low')
-          : ILS.locOK
-            ? ' | LOC alive, GS not yet'
-            : ' | ILS: no beam yet');
+      ln += ' | ideal ' + R(ideal) + ' m';
     } else if (st === 5) {
       trn.title = 'Step 6/7: Flare';
       txt =
@@ -14903,177 +14968,6 @@ function guideState(dtOv) {
   guide.latErr = lat;
   return { bi: pr.i, s: pr.s, lat, vert, rx: guide.rs.x, ry: guide.rs.y, rz: guide.rs.z };
 }
-/* ---------- ILS: localizer and glide slope needles for both runway ends ----------
-   Each end has a beam: the localizer is the runway centreline and the glide slope is 3 degrees, reaching the ground 200 m past the
-   threshold (the landing trainer's aim point). Standard needles are half as sensitive as the real thing (full scale 5 degrees and
-   1.4 degrees); Hardcore ILS realism uses the real 2.5 and 0.7 degrees, a narrower cone, marker beacons and call-outs. A needle moves
-   toward where the beam is: right of centre = fly right, below centre = fly down. */
-const ILS = {
-  ctx: $$('ilsc').getContext('2d'),
-  free: store.get('p51ils', false) === true,
-  ENDS: [
-    { n: '36', Tz: RW.zS, u: -1, Lz: RW.zN },
-    { n: '18', Tz: RW.zN, u: 1, Lz: RW.zS },
-  ],
-  end: 0,
-  show: false,
-  locOK: false,
-  gsOK: false,
-  locD: 0,
-  gsD: 0,
-  dme: 0,
-  hc: false,
-  om: false,
-  mm: false,
-  capL: false,
-  capG: false,
-  bt: 0,
-};
-function updIls() {
-  const land = trn.mode === 'landing';
-  ILS.show = started && !crashed && !trn.done && ((land && guide.on) || (trn.mode === 'free' && ILS.free));
-  $$('ils').style.display = ILS.show ? 'block' : 'none';
-  if (!ILS.show) {
-    ILS.capL = ILS.capG = false;
-    return;
-  }
-  const hc = FM.use('ils');
-  ILS.hc = hc;
-  let best = 0;
-  if (!land) {
-    let bs = 1e18;
-    ILS.ENDS.forEach((e, i) => {
-      const along = (pos.z - e.Tz) * -e.u,
-        sc = along > -300 ? Math.hypot(along, pos.x * 3) : 1e9 + Math.abs(along);
-      if (sc < bs) {
-        bs = sc;
-        best = i;
-      }
-    });
-  }
-  if (!land && FM.use('wind') && WX.sp > 3)
-    best = WX.wz_ >= 0 ? 0 : 1; /* the active runway is the one facing into the wind */
-  ILS.end = best;
-  const e = ILS.ENDS[best],
-    Az = e.Tz + e.u * 200,
-    along = (pos.z - Az) * -e.u,
-    dTh = (pos.z - e.Tz) * -e.u,
-    rng = Math.abs(pos.z - e.Lz),
-    right = pos.x * (e.u < 0 ? 1 : -1),
-    locAng = (Math.atan2(right, Math.max(50, rng)) * 180) / Math.PI,
-    h = Math.max(0, pos.y - 2 - 0.15),
-    gsAng = (Math.atan2(h, Math.max(1, along)) * 180) / Math.PI,
-    az = dTh > 0 ? (Math.atan2(Math.abs(right), dTh) * 180) / Math.PI : 0,
-    cone = hc ? (dTh < 18000 ? 35 : 10) : 40,
-    sL = hc ? 1.25 : 2.5,
-    sG = hc ? 0.35 : 0.7;
-  ILS.locOK = dTh > -400 && dTh < 25000 && az < cone;
-  ILS.gsOK = ILS.locOK && along > 30 && az < (hc ? 8 : 15) && gsAng > 1.35 && gsAng < 5.25;
-  ILS.locD = Math.max(-2.6, Math.min(2.6, -locAng / sL));
-  ILS.gsD = Math.max(-2.6, Math.min(2.6, (gsAng - 3) / sG));
-  ILS.dme = Math.hypot(dTh, h) / 1000;
-  const nowT = performance.now();
-  /* marker beacons (Hardcore): outer about 7.4 km, middle about 1 km before the threshold */
-  ILS.om = hc && Math.abs(dTh - 7400) < 220 && Math.abs(right) < 500 && h < 900;
-  ILS.mm = hc && Math.abs(dTh - 1050) < 110 && Math.abs(right) < 300 && h < 300;
-  if ((ILS.om || ILS.mm) && nowT > ILS.bt) {
-    if (ILS.om) {
-      SND.tone(400, 400, 0.16, 0.07, 'sine');
-      ILS.bt = nowT + 330;
-    } else {
-      SND.tone(1300, 1300, ILS.mm && Math.floor(nowT / 330) % 2 ? 0.08 : 0.2, 0.07, 'sine');
-      ILS.bt = nowT + 330;
-    }
-  }
-  if (hc) {
-    if (ILS.locOK && Math.abs(ILS.locD) < 0.6) {
-      if (!ILS.capL) note('LOCALIZER CAPTURED');
-      ILS.capL = true;
-    } else if (!ILS.locOK || Math.abs(ILS.locD) > 1.6) ILS.capL = false;
-    if (ILS.gsOK && Math.abs(ILS.gsD) < 0.6) {
-      if (!ILS.capG) note('GLIDESLOPE CAPTURED');
-      ILS.capG = true;
-    } else if (!ILS.gsOK || Math.abs(ILS.gsD) > 1.6) ILS.capG = false;
-  }
-}
-function drawIls() {
-  if (!ILS.show) return;
-  const c = ILS.ctx,
-    W = 150,
-    cx = 75,
-    cy = 80,
-    st = 26;
-  c.clearRect(0, 0, W, W);
-  c.font = 'bold 12px sans-serif';
-  c.textBaseline = 'alphabetic';
-  c.textAlign = 'left';
-  c.fillStyle = '#ffb43a';
-  c.fillText('ILS ' + ILS.ENDS[ILS.end].n, 4, 13);
-  c.textAlign = 'right';
-  c.fillStyle = '#fff';
-  c.fillText((ILS.locOK ? ILS.dme.toFixed(1) : '--') + ' km', W - 4, 13);
-  /* the two dot scales */
-  c.strokeStyle = 'rgba(255,255,255,.7)';
-  c.fillStyle = 'rgba(255,255,255,.7)';
-  c.lineWidth = 1.5;
-  for (let k = -2; k <= 2; k++) {
-    if (!k) continue;
-    c.beginPath();
-    c.arc(cx + k * st, cy, 3, 0, 7);
-    c.stroke();
-    c.beginPath();
-    c.arc(cx, cy + k * st, 3, 0, 7);
-    c.stroke();
-  }
-  c.strokeRect(cx - 6, cy - 6, 12, 12);
-  /* needles */
-  c.lineWidth = 3;
-  if (ILS.locOK) {
-    const x = cx + ILS.locD * st;
-    c.strokeStyle = '#ff5ae0';
-    c.beginPath();
-    c.moveTo(x, cy - 62);
-    c.lineTo(x, cy + 62);
-    c.stroke();
-  }
-  if (ILS.gsOK) {
-    const y = cy + ILS.gsD * st;
-    c.strokeStyle = '#ff5ae0';
-    c.beginPath();
-    c.moveTo(cx - 62, y);
-    c.lineTo(cx + 62, y);
-    c.stroke();
-  }
-  /* flags when there is no beam */
-  c.font = 'bold 11px sans-serif';
-  c.textAlign = 'center';
-  if (!ILS.locOK) {
-    c.fillStyle = '#ff4a3a';
-    c.fillRect(4, 20, 34, 15);
-    c.fillStyle = '#fff';
-    c.fillText('LOC', 21, 32);
-  }
-  if (!ILS.gsOK) {
-    c.fillStyle = '#ff4a3a';
-    c.fillRect(W - 30, 20, 26, 15);
-    c.fillStyle = '#fff';
-    c.fillText('GS', W - 17, 32);
-  }
-  /* marker lamps (Hardcore) */
-  if (ILS.hc) {
-    [
-      ['OM', 16, '#3a8cff', ILS.om],
-      ['MM', 46, '#ffb43a', ILS.mm],
-    ].forEach((m) => {
-      c.beginPath();
-      c.arc(m[1], 138, 8, 0, 7);
-      c.fillStyle = m[3] ? m[2] : 'rgba(255,255,255,.12)';
-      c.fill();
-      c.fillStyle = m[3] ? '#000' : 'rgba(255,255,255,.5)';
-      c.fillText(m[0], m[1], 142);
-    });
-  }
-}
 function drawCcip() {
   const cc = $$('ccip');
   if (trn.mode !== 'bomb' || !started || crashed || trn.done || bmN >= 2) {
@@ -15329,11 +15223,12 @@ function drawADF() {
   if (now - adfT < 66) return;
   adfT = now;
   const el = $$('adf');
-  if (!started || UI.hid.adf || (trn.mode !== 'free' && trn.mode !== 'adf')) {
+  if (!started || (trn.mode !== 'free' && trn.mode !== 'adf') || (trn.mode === 'free' && UI.hid.adf)) {
     el.style.display = 'none';
     return;
   }
   el.style.display = 'block';
+  el.classList.toggle('mis', trn.mode === 'adf'); /* the ADF mission always shows it */
   const bc = BEACONS[trn.mode === 'adf' ? 0 : adfSel],
     b = adfInfo(bc),
     c = $$('adfc'),
@@ -16337,13 +16232,12 @@ const UI = {
     { id: 'mm', label: 'Minimap (O)', sel: '#mm', g: 'Instruments' },
     { id: 'hz', label: 'Artificial horizon', sel: '#hz', g: 'Instruments' },
     { id: 'adf', label: 'ADF radio compass (free flight and the ADF trainer; click it to change station)', sel: '#adf', g: 'Instruments' },
-    { id: 'ils', label: 'ILS needles (landing trainer; L in free flight)', sel: '#ils', g: 'Instruments' },
     { id: 'coach', label: 'Mission coach panel', sel: '#coach', g: 'Instruments' },
     { id: 'tq', label: 'Throttle and flaps gauge', sel: '#tq', g: 'Instruments', sc: 'desk' },
     { id: 'help', label: 'Controls help (H)', sel: '#help', g: 'Instruments' },
     { id: 'cross', label: 'Gun sight ring', sel: '#cross', g: 'Aids' },
     { id: 'bandit', label: 'Bandit marker and lead ring', sel: '#bd,#bdt,#lead', g: 'Aids' },
-    { id: 'guide', label: 'Flight path guide / ILS in trainers (L)', g: 'Aids' },
+    { id: 'guide', label: 'Flight path guide in trainers (L); ADF radio compass on/off in free flight (L)', g: 'Aids' },
     { id: 'tThr', label: 'Throttle slider', sel: '#tThr', g: 'Touch controls', sc: 'mob' },
     { id: 'tL', label: 'Gear, flap and brake buttons', sel: '#tL', g: 'Touch controls', sc: 'mob' },
     { id: 'trud', label: 'Rudder arrows', sel: '#tRL,#tRR', g: 'Touch controls', sc: 'mob' },
@@ -16360,6 +16254,7 @@ const UI = {
   hint: false,
   load() {
     this.hid = store.get('p51ui', {}) || {};
+    if (this.hid.adf === undefined) this.hid.adf = 1; /* the ADF radio compass starts switched off in free flight (L turns it on) */
   },
   save() {
     store.set('p51ui', this.hid);
@@ -16368,8 +16263,10 @@ const UI = {
     return !this.hid[id];
   },
   set(id, v) {
-    if (v) delete this.hid[id];
-    else this.hid[id] = 1;
+    if (v) {
+      if (id === 'adf') this.hid[id] = 0; /* remembered as 'on' */
+      else delete this.hid[id];
+    } else this.hid[id] = 1;
     document.body.classList.toggle('hide-' + id, !v);
     if (id === 'guide') guide.on = v;
     this.save();
@@ -16741,7 +16638,6 @@ UI.MV = [
   'cmp',
   'mm',
   'hz',
-  'ils',
   'coach',
   'tq',
   'help',
@@ -17085,7 +16981,7 @@ const BIND = [
   ['map', 'minimap', ['KeyO'], null],
   ['mapOut', 'zoom out', ['Minus', 'NumpadSubtract'], null],
   ['mapIn', 'zoom in', ['Equal', 'NumpadAdd'], null],
-  ['guide', 'path guide / ILS', ['KeyL'], null],
+  ['guide', 'path guide / ADF on-off', ['KeyL'], null],
   ['coach', 'shrink coach panel', ['KeyK'], null],
   ['quality', 'graphics: Auto / Low / Medium / High', ['KeyN'], null],
   ['mute', 'sound on / off', ['KeyU'], null],
@@ -17510,9 +17406,8 @@ const UIACT = {
   },
   guide: () => {
     if (trn.mode === 'free') {
-      ILS.free = !ILS.free;
-      store.set('p51ils', ILS.free);
-      note(ILS.free ? 'ILS ON' : 'ILS OFF');
+      UI.toggle('adf');
+      note(UI.vis('adf') ? 'ADF RADIO COMPASS ON' : 'ADF RADIO COMPASS OFF');
     } else {
       UI.set('guide', !guide.on);
       note(guide.on ? 'FLIGHT PATH GUIDE ON' : 'FLIGHT PATH GUIDE OFF');
@@ -19854,8 +19749,6 @@ function frame(now) {
     } else cr.style.display = 'none';
   }
   updBandit();
-  updIls();
-  drawIls();
   drawGuide();
   updShadow();
   updLandingLight();

@@ -3,7 +3,7 @@
 # P-51D Mustang Flight Simulator
 
 **A casual-to-hardcore P-51D sim in a single offline HTML file.**
-Take off, land on the ILS, strafe convoys, bomb buildings and dogfight in free flight, on your keyboard, a gamepad or your phone.
+Take off, navigate by radio compass (ADF), strafe convoys, bomb buildings and dogfight in free flight, on your keyboard, a gamepad or your phone.
 
 ### [Play it in your browser](https://github.mrrat.org/p51-mustang-fs/)
 
@@ -25,7 +25,7 @@ by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://di
 | | |
 |---|---|
 | **Free flight** | Explore the whole island chain, with a minimap and path guide. |
-| **Trainers** | Takeoff, Landing (with ILS), Building Bombing and Convoy Strafing and the six aerobatic trainers are guided by a green ring on the line a hidden sim pilot flew first (put the white flight-path marker in the ring to follow it); the aerobatics are Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
+| **Trainers** | Takeoff, Landing, ADF Navigation, Building Bombing and Convoy Strafing and the six aerobatic trainers are guided by a green ring on the line a hidden sim pilot flew first (put the white flight-path marker in the ring to follow it); the aerobatics are Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
 | **Combat** | Machine guns, rockets and bombs. Enemies come in Low (40%), Medium (65%) and Hard (100%) performance. |
 | **Ground fire** | Each enemy base has two Type 96 25 mm twin AA guns and two 150 cm searchlights. At night the beams sweep, lock on and dazzle, and the guns fire at what they light. Switch it off in Settings. |
 | **Wrecks and smoke** | Destroyed targets burn with a smoke column you can see for miles. Bombs leave craters and scorch marks. They stay for the rest of the flight. |
@@ -61,7 +61,7 @@ engine gauges and overheating, fuel and weight and balance, air density and the 
 | Manual (About, Controls, Operations) | `I` | |
 | Trim (Hardcore) | `[` `]` pitch, `,` `.` rudder, `;` `'` aileron, `Backspace` centre | Hold Back + D-pad / LB / RB, Back + A centres |
 | Photo mode | `F9` | |
-| Path guide / ILS | `L` | |
+| Path guide (trainers) / ADF on-off (free flight) | `L` | |
 | Minimap and zoom | `O`, `-`, `=` | |
 | Graphics, sound | `N`, `U` | |
 
