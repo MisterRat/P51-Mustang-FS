@@ -278,7 +278,7 @@ with sync_playwright() as p:
       document.getElementById('hcOn').click();
       o.masterOff=[FM.on,FM.use('torque'),power(0.5)];o.yawBack=yawOnRoll();
       reset();paused=false;return o}""")
-    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 16 and hc["ui"][2], str(hc["ui"]))
+    check("hardcore: off by default, every option greyed out until the master switch is on", hc["defaultOff"] and hc["ui"][0] and hc["ui"][1] == 15 and hc["ui"][2], str(hc["ui"]))
     check("hardcore: master switch enables the options and is saved", hc["uiOn"] == [True, True, True], str(hc["uiOn"]))
     check("hardcore: torque swings the nose left on the take-off roll (only when on)", abs(hc["yawOff"]) < 1e-6 and hc["yawOn"] > 0.05 and abs(hc["yawTorqueOff"]) < 1e-6, str([hc["yawOff"], hc["yawOn"], hc["yawTorqueOff"]]))
     check("hardcore: stall with rudder held spins; opposite rudder + stick forward recovers", hc["spin"] and hc["recovered"], str([hc["spin"], hc["recovered"]]))
@@ -583,8 +583,9 @@ with sync_playwright() as p:
     # ---- ground fire: Type 96 AA guns and 150 cm searchlights at both bases, the airfield's 3.7-inch gun for show
     pg.evaluate("()=>{paused=false;trn.mode='free';PP.off=true;reset()}"); pg.wait_for_timeout(300)
     check("ground fire: two guns and two searchlights at each base, shootable", pg.evaluate("()=>AA.gun.filter(g=>!g.site).length===4&&AA.lamp.filter(l=>!l.fr&&!l.site).length===4&&T.filter(t=>t.kind==='aa'&&!t.site).length===8&&AA.gun.slice(0,2).every(g=>Math.hypot(g.x-DEPOT[0],g.z-DEPOT[1])<250)&&AA.gun.filter(g=>!g.site).slice(2).every(g=>Math.hypot(g.x-BASE[0],g.z-BASE[1])<250)"))
-    check("ground fire: the airfield has a 3.7-inch gun and a searchlight for show (not targets)", pg.evaluate("()=>AA.fg.length===1&&AA.lamp.filter(l=>l.fr).length===1&&T.every(t=>t.kind!=='aa'||t.m!==AA.fg[0].grp)"))
-    check("ground fire: Settings switch is saved and on by default", pg.evaluate("()=>$$('aaOn').checked===true&&AA.on===true"))
+    check("ground fire: each airfield (yours and Kamome Field) has a 3.7-inch gun and a searchlight for show (not targets)", pg.evaluate("()=>AA.fg.length===2&&AA.lamp.filter(l=>l.fr).length===2&&T.every(t=>t.kind!=='aa'||t.m!==AA.fg[0].grp)"))
+    check("ground fire: Settings switch is saved and off by default", pg.evaluate("()=>$$('aaOn').checked===false&&AA.on===false"))
+    pg.evaluate("()=>{AA.on=true;AA.apply()}")
     r = pg.evaluate("""()=>{
       paused=true; started=true; const g=AA.gun[0]; placeAt(g.x-1500,150,g.z+300,g.x,g.z,110); const v0=vel.clone(); php=100;
       let shots=0; for(let i=0;i<60*16;i++){ pos.addScaledVector(v0,1/60); vel.copy(v0); const b0=AA.bl.length; updAA(1/60); if(AA.bl.length>b0) shots++; }
@@ -693,10 +694,31 @@ with sync_playwright() as p:
     fz = pg.evaluate("""()=>{ let m=1e9; for(const L of [RP,RP2,RP3]) for(const p of L){ const dx=p.x-SITE.O.x, dz=p.z-SITE.O.z, u=dx*SITE.A.x+dz*SITE.A.z, d=dx*SITE.S.x+dz*SITE.S.z; const e=Math.hypot(Math.max(0,Math.abs(u)-650,0), Math.max(0,-1060-d,d+670)); if(Math.abs(u)<650&&d>-1060&&d<-670) return -1; m=Math.min(m,Math.hypot(Math.max(0,Math.abs(u)-650),Math.max(0,-1060-d,d+670))) } return m }""")
     check("enemy roads keep outside the airbase fence (none across the runway)", fz is not None and fz > 20, str(fz))
     isl = pg.evaluate("""()=>{ const [x,z]=ISL.w(0,0), [x2,z2]=ISL.w(600,0); const lvl=Math.max(Math.abs(HR(x,z)-ISL.H0),Math.abs(HR(x2,z2)-ISL.H0));
-      const sea=HR(20000,0)<-8 && HR(0,-25000)<-8; const d=Math.hypot(x,z-300);
+      const sea=[[3200,0],[-3200,0],[0,3200],[0,-3200]].every(q=>HR(ISL.F.x+q[0],ISL.F.z+q[1])<-8); const d=Math.hypot(x,z-300);
       const i=MENU.findIndex(m=>m[0]==='adf'); menuPick(i); const [sx,sz]=[pos.x,pos.z]; placeAt(0,2500,200,BEACONS[0].x,BEACONS[0].z,125); axes(); updTrainer(0.05); const b=adfInfo(BEACONS[0]);
       return [lvl, sea, d, trn.mode, Math.abs(b.rel)<1, b.dist>40000 && b.dist<46000, ISL.onRwy(x,z,0)] }""")
-    check("Kamome Field: level runway, open sea beyond the mapped land, 43 km out, the ADF needle points at the beacon, the ADF mission starts", isl[0] < 0.01 and isl[1] and 40000 < isl[2] < 46000 and isl[3] == "adf" and isl[4] and isl[5] and isl[6], str(isl))
+    # ---- the far world: chunked terrain beyond the home map, built out of sight and never hitching
+    fw = pg.evaluate("""()=>{
+      const o={};for(let i=0;i<60;i++)WORLD.update(1/60,true);
+      o.land=WORLD.CH.filter(c=>!c.empty&&c.empty!==undefined).length;
+      o.seaEdge=HR(13500,0)<-8;o.hasLand=(()=>{for(let x=-50000;x<=50000;x+=500)for(let z=-50000;z<=50000;z+=500)if(Math.max(Math.abs(x),Math.abs(z))>14000&&WH(x,z)>50)return true;return false})();
+      o.same=WH(23456,-31000)===WH(23456,-31000);
+      const early=[];WORLD.onFinish=(c)=>{if(WORLD.near(c,pos.x,pos.z)<25000)early.push(1)};WORLD.worst=0;
+      pos.set(0,800,380);let over=0,worst=0;
+      for(const [dx,dz] of [[-1,0.3],[0,-1],[1,-0.2],[0,1]])for(let i=0;i<5000;i++){pos.x=Math.max(-50000,Math.min(50000,pos.x+dx*250/60));pos.z=Math.max(-50000,Math.min(50000,pos.z+dz*250/60));const t=performance.now();WORLD.update(1/60);const m=performance.now()-t;if(m>worst)worst=m;if(m>6)over++}
+      o.early=early.length;o.worst=Math.round(worst*10)/10;o.over=over;o.live=WORLD.live;WORLD.onFinish=null;reset();return o}""")
+    check("far world: the home map is ringed by sea, land lies beyond, it is a fixed function of position", fw["seaEdge"] and fw["hasLand"] and fw["same"], str(fw))
+    rn = pg.evaluate("""()=>{const N=WORLD.NET,o={farms:0,bad:0,hamlets:0,wet:0,noRoad:0,links:0};
+      for(let ri=-9;ri<=9;ri++)for(let rj=-9;rj<=9;rj++){const h=N.hamlet(ri,rj);if(h){o.hamlets++;if(WH(h.x,h.z)<2)o.wet++;o.links+=N.links(h).length}}
+      for(let ci=-45;ci<=45;ci++)for(let cj=-45;cj<=45;cj++){const f=N.farm(ci,cj);if(!f||!N.live(f))continue;o.farms++;
+        let p=f,g=0;while(p&&!p.hamlet&&g++<60){if(!N.pathOK(p,p.par))o.bad++;p=p.par}
+        if(!p||!p.hamlet)o.noRoad++;if(WH(f.x,f.z)<2)o.wet++}
+      /* roads and buildings are actually built in the chunks, and no tree grows on a road */
+      pos.set(25000,600,38000);for(let i=0;i<100;i++)WORLD.update(0.3,true);let nr=0,nf=0,nh=0;for(const c of WORLD.CH)if(c.it){nr+=c.it.nR;nf+=c.it.FM.n;nh+=c.it.HM.n}
+      o.built=[nr>0,nf>0,nh>0];return o}""")
+    check("far world: every farm has a road through the farms nearer the hamlet to a hamlet, no road or building lies in the sea or on a cliff, hamlets are joined, and roads, farms and hamlets are built", rn["farms"] > 50 and rn["bad"] == 0 and rn["noRoad"] == 0 and rn["wet"] == 0 and rn["hamlets"] > 30 and rn["links"] > 30 and all(rn["built"]), str(rn))
+    check("far world: at 250 m/s across 100 km no chunk is finished inside the fog and at most a rare garbage-collection pause passes 6 ms", fw["early"] == 0 and fw["over"] <= 3 and fw["live"] < 110, str(fw))
+    check("Kamome Field: level runway, open sea around the island, 43 km out, the ADF needle points at the beacon, the ADF mission starts", isl[0] < 0.01 and isl[1] and 40000 < isl[2] < 46000 and isl[3] == "adf" and isl[4] and isl[5] and isl[6], str(isl))
     pg.evaluate("()=>{PP.off=true;const i=MENU.findIndex(m=>m[0]==='free');menuPick(i)}")
     sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
     check("port and airbase: their guns only exist in free flight", sg is not None and sg[0] >= 4 and sg[1] and sg[2], str(sg))
