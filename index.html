@@ -71,7 +71,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #fd.off:after{display:none}
 #ccip{position:fixed;display:none;width:30px;height:30px;margin:-17px 0 0 -17px;border:2px solid #ff5544;border-radius:50%;pointer-events:none;z-index:3;box-shadow:0 0 8px #ff5544}
 #ccip:before{content:'';position:absolute;left:12px;top:-8px;width:2px;height:42px;background:#ff5544}
-#ccip:after{content:'IMPACT';position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.06em;color:#ff8c7a;text-shadow:0 0 3px #000;font-weight:700}
+#rkip{position:fixed;display:none;width:26px;height:26px;margin:-15px 0 0 -15px;border:2px solid #ffd23a;border-radius:50%;pointer-events:none;z-index:3;box-shadow:0 0 8px #ffd23a}
+#rkip:before{content:'';position:absolute;left:10px;top:10px;width:2px;height:2px;background:#ffd23a;box-shadow:0 0 0 1px #ffd23a}
+#rkip:after{content:'ROCKET';position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.06em;color:#ffe58a;text-shadow:0 0 3px #000;font-weight:700}
+#ccip:after{content:'BOMB IMPACT';white-space:nowrap;position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.06em;color:#ff8c7a;text-shadow:0 0 3px #000;font-weight:700}
 #fd:before{content:'STEER HERE';position:absolute;top:40px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.06em;color:#7dffa8;white-space:nowrap;text-shadow:0 0 3px #000;font-weight:700}
 #fd.off:before{display:none}
 #fpm{position:fixed;display:none;width:16px;height:16px;margin:-11px 0 0 -11px;border:2px solid #fff;border-radius:50%;pointer-events:none;z-index:3;box-shadow:0 0 4px #000}
@@ -85,9 +88,9 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #mm canvas{display:block;border-radius:50%}
 #hz{right:12px;top:calc(208px + env(safe-area-inset-top,0px));padding:6px}
 body.hide-adf #adf.mis{display:block!important}
-#adf{right:104px;top:calc(370px + env(safe-area-inset-top,0px));padding:6px;display:none;cursor:pointer}
+#adf{right:104px;bottom:calc(12px + env(safe-area-inset-bottom,0px));padding:6px;display:none;cursor:pointer}
 #adf canvas{display:block}
-body.mob #adf{right:calc(8px + env(safe-area-inset-right,0px));top:calc(var(--mm) + 22px + 84px + env(safe-area-inset-top,0px));padding:3px}
+body.mob #adf{right:calc(8px + env(safe-area-inset-right,0px));bottom:auto;top:calc(var(--mm) + 22px + 84px + env(safe-area-inset-top,0px));padding:3px}
 body.mob #adf canvas{width:96px;height:121px}
 #help{left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;max-width:340px}
 #help.h{display:none}
@@ -107,9 +110,10 @@ body.mob #adf canvas{width:96px;height:121px}
 #ph select{font:inherit;font-size:12px}
 #ph .dim{opacity:.7;font-size:11px}
 #ph.min .more{display:none}
-body.phHide .p:not(#ph),body.phHide #cross,body.phHide #fd,body.phHide #fpm,body.phHide #ccip,body.phHide #aim,body.phHide #aimt,body.phHide #bd,body.phHide #bdt,body.phHide #lead,body.phHide #flash{visibility:hidden!important}
+body.phHide .p:not(#ph),body.phHide #cross,body.phHide #fd,body.phHide #fpm,body.phHide #ccip,body.phHide #rkip,body.phHide #aim,body.phHide #aimt,body.phHide #bd,body.phHide #bdt,body.phHide #lead,body.phHide #flash{visibility:hidden!important}
 #phFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:29;transition:opacity .3s}
 #cross{position:fixed;left:50%;top:50%;width:26px;height:26px;margin:-13px;border:1.5px solid rgba(255,230,120,.85);border-radius:50%;pointer-events:none;display:none}
+#cross:before{content:'GUNS';position:absolute;top:28px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.06em;color:rgba(255,230,120,.9);text-shadow:0 0 3px #000;font-weight:700}
 #cross:after{content:'';position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px;border-radius:50%;background:rgba(255,230,120,.95)}
 #start{inset:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(8,14,22,.72);font-size:15px;z-index:5}
 #start h1{font-size:30px;margin:0 0 6px;letter-spacing:.12em;color:var(--acc)}
@@ -272,7 +276,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="p" id="tq"><b>THR</b><div id="tqt"><div id="tqf"></div><div id="tqh"></div></div><b id="tqv">0%</b><div style="margin-top:6px">FLAPS</div><div id="flp"><i></i><i></i><i></i><i></i><i></i><i id="flp6" style="display:none"></i></div></div>
 <div id="flash"></div><div id="dazzle"></div><div id="blk"></div><div id="rpl"><div id="rplT">REPLAY &mdash; <span style="color:#ffa020">your path</span> vs <span style="color:#55ff88">best path</span> <span style="color:#ddd">&middot; drone</span> <span style="color:#ff6655">&middot; red = biggest gap</span></div><div id="rplL"></div><input id="rplS" type="range" min="0" max="100" value="0"><div id="rplB"><button id="rplPlay">Pause</button><button id="rplSpd">1x</button><button id="rplView">View: SIDE</button><button id="rplRst">Restart</button><button id="rplExit">Exit replay</button></div><div style="font-size:11px;opacity:.75;margin-top:4px">Space pause &middot; Left/Right 1 s &middot; 1 2 3 camera &middot; Enter = try again</div></div><div id="rplX"></div><div id="rplW"><div id="rplWt"></div><div style="font-size:12px;opacity:.7;margin-top:6px">Esc = skip</div></div><div id="aim"></div><div id="aimt"></div><div id="bd"></div><div id="bdt"></div><div id="lead"></div>
 <div class="p" id="cmp"><canvas id="cmpc" width="640" height="90"></canvas></div>
-<div id="fd"></div><div id="fpm"></div><div id="ccip"></div>
+<div id="fd"></div><div id="fpm"></div><div id="ccip"></div><div id="rkip"></div>
 <div class="p" id="coach"><div id="coachT"></div><div id="coachH"></div><div id="coachS"></div></div>
 <div class="p" id="kill" style="left:50%;top:30%;transform:translateX(-50%);display:none;color:#ffb43a;font-size:16px;letter-spacing:.08em"></div>
 <div class="p" id="warn">STALL</div>
@@ -585,7 +589,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.22';
+const VERSION = '5.26';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -15038,7 +15042,7 @@ const TRAINERS = {
     } else if (trn.step === 3) {
       trn.title = 'Step 4/5: Over the station, then land';
       T0(
-        'You are over the beacon: the needle swings round to point behind you (station passage). Now join the circuit: the runway runs 070 / 250 degrees (07 and 25). Lower the gear (G) and flaps, about 170 km/h on final, and land on the runway.\nThe runway numbers are painted at each end.',
+        'You are over the beacon: the needle swings round to point behind you (station passage). Now join the circuit: the runway runs 070 / 250 degrees (07 and 25). Follow the green ring: it leads a circuit round onto a straight final, then down the glide slope. Lower the gear (G) and flaps, about 170 km/h on final, and land on the runway.\nThe runway numbers are painted at each end.',
         gearOn ? 'Gear down. Speed ' + R(kmh) + ' km/h. Height ' + R(agl) + ' m.' : 'Gear UP: press G before landing.',
         gearOn ? 'ok' : 'warn',
       );
@@ -17694,6 +17698,33 @@ function finalLineFor() {
       marks: [{ d: 0, t: 'touch' }],
     };
   }
+  if (m === 'adf') {
+    /* after station passage the green ring leads a circuit onto the island runway: a turn to a straight final on a 3 degree slope */
+    if (trn.step !== 3) {
+      trn.adfE = undefined;
+      return null;
+    }
+    if (trn.adfE === undefined) {
+      const hv = Math.atan2(vel.x, -vel.z),
+        h07 = ISL.hdg;
+      trn.adfE = Math.cos(hv - h07) >= Math.cos(hv - h07 - Math.PI) ? 1 : -1; /* 1: land on 07 (heading 070), -1: land on 25 */
+    }
+    const e = trn.adfE,
+      A = ISL.w(-e * 500, 0);
+    return {
+      kind: 'land',
+      A: { x: A[0], z: A[1] },
+      u: { x: e * ISL.ux, z: e * ISL.uz },
+      alt: (d) => ISL.H0 + (d > 0 ? d * 0.0524 : 0.5),
+      dEnd: -900,
+      Dg: 3600,
+      Dmin: 1500,
+      Dmax: 9000,
+      descLim: 0.12,
+      lin: true,
+      marks: [{ d: 0, t: 'touch' }],
+    };
+  }
   if (m === 'convoy') {
     /* the first pass follows the pilot's recorded line; once the player is past its end the ring leads a flyable turn round to a
        new run from behind the rear vehicle (a planned route, not a point on the old line, which swung round faster than the plane can turn) */
@@ -17909,7 +17940,8 @@ function buildPlan(F) {
   pre.forEach((q) => {
     const lin = altStart + ((altGate - altStart) * q.s) / Lpre;
     let y = lin;
-    if (altGate < altStart) y = Math.max(altGate, altStart - lim * q.s);
+    if (F.lin) y = lin; /* a steady descent the whole way round, not a dive and then level flight */
+    else if (altGate < altStart) y = Math.max(altGate, altStart - lim * q.s);
     else if (altGate > altStart) y = Math.min(altGate, altStart + 0.12 * q.s);
     q.y = F.ground ? y : Math.max(y, H(q.x, q.z) + 30);
   });
@@ -18236,7 +18268,7 @@ function guideState(dtOv) {
 }
 function drawCcip() {
   const cc = $$('ccip');
-  if (trn.mode !== 'bomb' || !started || crashed || trn.done || bmN >= 2) {
+  if (!started || crashed || paused || (trn.done && trn.mode === 'bomb') || bmN >= 2) {
     cc.style.display = 'none';
     return;
   }
@@ -18249,8 +18281,102 @@ function drawCcip() {
     cc.style.top = (1 - (p.y * 0.5 + 0.5)) * innerHeight + 'px';
   } else cc.style.display = 'none';
 }
+/* where a rocket fired now would land: the same flight the rocket flies (launch speed + 60 m/s, 300 m/s2 motor for 1.2 s, then gravity) */
+function rocketImpact() {
+  const m = rkMesh[ORD[rkN]];
+  if (!m) return null;
+  const p = worldOf(m),
+    v = vel.clone().addScaledVector(fwd, 60),
+    d = fwd.clone(),
+    h = 1 / 60;
+  let t = 0;
+  /* the motor burn, step by step like the rocket itself */
+  while (t < 1.2) {
+    t += h;
+    if (t < 1.2) v.addScaledVector(d, 300 * h);
+    v.y -= 9.8 * h * (t > 0.5 ? 1 : 0.3);
+    p.addScaledVector(v, h);
+    const g = H(p.x, p.z);
+    if (p.y < g) return { x: p.x, y: g, z: p.z };
+  }
+  /* then a free fall: march along it until it meets the ground (a ridge in the way counts), and give up where the rocket would burn out in the air (15 s) */
+  const hs = 0.2;
+  while (t < 15) {
+    const nx = p.x + v.x * hs,
+      nz = p.z + v.z * hs,
+      ny = p.y + v.y * hs - 4.9 * hs * hs;
+    const g = H(nx, nz);
+    if (ny < g) {
+      let lo = 0,
+        hi = hs;
+      for (let k = 0; k < 6; k++) {
+        const mid = (lo + hi) / 2,
+          my = p.y + v.y * mid - 4.9 * mid * mid;
+        if (my < H(p.x + v.x * mid, p.z + v.z * mid)) hi = mid;
+        else lo = mid;
+      }
+      return { x: p.x + v.x * hi, y: H(p.x + v.x * hi, p.z + v.z * hi), z: p.z + v.z * hi };
+    }
+    v.y -= 9.8 * hs;
+    p.set(nx, ny, nz);
+    t += hs;
+  }
+  return null;
+}
+/* against a bandit: the point where the bandit has to be NOW for this rocket to meet it (the rocket's drop and the bandit's own flight are both allowed for) */
+function rocketAimBandit() {
+  const m = rkMesh[ORD[rkN]];
+  if (!m) return null;
+  let e = null,
+    bd = 3000;
+  for (const x of EN) {
+    if (x.dying || !x.v) continue;
+    const d = x.p.distanceTo(pos);
+    if (d < bd && fwd.dot(x.p.clone().sub(pos).normalize()) > 0.2) (bd = d), (e = x);
+  }
+  if (!e) return null;
+  const p = worldOf(m),
+    p0 = p.clone(),
+    v = vel.clone().addScaledVector(fwd, 60),
+    d = fwd.clone(),
+    h = 1 / 60;
+  let t = 0;
+  while (t < 6) {
+    t += h;
+    if (t < 1.2) v.addScaledVector(d, 300 * h);
+    v.y -= 9.8 * h * (t > 0.5 ? 1 : 0.3);
+    p.addScaledVector(v, h);
+    const bx = e.p.x + e.v.x * t - p0.x,
+      by = e.p.y + e.v.y * t - p0.y,
+      bz = e.p.z + e.v.z * t - p0.z;
+    if (p.distanceToSquared(p0) >= bx * bx + by * by + bz * bz)
+      return new V(p.x - e.v.x * t, p.y - e.v.y * t, p.z - e.v.z * t);
+  }
+  return null;
+}
+function drawRkip() {
+  const el = $$('rkip');
+  if (!started || crashed || paused || rkN >= 6 || BL.on) {
+    el.style.display = 'none';
+    return;
+  }
+  const ab = rocketAimBandit(),
+    im = ab ? { x: ab.x, y: ab.y - 2, z: ab.z } : rocketImpact();
+  if (!im) {
+    el.style.display = 'none';
+    return;
+  }
+  cam.updateMatrixWorld();
+  const p = new V(im.x, im.y + 2, im.z).project(cam);
+  if (p.z < 1 && Math.abs(p.x) < 1 && Math.abs(p.y) < 1) {
+    el.style.display = 'block';
+    el.style.left = (p.x * 0.5 + 0.5) * innerWidth + 'px';
+    el.style.top = (1 - (p.y * 0.5 + 0.5)) * innerHeight + 'px';
+  } else el.style.display = 'none';
+}
 function drawGuide() {
   drawCcip();
+  drawRkip();
   drawAim();
   const on = guide.on && trn.mode !== 'free' && guide.pts.length > 1 && !crashed && started && !trn.done;
   const fd = $$('fd'),
@@ -19695,9 +19821,11 @@ const UI = {
     { id: 'coach', label: 'Mission coach panel', sel: '#coach', g: 'Instruments' },
     { id: 'tq', label: 'Throttle and flaps gauge', sel: '#tq', g: 'Instruments', sc: 'desk' },
     { id: 'help', label: 'Controls help (H)', sel: '#help', g: 'Instruments' },
-    { id: 'cross', label: 'Gun sight ring', sel: '#cross', g: 'Aids' },
     { id: 'bandit', label: 'Bandit marker and lead ring', sel: '#bd,#bdt,#lead', g: 'Aids' },
     { id: 'guide', label: 'Flight path guide in trainers (L); ADF radio compass on/off in free flight (L)', g: 'Aids' },
+    { id: 'cross', label: 'Guns', sel: '#cross', g: 'Sight rings' },
+    { id: 'rkring', label: 'Rockets', sel: '#rkip', g: 'Sight rings' },
+    { id: 'bmring', label: 'Bombs', sel: '#ccip', g: 'Sight rings' },
     { id: 'tThr', label: 'Throttle slider', sel: '#tThr', g: 'Touch controls', sc: 'mob' },
     { id: 'tL', label: 'Gear, flap and brake buttons', sel: '#tL', g: 'Touch controls', sc: 'mob' },
     { id: 'trud', label: 'Rudder arrows', sel: '#tRL,#tRR', g: 'Touch controls', sc: 'mob' },
@@ -22856,7 +22984,7 @@ function photoHud(x, sf) {
   };
   x.save();
   x.scale(sf, sf);
-  document.querySelectorAll('.p, #cross, #fd, #fpm, #ccip, #bd, #bdt, #lead').forEach((el) => {
+  document.querySelectorAll('.p, #cross, #fd, #fpm, #ccip, #rkip, #bd, #bdt, #lead').forEach((el) => {
     if (['ph', 'start', 'pm'].includes(el.id)) return;
     paint(el);
     if (el.id === 'fpm' && getComputedStyle(el).display !== 'none') {
