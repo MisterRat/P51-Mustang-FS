@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.20';
+const VERSION = '5.22';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -14846,6 +14846,7 @@ function trainerReset() {
   if (RPL.busy && !RPL.keep) rpSimCancel(); /* a mission change while the pilot is still flying its hidden recording */
   if (RPL.on && !RPL.keep) rpStop();
   convoyClear();
+  guide.cvRe = false;
   CV.st = 'idle';
   CV.tm = 8;
   Object.assign(trn, {
@@ -17694,21 +17695,30 @@ function finalLineFor() {
     };
   }
   if (m === 'convoy') {
-    return null; /* the convoy is flown by pointing the nose at the vehicles, as the sim pilot does: no fixed route */
-    const al = CV.list.filter((v) => !v.dead);
-    if (CV.st !== 'run' || !al.length) return null;
+    /* the first pass follows the pilot's recorded line; once the player is past its end the ring leads a flyable turn round to a
+       new run from behind the rear vehicle (a planned route, not a point on the old line, which swung round faster than the plane can turn) */
+    const al = CV.list.filter((v) => !v.dead),
+      nPP = PP.out && PP.key === ppKey() && !RPL.busy ? PP.out.length : 0;
+    if (nPP && PP.ix >= nPP - 8 && CV.st === 'run') guide.cvRe = true;
+    if (!guide.cvRe || CV.st !== 'run' || !al.length) return null;
+    const cvAt = (s) => {
+      const c = Math.max(0, Math.min(CLEN, s)),
+        p = CVC.getPointAt(c / CLEN);
+      if (s >= 0 && s <= CLEN) return { x: p.x, z: p.z };
+      const t = CVC.getTangentAt(s < 0 ? 0 : 1);
+      return { x: p.x + t.x * (s - c), z: p.z + t.z * (s - c) };
+    };
     let tv = al[0];
-    for (const v of al) if (v.s < tv.s) tv = v; // the rear-most vehicle, so the rest of the convoy lines up ahead
-    const vh = Math.max(60, Math.hypot(vel.x, vel.z)),
-      dist0 = Math.hypot(tv.m.position.x - pos.x, tv.m.position.z - pos.z);
+    for (const v of al) if (v.s < tv.s) tv = v; /* the rear-most vehicle, so the rest of the convoy lines up ahead */
+    const vh = Math.max(60, Math.hypot(vel.x, vel.z));
     let sp = tv.s;
     for (let i = 0; i < 3; i++) {
-      const p = ROADC.getPointAt(Math.min(0.999, Math.max(0, sp / RLEN)));
-      const dd = Math.hypot(p.x - pos.x, p.z - pos.z);
-      sp = Math.min(RLEN - 60, tv.s + (CV.spd * Math.max(0, dd - 300)) / Math.max(30, vh - CV.spd));
+      const p = cvAt(sp),
+        dd = Math.hypot(p.x - pos.x, p.z - pos.z);
+      sp = Math.min(CLEN - 60, tv.s + (CV.spd * Math.max(0, dd - 300)) / Math.max(30, vh - CV.spd));
     }
-    const pF = ROADC.getPointAt(Math.max(0, sp / RLEN)),
-      pB = ROADC.getPointAt(Math.max(0, (sp - 500) / RLEN));
+    const pF = cvAt(sp),
+      pB = cvAt(sp - 500);
     let ux = pF.x - pB.x,
       uz = pF.z - pB.z;
     const l = Math.hypot(ux, uz) || 1;
@@ -17717,13 +17727,21 @@ function finalLineFor() {
     const hF = H(pF.x, pF.z),
       sA = sp,
       Lc = Math.max(...al.map((v) => v.s)) - tv.s,
-      dP = Math.max(-420, -Lc - 60); // pull up only after the FRONT vehicle
+      dP = Math.max(-420, -Lc - 60); /* pull up only after the FRONT vehicle */
+    const dirAt = (d) => {
+      const a = cvAt(sA - d - 30),
+        b = cvAt(sA - d + 30);
+      let x = a.x - b.x,
+        z = a.z - b.z;
+      const k = Math.hypot(x, z) || 1;
+      return { x: -x / k, z: -z / k };
+    };
     return {
       kind: 'strafe',
       A: { x: pF.x, z: pF.z },
       u: { x: ux, z: uz },
-      line: (d) => roadAt(sA - d),
-      dir: (d) => roadDir(sA - d),
+      line: (d) => cvAt(sA - d),
+      dir: dirAt,
       alt: (d) => (d >= dP ? hF + 140 + (d - dP) * 0.176 : hF + 140 + (dP - d) * 0.26),
       dEnd: -(Lc + 700),
       Dg: 2000,
@@ -17811,7 +17829,7 @@ function buildPlan(F) {
     pz = pos.z,
     vh = Math.max(45, Math.hypot(vel.x, vel.z)),
     vp = Math.max(vh, F.kind === 'land' ? 70 : 100),
-    R = F.ground ? 260 : Math.max(300, (vp * vp) / (9.8 * Math.tan(((F.kind === 'land' ? 30 : 38) * Math.PI) / 180)));
+    R = F.ground ? 260 : Math.max(300, (vp * vp) / (9.8 * Math.tan(((F.kind === 'land' ? 30 : F.kind === 'strafe' ? 50 : 38) * Math.PI) / 180)));
   const psi = Math.atan2(-fwd.x, -fwd.z);
   let psiF = Math.atan2(-F.u.x, -F.u.z);
   let dAlong = -((px - F.A.x) * F.u.x + (pz - F.A.z) * F.u.z),
@@ -17945,7 +17963,7 @@ function closestIdx(pts) {
 /* the path is built ONCE and then stays fixed in the world; it is only rebuilt when the target really moved, you flew past the end, or you are far off it */
 function planGuide() {
   const F = finalLineFor();
-  if (!F && PRE_MODES[trn.mode] && PP.pts && PP.key === ppKey() && !RPL.busy) {
+  if (!F && PRE_MODES[trn.mode] && PP.pts && PP.key === ppKey() && !RPL.busy && !(trn.mode === 'convoy' && guide.cvRe)) {
     /* no planned route for this mission: the pilot's recorded flight stands in for it */
     guide.plan = null;
     guide.pts = PP.pts;
@@ -18049,6 +18067,7 @@ function ringShown() {
   return !!(PRE_MODES[trn.mode] && PP.out && PP.key === ppKey() && !RPL.busy);
 }
 function ppAhead(L) {
+  if (trn.mode === 'convoy' && guide.kind === 'strafe') return null; /* the planned re-attack turn is the route now */
   if (RPL.busy || !PP.out || PP.key !== ppKey() || !PRE_MODES[trn.mode]) return null;
   const o = PP.out,
     n = o.length;
@@ -18579,7 +18598,7 @@ function mmCol(h, sl, x, z, d, o) {
   d[o + 2] = Math.min(255, b);
   d[o + 3] = 255;
 }
-const mmHt = (x, z) => (Math.abs(x) < SZ / 2 && Math.abs(z) < SZ / 2 ? HR(x, z) : WH(x, z)); /* the home area has its own height function */
+const mmHt = (x, z) => HR(x, z); /* HR is the height of the whole world: the home terrain, the far world and Kamome Field's island */
 function mmFar() {
   /* the terrain picture of the whole world (the detailed one only covers the home area), drawn once from the height function */
   if (mmFd) return;
