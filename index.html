@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.19';
+const VERSION = '5.20';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -11765,8 +11765,8 @@ const WORLD = (() => {
     Y3 = new THREE.Vector3(0, 1, 0);
   /* the fields: a tilted grid of 340 m plots, each a crop colour with its rows, a dark hedge line between them (the same look as the home farms) */
   const FARM_PAINT =
-    '{float fk=smoothstep(0.35,0.65,vFarm)*(1.0-watK);if(fk>0.003){vec2 u=vec2(vWP.x*' + FCA.toFixed(5) + '+vWP.z*' + FSA.toFixed(5) + ',-vWP.x*' + FSA.toFixed(5) + '+vWP.z*' + FCA.toFixed(5) + ')/' + FCS.toFixed(1) + ';' +
-    'vec2 fi=floor(u),ff=fract(u);float r1=hf(fi+1.7),r2=hf(fi+9.1),r3=hf(fi+4.3);' +
+    '{float fk0=vFarm*(1.0-watK);if(fk0>0.003){vec2 u=vec2(vWP.x*' + FCA.toFixed(5) + '+vWP.z*' + FSA.toFixed(5) + ',-vWP.x*' + FSA.toFixed(5) + '+vWP.z*' + FCA.toFixed(5) + ')/' + FCS.toFixed(1) + ';' +
+    'vec2 fi=floor(u),ff=fract(u);float r1=hf(fi+1.7),r2=hf(fi+9.1),r3=hf(fi+4.3);float th=0.25+0.5*hf(fi+3.3);float fk=smoothstep(th-0.3,th+0.3,vFarm)*(1.0-watK);' /* each plot fades in on its own as the farmland thickens, so the edge of a farm area is soft and does not follow the mesh triangles */ +
     'vec3 cp=r1<0.10?mix(vec3(0.36,0.25,0.17),vec3(0.42,0.30,0.20),r2):(r1<0.50?mix(vec3(0.14,0.38,0.13),vec3(0.20,0.46,0.17),r2):(r1<0.82?mix(vec3(0.28,0.52,0.18),vec3(0.36,0.60,0.24),r2):mix(vec3(0.50,0.56,0.26),vec3(0.58,0.62,0.32),r2)));' +
     'cp*=0.9+0.2*hf(fi+6.6);float dq=length(vWP-cameraPosition);float sk=1.0-smoothstep(500.0,2200.0,dq);' +
     'float row=(r3<0.5?u.x:u.y)*' + FCS.toFixed(1) + '/19.0;cp*=1.0-0.14*sk*smoothstep(0.35,0.65,sin(row*6.2832)*0.5+0.5);' +
