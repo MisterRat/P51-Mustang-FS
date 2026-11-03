@@ -445,10 +445,10 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <div class="sub">Missions, cockpit warnings, weapons and enemy difficulty</div>
 <h2>Missions &amp; trainers (the Missions tab, or press M)</h2>
 <table class="t2">
-<tr><td>Free flight</td><td>Fly anywhere. A convoy runs on the road every few minutes, with ground targets scattered about, and both enemy bases have anti-aircraft guns and searchlights. No guide path. Convoy messages only appear on the convoy mission.</td></tr>
+<tr><td>Free flight</td><td>Fly anywhere. A flag-carrying convoy circles the enemy roads (Yamamoto, Tanaka, Kusaka and back) all the time, with ground targets scattered about, and both enemy bases have anti-aircraft guns and searchlights. No guide path. Convoy messages only appear on the convoy mission.</td></tr>
 <tr><td>Takeoff trainer</td><td>Coached steps from the runway to a safe climb. A green ring shows the line a hidden pilot flew in this same aircraft: put the white flight-path marker in it. Your liftoff speed is scored at the end.</td></tr>
 <tr><td>Landing trainer</td><td>You start on the downwind leg of the circuit and must slow down, lower gear and flaps, turn base and final, fly the glide slope, flare and brake. The green ring follows the pilot's recorded landing. Scored for sink rate, speed and centerline.</td></tr>
-<tr><td>Convoy strafing</td><td>One convoy at a time drives from the depot to the base: a jeep, supply trucks, a tanker and an APC. You start about 4.5 km out so there is time to line up. The green ring leads you in along the pilot's line behind the rear vehicle; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
+<tr><td>Convoy strafing</td><td>One convoy at a time drives from Airbase Yamamoto to Depot Tanaka: a jeep, supply trucks, a tanker and an APC. You start about 4.5 km out so there is time to line up. The green ring leads you in along the pilot's line behind the rear vehicle; fire from about 500 m and pull up after the front vehicle. Tankers explode and damage vehicles near them.</td></tr>
 <tr><td>Building bombing</td><td>Destroy the 11 depot and base buildings. The green ring takes you level at 900 m, then into the pilot's dive. The red IMPACT circle shows where a bomb would land; the coach says GET READY and then RELEASE NOW. Ordnance resupplies a few seconds after you use it all.</td></tr>
 <tr><td>Replay (every mission)</td><td>Before each mission starts, a hidden pilot flies it first in the same aircraft, flight model and weapons (a progress note shows while it works; Esc skips it). Its successful path is the green ring during your flight. When the mission ends (or after a crash, press <b>\</b>) an outside camera replays the flight with coaching notes: <b>orange</b> is your path and <b>green</b> is the pilot's, with a ghost aircraft flying it; the red marker shows the biggest gap. On the six maneuver trainers the pilot starts from your own entry speed and attitude. If the pilot cannot record a valid line (this can happen on Hardcore convoy) no ring is shown and a note says so. Buttons and a slider pause, scrub, slow down and change the camera (Side, Top, Behind).</td></tr>
 <tr><td>Barrel roll</td><td>Pull the nose up, then corkscrew around an imaginary barrel ahead with a steady roll and a light pull the whole way. Scored for heading error, height change and keeping the G above zero. Hardcore mode: enter faster and use rudder for the torque.</td></tr>
@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.10';
+const VERSION = '5.14';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1343,12 +1343,16 @@ const ROAD2C = new THREE.CatmullRomCurve3(
       [1680, -5120],
       [1680, -4520],
       [1680, -3920],
-      [1690, -3800],
-      [1730, -3680],
-      [1790, -3585],
-      [1805, -3527],
-      [1795, -3499],
-      [1785, -3471],
+      [1800, -3640],
+      [2150, -3280],
+      [2650, -2900],
+      [3100, -2600],
+      [3450, -2400],
+      [3680, -2400],
+      [3796, -2316],
+      [3822, -2262],
+      [3844, -2217],
+      [3861, -2181],
     ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
     false,
     'catmullrom',
@@ -1820,20 +1824,56 @@ tmat.onBeforeCompile = (sh) => {
 /* ---------- mission area: gently rolling plain with a road between a depot and a base ---------- */
 const ROADC = new THREE.CatmullRomCurve3(
   [
-    [1700, -3500],
-    [2500, -3250],
-    [3300, -3500],
-    [3900, -4100],
-    [4600, -4450],
+    [3700, -2100],
+    [4150, -2350],
+    [4600, -2800],
+    [4750, -3400],
+    [4950, -3950],
+    [5150, -4250],
     [5400, -4350],
   ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
   false,
   'catmullrom',
   0.5,
 );
+/* the convoy road: out of the gate of Airbase Yamamoto, along the enemy road past the coast, and in to Depot Tanaka (the last leg doubles back on the start of the depot road) */
+const CVC = new THREE.CatmullRomCurve3(
+    [
+      SITE.w(-320, -990), SITE.w(-480, -990), SITE.w(-650, -990), SITE.w(-740, -990),
+      [1680, -5720], [1680, -5120], [1680, -4520], [1680, -3920], [1800, -3640], [2150, -3280], [2650, -2900], [3100, -2600], [3450, -2400], [3680, -2400],
+      [3796, -2316], [3822, -2262], [3844, -2217], [3858, -2190], [3835, -2165], [3790, -2140], [3745, -2118], [3700, -2100],
+    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
+    false,
+    'catmullrom',
+    0.5,
+  ),
+  CLEN = CVC.getLength(),
+  LPC = new THREE.CatmullRomCurve3(
+    [
+      SITE.w(-740, -990),
+      [1680, -5720], [1680, -5120], [1680, -4520], [1680, -3920], [1800, -3640], [2150, -3280], [2650, -2900], [3100, -2600], [3450, -2400], [3680, -2400],
+      [3796, -2316], [3822, -2262], [3844, -2217], [3861, -2181], [3990, -2260], [4150, -2350], [4600, -2800], [4750, -3400], [4950, -3950], [5150, -4250],
+      [5311, -4363], [5317, -4397], [5323, -4432], [5285, -4480], [5220, -4535], [5160, -4580], [4680, -5060], [4200, -5540], [3600, -5720],
+      SITE.w(900, -1500), SITE.w(820, -1000), SITE.w(800, -640), SITE.w(600, -590), SITE.w(300, -500), SITE.w(260, -300), SITE.w(180, -200), SITE.w(120, -135), SITE.w(95, -110), SITE.w(75, -105), SITE.w(58, -105), SITE.w(40, -110),
+      SITE.w(30, -140), SITE.w(-20, -168), SITE.w(-100, -215), SITE.w(-220, -300), SITE.w(-560, -520), SITE.w(-740, -760),
+    ].map((p) => new THREE.Vector3(p[0], 0, p[1])),
+    true,
+    'catmullrom',
+    0.5,
+  ),
+  LLEN = LPC.getLength(),
+  CVE = (() => {
+    /* the meeting point for the strafing mission: on the straight leg heading south-east, where the pilot comes in from behind */
+    let b = 0, bd = 1e9;
+    for (let s = 0; s < CLEN; s += 10) {
+      const p = CVC.getPointAt(s / CLEN), d = Math.hypot(p.x - 2650, p.z + 2900);
+      if (d < bd) { bd = d; b = s; }
+    }
+    return b;
+  })();
 const RLEN = ROADC.getLength(),
   RP = ROADC.getSpacedPoints(Math.ceil(RLEN / 18)),
-  DEPOT = [1700, -3500],
+  DEPOT = [3700, -2100],
   BASE = [5400, -4350];
 function nearRoad(x, z, d) {
   for (let i = 0; i < RP.length; i += 2) {
@@ -3332,7 +3372,9 @@ const FLG = (() => {
     return m;
   };
   const H_ = (x, z) => H(x, z);
-  return { make, at, pole, mesh };
+  /* a staff with its flag as a free mesh (not in the scene), for fixing to a moving model */
+  const flagOnly = (kind, w, x, y, z, yaw) => new THREE.Mesh(new GX.Acc().add(make(kind, w), xf(x, y, z, yaw || 0)).geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }));
+  return { make, at, pole, mesh, flagOnly };
 })();
 /* ---------- airfield dressing ---------- */
 /* the wake every ship at sea uses: ONE flat quad with ONE shared painted texture (bow spray along the hull, a churned white trail, and two foam
@@ -14659,7 +14701,7 @@ const AF = {
   },
 };
 /* convoy: one at a time, timed */
-const CV = { list: [], q: [], st: 'idle', tm: 8, gap: 20, spd: 18, sp: 0, total: 0, destroyed: 0, escaped: 0 };
+const CV = { pre: 0, list: [], q: [], st: 'idle', tm: 8, gap: 20, spd: 18, sp: 0, total: 0, destroyed: 0, escaped: 0 };
 function convoyClear() {
   CV.list.forEach((v) => {
     scene.remove(v.m);
@@ -14680,30 +14722,47 @@ function updConvoy(dt) {
       CV.list = [];
       CV.sp = 0;
       CV.total = 0;
-      if (trn.mode === 'convoy') note('CONVOY LEAVING THE DEPOT');
+      if (trn.mode === 'convoy') note('CONVOY ON THE ROAD FROM AIRBASE YAMAMOTO TO DEPOT TANAKA');
+      if (CV.pre > 0) {
+        /* the mission starts with the convoy already under way, so the run meets it on the straight leg */
+        const n = Math.round(CV.pre * 10);
+        CV.pre = 0;
+        for (let k = 0; k < n; k++) updConvoy(0.1);
+      }
     }
   } else if (CV.st === 'run') {
     CV.sp -= dt;
     if (CV.q.length && CV.sp <= 0) {
-      const v = mkT(CV.q.shift(), DEPOT[0], DEPOT[1], 0, 'veh');
+      const c0 = (trn.mode === 'convoy' ? CVC : LPC).getPointAt(0),
+        v = mkT(CV.q.shift(), c0.x, c0.z, 0, 'veh');
       v.s = 0;
+      /* small Japanese flags on the antennas of the lead and the rear vehicle */
+      if (CV.total === 0 || !CV.q.length) {
+        /* the flag is hung from the tip of the vehicle's own whip antenna (its highest point) */
+        const ps = v.m.geometry.attributes.position;
+        let ty = -1e9, tx = 0, tz = 0;
+        for (let i = 0; i < ps.count; i++) if (ps.getY(i) > ty) (ty = ps.getY(i)), (tx = ps.getX(i)), (tz = ps.getZ(i));
+        v.m.add(FLG.flagOnly('jn', 0.5, tx, ty - 0.06, tz, Math.PI / 2));
+      }
       CV.list.push(v);
       CV.total++;
       CV.sp = 1.7;
     }
+    const lp = trn.mode !== 'convoy', C = lp ? LPC : CVC, L = lp ? LLEN : CLEN;
     for (const v of CV.list) {
       if (v.dead) continue;
       v.s += CV.spd * dt;
-      if (v.s >= RLEN) {
+      if (lp) v.s %= L; /* outside the mission the convoy circles the roads for ever */
+      else if (v.s >= L) {
         v.dead = true;
         v.gone = true;
         v.m.visible = false;
         CV.escaped++;
         continue;
       }
-      const u = v.s / RLEN,
-        p = ROADC.getPointAt(u),
-        tg = ROADC.getTangentAt(u);
+      const u = v.s / L,
+        p = C.getPointAt(u),
+        tg = C.getTangentAt(u);
       v.m.position.set(p.x, H(p.x, p.z) + 0.12 + v.s1 / 2, p.z);
       v.m.rotation.y = Math.atan2(tg.x, tg.z);
     }
@@ -14827,8 +14886,11 @@ function trainerReset() {
     thr = 0.5;
   } else if (m === 'dogfight') placeAt(0, 900, 300, 0, -5000, 130);
   else if (m === 'convoy') {
-    const tg = ROADC.getTangentAt(0);
-    placeAt(DEPOT[0] - tg.x * 4500, 350, DEPOT[1] - tg.z * 4500, DEPOT[0], DEPOT[1], 110); /* far enough back to line up on the convoy without breaking off */
+    const tg = CVC.getTangentAt(CVE / CLEN),
+      pe = CVC.getPointAt(CVE / CLEN);
+    placeAt(pe.x - tg.x * 4500, 350, pe.z - tg.z * 4500, pe.x, pe.z, 110);
+    CV.pre = Math.max(0, (CVE + 150) / CV.spd - 46); /* far enough back to line up on the convoy without breaking off */
+    CV.tm = 1;
   } else if (m === 'bomb') placeAt(BASE[0] - 2200, 700, BASE[1] + 1800, BASE[0], BASE[1], 120);
   else if (m === 'adf') placeAt(0, 2500, 200, 10000, 200, 125); /* high over the home field, pointed the wrong way (east) */
   else if (AERO[m]) aeroStart(m);
@@ -15427,7 +15489,7 @@ const TRAINERS = {
       T0(
         (CV.st === 'wreck'
           ? 'Convoy finished. Next one in ' + Math.ceil(CV.tm + CV.gap) + ' s.'
-          : 'Next convoy leaves the depot in ' + Math.ceil(CV.tm) + ' s.') +
+          : 'Next convoy leaves the airbase in ' + Math.ceil(CV.tm) + ' s.') +
           '\nPlan: the convoy leaves the depot ahead of you. Follow the green ring (the pilot\'s line) toward the road and come in on the nearest vehicle.\n' +
           stats +
           (trn.rpReady ? '\n\\ = replay with the sim pilot\'s best path (restarts the mission)' : ''),
@@ -15484,7 +15546,7 @@ const TRAINERS = {
         ' km/h, stall 165): add power and lower the nose BEFORE you turn. Tight turns at this speed stall the wing.';
       l = 'bad';
     }
-    T0(txt + '\n' + stats + ' | convoy ' + ((RLEN - lead) / 1000).toFixed(1) + ' km from the base', h, l);
+    T0(txt + '\n' + stats + ' | convoy ' + ((CLEN - lead) / 1000).toFixed(1) + ' km from the depot', h, l);
     return;
   },
   bomb(c) {
@@ -16917,7 +16979,7 @@ function rpMBot(m, S) {
         follow(new V(ax, H(ax, az) + 160, az), 4.5, 70, true);
       } else {
         const tl = nd < 1400 ? nd / 950 : nd / Math.max(60, vel.length() - 8) /* guns: a short lead; far out: the point where we will meet the convoy */,
-          dirv = ROADC.getTangentAt(Math.min(0.999, nv.s / RLEN)),
+          dirv = CVC.getTangentAt(Math.min(0.999, nv.s / CLEN)),
           aim0 = new V(nv.m.position.x + dirv.x * CV.spd * tl, 0, nv.m.position.z + dirv.z * CV.spd * tl),
           want = Math.max(-5, Math.min(300, (nd - 1000) * 0.1 + 8)),
           aim = new V(aim0.x, H(aim0.x, aim0.z) + want, aim0.z);
@@ -16931,7 +16993,7 @@ function rpMBot(m, S) {
       }
     } else if (CV.st === 'idle' || (CV.st === 'run' && !al.length)) {
       /* the convoy is about to leave: fly along the road towards the depot, coming down */
-      const rp = ROADC.getPointAt(0.02);
+      const rp = CVC.getPointAt(CVE / CLEN);
       follow(new V(rp.x, H(rp.x, rp.z) + 170, rp.z), 4.5, 70, true);
     } else if (plk) follow(plk, 4.5, 55, true);
     else if (look) follow(look, 4.5, 55);
