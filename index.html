@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.02';
+const VERSION = '5.10';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1446,7 +1446,62 @@ const ISL = (() => {
    Open sea round the home map, then land and sea out to 50 km, made the same way as the home terrain (the same noise, the same shape: low
    beaches rising to mountains) but with its own seed and a very large-scale bias so there are real seas between the lands. It is a pure
    function of x and z, so every region is identical every time you fly there, and it is what the ground collision uses too. */
-function WH(x, z) {
+/* ---------- the far sites: two colonial harbours, two enemy airbases and two enemy convoy bases, each on a levelled pad of the far world ----------
+   Every site has a frame: O is a point on its shore, S the unit vector out to sea, A along the coast, and (u, d) its own coordinates (u along the coast, d seaward, so d < 0 is inland),
+   exactly like SITE for the home port. The pads are cut into WH itself, so collision, the terrain mesh and the scenery always agree. */
+const FS = (() => {
+  const mk = (id, kind, x, z, th, dOff) => {
+    const S = { x: Math.cos(th), z: Math.sin(th) },
+      A = { x: -S.z, z: S.x },
+      o = { x: x + S.x * (dOff || 0), z: z + S.z * (dOff || 0) };
+    return {
+      id,
+      kind,
+      O: o,
+      S,
+      A,
+      ryS: Math.atan2(-S.z, S.x),
+      ryA: Math.atan2(-A.z, A.x),
+      H: null,
+      R: kind === 'air' ? 1500 : 600,
+      w: (u, d) => [o.x + A.x * u + S.x * d, o.z + A.z * u + S.z * d],
+      uv: (px, pz) => [(px - o.x) * A.x + (pz - o.z) * A.z, (px - o.x) * S.x + (pz - o.z) * S.z],
+    };
+  };
+  const list = [
+    mk('port1', 'port', -20951, -31510, 6.087),
+    mk('port2', 'port', -11728, 17967, 5.301),
+    mk('air1', 'air', -2308, -25961, 2.553),
+    mk('air2', 'air', 28360, 33250, 0),
+    mk('cv1', 'conv', 1472, 26239, 3.534, -300),
+    mk('cv2', 'conv', -19632, -19023, 6.087, -300),
+  ];
+  const ssl = (a, b, x) => {
+    const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  };
+  /* 1 on the pad, falling to 0 over its blend width */
+  const wt = (s, x, z) => {
+    const [u, d] = s.uv(x, z);
+    if (s.kind === 'port') {
+      const t = Math.max(Math.max(0, Math.abs(u) - 200) / 220, Math.max(0, -150 - d) / 220, Math.max(0, d - 52) / 60);
+      return 1 - ssl(0, 1, t);
+    }
+    if (s.kind === 'air') return 1 - ssl(0, 230, Math.hypot(Math.max(0, Math.abs(u) - 780), Math.max(0, -1110 - d, d + 520)));
+    return 1 - ssl(0, 120, Math.hypot(Math.max(0, Math.abs(u) - 200), Math.max(0, Math.abs(d) - 150)));
+  };
+  /* inside the pad (plus a margin m), where nothing of the rural world may be built */
+  const near = (x, z, m) => {
+    for (const s of list) {
+      if (Math.abs(x - s.O.x) > s.R + 700 || Math.abs(z - s.O.z) > s.R + 700) continue;
+      const [u, d] = s.uv(x, z);
+      if (s.kind === 'port' ? Math.abs(u) < 260 + m && d > -210 - m && d < 120 + m : s.kind === 'air' ? Math.abs(u) < 830 + m && d > -1160 - m && d < -470 + m : Math.abs(u) < 260 + m && Math.abs(d) < 210 + m) return true;
+    }
+    return false;
+  };
+  return { list, wt, near, ssl, PORT_H: 1.4 };
+})();
+function WH0(x, z) {
   const ed = Math.max(Math.abs(x), Math.abs(z));
   if (ed > 51000) return -40;
   /* the same kind of noise as the home map's fbm, at about four times the scale: broad lands with long coasts, not scattered specks */
@@ -1472,6 +1527,34 @@ function WH(x, z) {
     return Math.min(250 + 1150 * Math.pow((n - 0.4) / 0.6, 1.6), 1400);
   }
   return Math.max(n * 280, -64);
+}
+function WH(x, z) {
+  let h = WH0(x, z);
+  const L = FS.list;
+  for (let i = 0; i < L.length; i++) {
+    const s = L[i];
+    if (Math.abs(x - s.O.x) > s.R + 900 || Math.abs(z - s.O.z) > s.R + 900) continue;
+    if (s.H === null) {
+      /* the pad height: a harbour is cut and filled to 3.2 m; an airbase or a compound sits at the mean level of its ground */
+      if (s.kind === 'port') s.H = FS.PORT_H;
+      else {
+        let sum = 0,
+          n = 0;
+        const U = s.kind === 'air' ? [-600, 0, 600] : [-150, 0, 150],
+          D = s.kind === 'air' ? [-1000, -850, -700] : [-120, 0, 120];
+        for (const u of U)
+          for (const d of D) {
+            const [px, pz] = s.w(u, d);
+            sum += WH0(px, pz);
+            n++;
+          }
+        s.H = sum / n;
+      }
+    }
+    const w = FS.wt(s, x, z);
+    if (w > 0) h += (s.H - h) * w;
+  }
+  return h;
 }
 function HR(x, z) {
   const dz = Math.max(0, z - RW.zS, RW.zN - z),
@@ -1773,6 +1856,7 @@ function inCompound(x, z) {
   const m = 45;
   return (
     SITE.inside(x, z, 30) ||
+    FS.near(x, z, 12) ||
     (x > DEPOT[0] + DEPF[0] - m &&
       x < DEPOT[0] + DEPF[1] + m &&
       z > DEPOT[1] + DEPF[2] - m &&
@@ -3055,7 +3139,7 @@ function grassOK(x, z, h) {
   if ((x < -13000 || x > 13000 || z < -13000 || z > 13000) && WORLD.onRoad(x, z)) return false;
   if (Math.abs(x) < 34 && z > RW.zN - 30 && z < RW.zS + 30) return false;
   if (x > -235 && x < -15 && z > 95 && z < 525) return false;
-  if (SITE.inside(x, z, 20) || onEnemyRoad(x, z, 15)) return false;
+  if (SITE.inside(x, z, 20) || onEnemyRoad(x, z, 15) || FS.near(x, z, 6)) return false;
   if (x > 1400 && x < 5700 && z > -4700 && z < -3100 && (inCompound(x, z) || nearRoad(x, z, 11))) return false;
   const e = 2.5,
     sx = HMESH(x + e, z) - HMESH(x - e, z),
@@ -3176,6 +3260,80 @@ function updGrass(cx, cy, cz, force) {
   scene.add(m);
 }
 
+/* ---------- flags: the Rising Sun ensign (IJN: red disc and sixteen rays), the plain Hinomaru (merchant ships, civil harbours) and the Stars and Stripes (US).
+   A flag hangs from its hoist at the origin: x runs along the fly, y down. pole() is a white staff with the flag at its head; mesh() drops one on the ground. ---------- */
+const FLG = (() => {
+  const { cyl, bx, part, xf, M4 } = GX,
+    WHT = 0xf2efe6,
+    RED = 0xbc002d,
+    USR = 0xb22234,
+    USB = 0x3c3b6e,
+    RATIO = { jn: 1.5, jp: 1.5, us: 1.9 };
+  const rays = (w, h, cx) => {
+    const pos = [],
+      idx = [],
+      cy = -h / 2,
+      dl = Math.PI / 32,
+      zf = 0.013,
+      L = (a) => {
+        const c = Math.cos(a),
+          s = Math.sin(a);
+        return Math.min(c > 1e-6 ? (w - cx) / c : c < -1e-6 ? -cx / c : 1e9, s > 1e-6 ? h / 2 / s : s < -1e-6 ? -h / 2 / s : 1e9);
+      };
+    for (let i = 0; i < 16; i++) {
+      const a = (i * Math.PI) / 8,
+        a0 = a - dl,
+        a1 = a + dl,
+        l0 = L(a0),
+        l1 = L(a1),
+        x0 = cx + l0 * Math.cos(a0),
+        y0 = cy + l0 * Math.sin(a0),
+        x1 = cx + l1 * Math.cos(a1),
+        y1 = cy + l1 * Math.sin(a1),
+        b = i * 6;
+      pos.push(cx, cy, zf, x0, y0, zf, x1, y1, zf, cx, cy, -zf, x1, y1, -zf, x0, y0, -zf);
+      idx.push(b, b + 1, b + 2, b + 3, b + 4, b + 5);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  };
+  const make = (kind, w) => {
+    const h = w / RATIO[kind],
+      P = [];
+    if (kind === 'us') {
+      const sh = h / 13;
+      for (let i = 0; i < 13; i++) P.push(part(bx(w, sh * 1.002, 0.02), i % 2 ? WHT : USR, w / 2, -sh * (i + 0.5), 0));
+      const cw = w * 0.4,
+        ch = sh * 7;
+      P.push(part(bx(cw, ch, 0.03), USB, cw / 2, -ch / 2, 0));
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) P.push(part(bx(cw * 0.07, cw * 0.07, 0.036), WHT, cw * (0.2 + c * 0.3), -ch * (0.2 + r * 0.3), 0));
+    } else {
+      const cx = kind === 'jn' ? w * 0.42 : w / 2;
+      P.push(part(bx(w, h, 0.02), WHT, w / 2, -h / 2, 0));
+      P.push(part(cyl(h * 0.3, h * 0.3, 0.034, 20), RED, cx, -h / 2, 0, Math.PI / 2));
+      if (kind === 'jn') P.push(part(rays(w, h, cx), RED, 0, 0, 0));
+    }
+    return P;
+  };
+  const on = (P, T) => P.map((q) => ({ g: q.g, hex: q.hex, m: new M4().multiplyMatrices(T, q.m) }));
+  /* a flag alone, hoist at (x, y, z), streaming toward yaw */
+  const at = (kind, w, x, y, z, yaw) => on(make(kind, w), xf(x, y, z, yaw || 0));
+  /* a staff H metres tall standing at (x, y, z) with the flag at its head */
+  const pole = (kind, H, w, x, y, z, yaw) => {
+    const P = [part(cyl(0.05 + H * 0.004, 0.08 + H * 0.006, H, 6), 0xe4e2da, 0, H / 2, 0), part(GX.sph(6), 0xc9a24a, 0, H + 0.1, 0, 0, 0, 0, 0.1, 0.1, 0.1)];
+    return on(P.concat(on(make(kind, w), xf(0.07, H - 0.12, 0, 0))), xf(x, y, z, yaw || 0));
+  };
+  const mesh = (kind, H, w, x, z, yaw, y) => {
+    const m = new THREE.Mesh(new GX.Acc().add(pole(kind, H, w, 0, 0, 0, 0), xf(x, y === undefined ? H_(x, z) : y, z, yaw || 0)).geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }));
+    scene.add(m);
+    return m;
+  };
+  const H_ = (x, z) => H(x, z);
+  return { make, at, pole, mesh };
+})();
 /* ---------- airfield dressing ---------- */
 /* the wake every ship at sea uses: ONE flat quad with ONE shared painted texture (bow spray along the hull, a churned white trail, and two foam
    lines spreading back at the classic Kelvin angle). Drawn for a 78 m ship; k scales it to other lengths. */
@@ -3323,6 +3481,7 @@ let WSOCK = null;
   });
   mk(new THREE.CylinderGeometry(0.15, 0.15, 8, 8), lam(0xdddddd), 32, 4, 300); /* windsock */
   WSOCK = mk(new THREE.ConeGeometry(0.65, 3.6, 12, 1, true).rotateZ(-Math.PI / 2), lam(0xff6a00), 34, 8, 300);
+  FLG.mesh('us', 12, 3.4, 42, 300, 0, 0); /* the Stars and Stripes at Fletcher Field */
   const wb = new THREE.SphereGeometry(0.35, 6, 5),
     lights = new THREE.InstancedMesh(wb, new THREE.MeshBasicMaterial({ color: 0xfff2c0 }), 120),
     mt = new THREE.Matrix4();
@@ -3448,7 +3607,7 @@ const AFLD = {
     }
   },
   /* a ship on a straight run of open water, found by searching rings around the airfield (deterministic) */
-  addShip(P, L, r0, r1, sp, seed) {
+  addShip(P, L, r0, r1, sp, seed, yo, wy) {
     let k = seed * 7919 + 13;
     const rnd = () => ((k = (k * 16807) % 2147483647) / 2147483647),
       deep = (x, z) => HR(x, z) < -12;
@@ -3477,11 +3636,11 @@ const AFLD = {
       const g = new GX.Acc();
       g.add(P, GX.xf(0, 0, 0, 0));
       const m = new THREE.Mesh(g.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true }));
-      const wk = shipWakeMesh(L / 78, -1.3); /* the same painted wake as the patrol boat, scaled to the ship (one shared texture) */
+      const wk = shipWakeMesh(L / 78, wy === undefined ? -1.3 : wy); /* the same painted wake as the patrol boat, scaled to the ship (one shared texture) */
       m.add(wk);
-      m.position.set(pts[0][0], -6.4, pts[0][1]);
+      m.position.set(pts[0][0], yo === undefined ? -6.4 : yo, pts[0][1]);
       scene.add(m);
-      this.a.push({ m, pts, sp, wait: 0, kind: 'ship', i: 1, dir: 1, w: 0, v: sp, yaw: Math.atan2(-uz, ux), x: pts[0][0], z: pts[0][1], init: false, ph: rnd() * 6 });
+      this.a.push({ m, pts, sp, wait: 0, kind: 'ship', y0: yo, i: 1, dir: 1, w: 0, v: sp, yaw: Math.atan2(-uz, ux), x: pts[0][0], z: pts[0][1], init: false, ph: rnd() * 6 });
       return true;
     }
     return false;
@@ -3545,7 +3704,7 @@ const AFLD = {
       o.z += (dz / d) * st;
       if (o.kind === 'ship') {
         o.ph += dt;
-        o.m.position.set(o.x, -6.4 + Math.sin(o.ph * 0.9) * 0.12, o.z);
+        o.m.position.set(o.x, (o.y0 === undefined ? -6.4 : o.y0) + Math.sin(o.ph * 0.9) * 0.12, o.z);
         o.m.rotation.set(Math.sin(o.ph * 0.7) * 0.012, o.yaw, Math.sin(o.ph * 0.6) * 0.01, 'YXZ');
         continue;
       }
@@ -3869,9 +4028,10 @@ function this_t(o) {
     });
     return P;
   };
-  const freighter = () => {
+  const freighter = (fl) => {
     const L = 95,
       P = hullSteps(L, 14, 6.5, 0x2f3438, -1.5);
+    P.push(part(cyl(0.05, 0.05, 3.4, 6), 0x555555, -L / 2 + 1.2, 6.7, 0), ...FLG.at(fl || 'jp', 2.1, -L / 2 + 1.15, 8.3, 0, Math.PI));
     P.push(part(bx(L * 0.78, 1.5, 14.2), 0x7a2a22, -L * 0.11, -1.2, 0));
     P.push(part(bx(14, 9, 11), 0xdadad4, -L / 2 + 11, 10.7, 0));
     P.push(part(bx(6, 3, 11.4), 0x1d2a33, -L / 2 + 14, 13, 0));
@@ -3880,9 +4040,10 @@ function this_t(o) {
     for (let i = 0; i < 4; i++) P.push(part(bx(11, 1.2, 9.5), 0x6b5a3a, 28 - i * 15, 5.7, 0));
     return P;
   };
-  const tanker = () => {
+  const tanker = (fl) => {
     const L = 112,
       P = hullSteps(L, 17, 5.5, 0x23282c, -1.5);
+    P.push(part(cyl(0.05, 0.05, 3.4, 6), 0x555555, -L / 2 + 1.2, 5.7, 0), ...FLG.at(fl || 'jp', 2.1, -L / 2 + 1.15, 7.3, 0, Math.PI));
     P.push(part(bx(L * 0.78, 1.4, 17.2), 0x4a2a22, -L * 0.11, -1.2, 0));
     P.push(part(bx(12, 10, 14), 0xd8d8d0, -L / 2 + 9, 10.5, 0));
     P.push(part(bx(5, 2.6, 14.4), 0x1d2a33, -L / 2 + 12, 12.8, 0));
@@ -3891,20 +4052,276 @@ function this_t(o) {
     for (let i = 0; i < 5; i++) P.push(part(cyl(2.2, 2.2, 1.0), 0x3d4247, 30 - i * 11, 4.2, 0));
     return P;
   };
-  const patrol = () => {
+  const patrol = (fl) => {
     const L = 32,
       P = hullSteps(L, 6, 2.6, 0x7b838a, -0.8);
+    P.push(part(cyl(0.04, 0.04, 2.6, 6), 0x555555, -L / 2 + 0.8, 3.1, 0), ...FLG.at(fl || 'jn', 1.2, -L / 2 + 0.76, 4.3, 0, Math.PI));
     P.push(part(bx(7, 2.6, 4.6), 0x969ea5, -3, 3.4, 0));
     P.push(part(bx(3, 1.2, 4.7), 0x1d2a33, -2, 3.7, 0));
     P.push(part(cyl(0.12, 0.12, 6), 0x444444, -4, 7, 0));
     P.push(part(cyl(0.18, 0.18, 3), 0x333333, 8, 3.2, 0, 0, 0, -Z));
     return P;
   };
-  AFLD.addShip(freighter(), 95, 1500, 3800, 6.5, 1);
-  AFLD.addShip(tanker(), 112, 2500, 6500, 5.5, 2);
-  AFLD.addShip(patrol(), 32, 2000, 5000, 11, 3);
+  /* the US Navy patrol craft escort off the home airfield, a PCE-842 class (56.2 m x 10.1 m, 850 tons): lofted hull with the raised forecastle and rounded transom,
+     3"/50 forward with the Hedgehog behind it, pilothouse and open flying bridge with Mk 51 director and SO/SA radar, a stubby funnel, two 40 mm Bofors, four 20 mm Oerlikons
+     in tubs, depth charge rails and K-guns on the fantail, whaleboats, Carley floats, rails, ensign and the hull number. Bow toward +x; waterline at y = 0, keel 2.9 m below it. */
+  const PCE = { L: 56.2, X0: -28.1 };
+  const pce = () => {
+    const P = [],
+      L = PCE.L,
+      X0 = PCE.X0,
+      N = 40;
+    const sst = (a) => (a <= 0 ? 0 : a >= 1 ? 1 : a * a * (3 - 2 * a)),
+      tt = (x) => (x - X0) / L,
+      bowK = (t) => Math.max(0, (t - 0.6) / 0.4),
+      beamF = (t) => (t < 0.1 ? 0.72 + 0.28 * Math.sin((t / 0.1) * Z) : t < 0.55 ? 1 : Math.max(0.04, Math.pow(1 - Math.pow((t - 0.55) / 0.45, 1.8), 0.6))),
+      W = (x) => 5.04 * beamF(tt(x)),
+      dk = (x) => 2.55 + 0.9 * sst((x - 6) / 3) + 0.15 * Math.max(0, 1 - tt(x) / 0.12) + 1.0 * Math.pow(bowK(tt(x)), 2.2),
+      flare = (x) => 1 + 0.22 * Math.pow(bowK(tt(x)), 1.3),
+      keelY = (x) => -2.9 + 2.55 * Math.pow(Math.max(0, (tt(x) - 0.78) / 0.22), 1.6),
+      bulw = (x) => 0.25 + 0.65 * sst((x - 4) / 6),
+      sideZ = (x, y) => W(x) * (1 + (flare(x) - 1) * Math.max(0, Math.min(1, (y - 0.4) / (dk(x) - 0.4))));
+    PCE.deckY = dk;
+    const BOT = 0x6b2b25,
+      BOOT = 0x1c1f23,
+      HULL = 0x2f3b49,
+      HULL2 = 0x3a4656,
+      SUP = 0x8c959c,
+      SUP2 = 0x7c868e,
+      SUP3 = 0x6f7880,
+      DECK = 0x3d4854,
+      GUN = 0x2c2e30,
+      STEEL = 0x3a3d40,
+      WIN = 0x141c22,
+      WHITE = 0xe9e9e4,
+      BRASS = 0xa8742e;
+    const S = Array.from({ length: N }, (_, i) => {
+      const x = X0 + (L * i) / (N - 1),
+        w = W(x),
+        k = keelY(x),
+        d = dk(x),
+        f = flare(x),
+        b = bulw(x),
+        zi = Math.max(0.02, w * f - 0.14);
+      return {
+        p0: [x, k, 0],
+        p1: [x, k * 0.62, 0.72 * w],
+        p2: [x, 0, 0.985 * w],
+        p3: [x, 0.4, w],
+        p4: [x, d, w * f],
+        p5: [x, d + b, w * f * 0.995],
+        p4i: [x, d, zi],
+        p5i: [x, d + b, zi],
+      };
+    });
+    const mir = (p) => [p[0], p[1], -p[2]],
+      Rk = (k) => S.map((s) => s[k]),
+      Lk = (k) => S.map((s) => mir(s[k]));
+    const grid = (rows, hex) => {
+      const J = rows.length,
+        I = rows[0].length,
+        pos = [],
+        idx = [];
+      for (const r of rows) for (const p of r) pos.push(p[0], p[1], p[2]);
+      for (let j = 0; j < J - 1; j++)
+        for (let i = 0; i < I - 1; i++) {
+          const a = j * I + i,
+            b = a + 1,
+            c = a + I + 1,
+            d = a + I;
+          idx.push(a, b, c, a, c, d);
+        }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      P.push(part(g, hex, 0, 0, 0));
+    };
+    grid([Lk('p2'), Lk('p1'), Rk('p0'), Rk('p1'), Rk('p2')], BOT);
+    grid([Rk('p2'), Rk('p3')], BOOT);
+    grid([Lk('p3'), Lk('p2')], BOOT);
+    grid([Rk('p3'), Rk('p4')], HULL);
+    grid([Lk('p4'), Lk('p3')], HULL);
+    grid([Rk('p4'), Rk('p5')], HULL);
+    grid([Lk('p5'), Lk('p4')], HULL);
+    grid([Rk('p5'), Rk('p5i')], HULL2);
+    grid([Lk('p5i'), Lk('p5')], HULL2);
+    grid([Rk('p5i'), Rk('p4i')], HULL2);
+    grid([Lk('p4i'), Lk('p5i')], HULL2);
+    grid([Rk('p4i'), Lk('p4i')], DECK);
+    {
+      const s0 = S[0],
+        keys = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5'],
+        cols = [BOT, BOT, BOOT, HULL, HULL];
+      for (let q = 0; q < 5; q++) grid([[s0[keys[q]], s0[keys[q + 1]]], [mir(s0[keys[q]]), mir(s0[keys[q + 1]])]], cols[q]);
+    }
+    const box = (sx, sy, sz, hex, x, y, z, ry) => part(bx(sx, sy, sz), hex, x, y, z, 0, ry || 0, 0),
+      rod = (r, l, hex, x, y, z) => part(cyl(r, r, l, 8), hex, x, y, z, 0, 0, -Z), /* a cylinder lying along +x, centred */
+      post = (r, l, hex, x, y, z) => part(cyl(r, r, l, 8), hex, x, y, z),
+      wire = (x0, y0, x1, y1, z, hex) => part(bx(Math.hypot(x1 - x0, y1 - y0), 0.03, 0.03), hex || 0x1b1b1b, (x0 + x1) / 2, (y0 + y1) / 2, z, 0, 0, Math.atan2(y1 - y0, x1 - x0));
+    /* portholes along the topside, abaft the break */
+    for (let x = -22; x <= 3; x += 2.8) for (const s of [-1, 1]) P.push(box(0.3, 0.26, 0.07, WIN, x, 1.7, s * (sideZ(x, 1.7) + 0.02)));
+    for (let x = 11; x <= 15; x += 2.0) for (const s of [-1, 1]) P.push(box(0.3, 0.26, 0.07, WIN, x, 2.3, s * (sideZ(x, 2.3) + 0.02)));
+    /* the hull number, 842, in white on each bow, built from seven-segment strokes */
+    {
+      const SEG = { a: [0.275, 0.935, 0.55, 0.13], b: [0.485, 0.75, 0.13, 0.5], c: [0.485, 0.25, 0.13, 0.5], d: [0.275, 0.065, 0.55, 0.13], e: [0.065, 0.25, 0.13, 0.5], f: [0.065, 0.75, 0.13, 0.5], g: [0.275, 0.5, 0.55, 0.13] },
+        DIG = { 8: 'abcdefg', 4: 'bcfg', 2: 'abged' };
+      for (const s of [-1, 1])
+        '842'.split('').forEach((ch, di) => {
+          const x0 = s > 0 ? 15.6 + di * 0.85 : 18.2 - di * 0.85;
+          for (const k of DIG[ch]) {
+            const q = SEG[k],
+              x = x0 + (s > 0 ? q[0] : -q[0]),
+              y = 1.7 + q[1];
+            P.push(box(q[2], q[3], 0.05, WHITE, x, y, s * (sideZ(x, y) + 0.03)));
+          }
+        });
+    }
+    /* anchors in their hawse pipes, windlass, capstan, bollards and the jackstaff */
+    for (const s of [-1, 1]) {
+      P.push(box(0.34, 1.1, 0.2, STEEL, 24.2, 2.9, s * (sideZ(24.2, 2.9) + 0.14)), box(0.9, 0.2, 0.2, STEEL, 24.2, 2.45, s * (sideZ(24.2, 2.45) + 0.14)));
+      P.push(part(cyl(0.28, 0.28, 0.12, 10), 0x15171a, 25.2, 3.4, s * (sideZ(25.2, 3.4) + 0.04), Z));
+      for (const x of [26, 8, -8, -25]) P.push(post(0.15, 0.45, 0x3a3d40, x, dk(x) + 0.22, s * (W(x) * 0.9)));
+    }
+    P.push(box(1.5, 0.6, 1.5, 0x4a4d50, 25.2, dk(25.2) + 0.3, 0), part(cyl(0.4, 0.5, 0.8, 10), 0x4a4d50, 26.8, dk(26.8) + 0.4, 0), post(0.04, 1.8, 0x3a3a3a, 27.6, dk(27.6) + 0.9, 0));
+    /* the 3"/50 on the forecastle: pedestal, shield, breech, barrel and recoil sleeve, ready-service boxes */
+    {
+      const x = 20.5,
+        y = dk(20.5);
+      P.push(part(cyl(1.0, 1.15, 0.45, 16), 0x585d62, x, y + 0.22, 0), part(cyl(0.7, 0.8, 0.5, 12), 0x41454a, x, y + 0.65, 0));
+      P.push(box(0.1, 1.5, 2.2, 0x737a81, x + 0.85, y + 1.6, 0), box(1.7, 1.4, 0.07, 0x737a81, x, y + 1.6, 1.1), box(1.7, 1.4, 0.07, 0x737a81, x, y + 1.6, -1.1), box(1.8, 0.07, 2.3, SUP3, x, y + 2.35, 0));
+      P.push(box(1.0, 0.6, 0.7, 0x2b2d2f, x - 0.3, y + 1.4, 0), rod(0.2, 1.1, STEEL, x + 1.05, y + 1.65, 0), rod(0.085, 3.4, GUN, x + 2.45, y + 1.65, 0), rod(0.11, 0.3, GUN, x + 4.1, y + 1.65, 0));
+      P.push(box(0.12, 0.5, 0.9, 0x15171a, x + 0.9, y + 1.65, 0));
+      for (const s of [-1, 1]) P.push(box(0.5, 0.4, 0.7, 0x6b5c40, x - 1.6, y + 0.2, s * 1.5), box(0.3, 0.1, 0.4, 0x2b2d2f, x - 0.8, y + 0.9, s * 0.65));
+    }
+    /* the Hedgehog: four rows of six spigots on a flat rack between the gun and the bridge */
+    {
+      const x = 12.2,
+        y = dk(12.2);
+      P.push(box(2.3, 0.25, 3.2, 0x41454a, x, y + 0.22, 0), box(2.3, 0.12, 0.1, STEEL, x, y + 0.34, 1.55), box(2.3, 0.12, 0.1, STEEL, x, y + 0.34, -1.55));
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) P.push(part(cyl(0.05, 0.07, 0.9, 6), r % 2 ? 0x2b2d2f : 0x3a3d40, x - 0.75 + r * 0.5 - 0.15, y + 0.74, -1.25 + c * 0.5, 0, 0, -0.32));
+      P.push(box(0.8, 0.5, 0.6, 0x6b5c40, x - 2.0, y + 0.25, 1.9), box(0.8, 0.5, 0.6, 0x6b5c40, x - 2.0, y + 0.25, -1.9));
+    }
+    /* the main deckhouse, with the pilothouse, wings and open flying bridge on its forward end */
+    {
+      const y = dk(-2);
+      P.push(box(15, 2.4, 7.0, SUP, -2, y + 1.2, 0), box(15.2, 0.12, 7.2, SUP3, -2, y + 2.46, 0));
+      for (const s of [-1, 1]) for (let x = -8.5; x <= 4.0; x += 2.1) P.push(box(0.7, 0.55, 0.06, WIN, x, y + 1.45, s * 3.53));
+      for (let k = -2; k <= 2; k++) P.push(box(0.06, 0.55, 0.8, WIN, 5.53, y + 1.45, k * 1.2));
+      const py = y + 2.52;
+      P.push(box(5.4, 2.3, 6.0, SUP2, 2.8, py + 1.15, 0), box(5.6, 0.14, 6.2, SUP3, 2.8, py + 2.37, 0));
+      for (let k = -2; k <= 2; k++) P.push(box(0.06, 0.7, 0.95, WIN, 5.53, py + 1.5, k * 1.1));
+      for (const s of [-1, 1]) {
+        for (let k = -1; k <= 1; k++) P.push(box(0.9, 0.65, 0.06, WIN, 2.8 + k * 1.5, py + 1.5, s * 3.03));
+        P.push(box(3.0, 0.1, 1.6, SUP3, 3.4, py + 1.0, s * 4.5), box(3.0, 0.05, 0.04, 0x1b1b1b, 3.4, py + 1.9, s * 5.28), box(0.04, 0.9, 1.6, 0x1b1b1b, 4.9, py + 1.45, s * 4.5));
+        P.push(part(cyl(0.35, 0.35, 0.5, 12), 0x3d4044, 4.2, py + 1.4, s * 4.0), part(cyl(0.33, 0.33, 0.05, 12), 0xd8e4f0, 4.55, py + 1.45, s * 4.0, 0, 0, Z));
+      }
+      /* open flying bridge: coaming, compass binnacle, the Mk 51 director, a searchlight and the signal lamp */
+      const fy = py + 2.44;
+      P.push(box(5.6, 0.5, 0.08, SUP2, 2.8, fy + 0.25, 3.0), box(5.6, 0.5, 0.08, SUP2, 2.8, fy + 0.25, -3.0), box(0.08, 0.5, 6.0, SUP2, 5.6, fy + 0.25, 0));
+      P.push(post(0.18, 0.7, 0x4a4d50, 4.6, fy + 0.35, 0), part(cyl(0.22, 0.22, 0.1, 10), BRASS, 4.6, fy + 0.74, 0));
+      P.push(part(cyl(0.55, 0.65, 0.8, 10), 0x6a7077, 1.8, fy + 0.4, 0), box(1.3, 0.8, 1.1, 0x757c84, 1.8, fy + 1.2, 0), rod(0.07, 0.8, GUN, 2.7, fy + 1.3, 0.3), rod(0.07, 0.8, GUN, 2.7, fy + 1.3, -0.3));
+      P.push(part(cyl(0.3, 0.3, 0.45, 10), 0x3d4044, 4.6, fy + 0.6, 2.2), part(cyl(0.28, 0.28, 0.05, 10), 0xd8e4f0, 4.85, fy + 0.65, 2.2, 0, 0, Z));
+      /* mast with the yard, SA "bedspring" air-search array and the SO surface-search dish on top */
+      const mx = 0.5,
+        my = fy;
+      P.push(part(cyl(0.1, 0.2, 9.5, 8), 0x4a4d50, mx, my + 4.7, 0), box(0.1, 0.1, 4.6, 0x4a4d50, mx, my + 6.3, 0));
+      P.push(box(0.12, 1.5, 2.4, 0x3a3d40, mx - 0.5, my + 8.0, 0));
+      for (let r = 0; r < 6; r++) P.push(box(0.08, 0.05, 2.3, 0x2b2d2f, mx - 0.58, my + 7.4 + r * 0.25, 0));
+      P.push(part(cyl(0.45, 0.2, 0.28, 12), 0x5a5f62, mx + 0.45, my + 9.1, 0), post(0.05, 0.9, 0x3a3d40, mx, my + 9.9, 0), part(cyl(0.02, 0.02, 3.2, 4), 0x2b2d2f, mx, my + 11.0, 0.0));
+      P.push(part(GX.sph(8), 0xe8e4d0, mx, my + 10.5, 0, 0, 0, 0, 0.1, 0.1, 0.1));
+      for (const z of [-1.2, 1.2]) P.push(box(0.04, 0.5, 0.04, 0x3a3d40, mx + 0.1, my + 6.05, z));
+      P.push(wire(mx, my + 9.2, 25.5, dk(25.5) + 1.9, 0), wire(mx, my + 9.2, -26, dk(-26) + 2.2, 0), wire(mx, my + 6.3, mx - 3, y + 2.5, 3.3), wire(mx, my + 6.3, mx - 3, y + 2.5, -3.3), wire(mx, my + 6.3, mx + 3.2, py + 1.2, 2.3, 0x2a2a2a), wire(mx, my + 6.3, mx + 3.2, py + 1.2, -2.3, 0x2a2a2a));
+      /* signal flag hoist on the yard */
+      for (let i = 0; i < 4; i++) P.push(box(0.05, 0.45, 0.5, [0xb22a24, 0xe6e0c8, 0x1e4fa3, 0xd9b92a][i], mx + 0.05, my + 5.9, -1.7 + i * 0.7));
+    }
+    /* the stubby diesel funnel (oval, short, flat cap), engine-room vents and the whistle */
+    {
+      const y = dk(-3) + 2.52,
+        x = -3.0;
+      P.push(part(cyl(1.15, 1.35, 3.4, 12), 0x6a7077, x, y + 1.7, 0, 0, 0, 0, 1.0, 1.0, 1.35), part(cyl(1.18, 1.18, 0.7, 12), 0x1b1c1e, x, y + 3.3, 0, 0, 0, 0, 1.0, 1.0, 1.35), part(cyl(1.25, 1.25, 0.1, 12), 0x303236, x, y + 3.7, 0, 0, 0, 0, 1.0, 1.0, 1.35));
+      P.push(box(0.05, 3.0, 0.5, 0x303236, x + 1.3, y + 1.6, 0), post(0.1, 0.9, 0x3a3d40, x - 1.0, y + 4.2, 0.5), post(0.1, 0.7, 0x3a3d40, x - 1.0, y + 4.1, -0.5));
+      for (const s of [-1, 1]) {
+        P.push(part(cyl(0.4, 0.4, 0.7, 10), 0x4a4d50, x - 3.0, y + 0.35, s * 2.3), part(cyl(0.32, 0.46, 0.35, 10), 0x303236, x - 3.0, y + 0.85, s * 2.3, 0, 0, 0.45 * s));
+      }
+    }
+    /* two motor whaleboats on the deckhouse roof, one each side of the funnel's after end */
+    for (const s of [-1, 1]) {
+      const y = dk(-7) + 2.52,
+        x = -7.4;
+      P.push(box(4.6, 0.6, 1.5, 0x8c8f91, x, y + 0.5, s * 2.5), box(1.0, 0.55, 1.0, 0x8c8f91, x + 2.6, y + 0.5, s * 2.5), box(4.8, 0.07, 1.6, 0x2b2d2f, x, y + 0.82, s * 2.5), box(1.8, 0.4, 1.0, 0x4a4f52, x - 0.4, y + 0.98, s * 2.5));
+      for (const dx of [-1.6, 1.6]) P.push(box(0.1, 0.3, 1.9, 0x303436, x + dx, y + 0.15, s * 2.5));
+    }
+    /* Carley floats and life rings on the deckhouse sides, lifejacket lockers */
+    for (const s of [-1, 1]) {
+      for (let i = 0; i < 3; i++) P.push(part(cyl(0.5, 0.5, 0.3, 14), 0xb5452c, -6 + i * 1.4, dk(-6) + 1.6, s * 3.7, Z), part(cyl(0.3, 0.3, 0.32, 10), 0x2b2d2f, -6 + i * 1.4, dk(-6) + 1.6, s * 3.7, Z));
+      P.push(part(cyl(0.3, 0.3, 0.08, 14), WHITE, 5.2, dk(5) + 2.9, s * 3.05, Z), box(0.8, 0.55, 0.3, 0x5a5f62, -9.0, dk(-9) + 0.5, s * 3.0));
+    }
+    /* the after deckhouse with the 40 mm Bofors on its roof */
+    const bofors = (x, y, z) => {
+      P.push(part(cyl(1.35, 1.5, 0.7, 14), 0x585d62, x, y + 0.35, z), part(cyl(1.2, 1.2, 0.06, 14), 0x15171a, x, y + 0.72, z));
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        P.push(box(0.35, 0.25, 0.18, 0x7d7452, x + Math.cos(a) * 1.4, y + 0.8, z + Math.sin(a) * 1.4, -a));
+      }
+      P.push(post(0.35, 0.9, 0x4a4d50, x, y + 1.15, z), box(1.5, 0.55, 0.75, 0x41454a, x + 0.1, y + 1.75, z), rod(0.09, 0.7, STEEL, x + 0.9, y + 1.78, z), rod(0.058, 2.3, GUN, x + 2.0, y + 1.78, z), rod(0.085, 0.3, GUN, x + 3.2, y + 1.78, z));
+      P.push(box(0.65, 0.3, 0.55, 0x2b2d2f, x - 0.15, y + 2.15, z), box(0.12, 0.28, 0.55, 0x7d7452, x - 0.15, y + 2.4, z), box(0.55, 0.06, 0.55, SUP3, x + 0.55, y + 2.1, z));
+      P.push(box(0.05, 0.9, 1.2, 0x737a81, x + 0.7, y + 1.7, z + 0.9), box(0.05, 0.9, 1.2, 0x737a81, x + 0.7, y + 1.7, z - 0.9));
+      P.push(box(0.5, 0.06, 0.5, 0x2b2d2f, x - 0.8, y + 1.15, z + 0.9), box(0.5, 0.06, 0.5, 0x2b2d2f, x - 0.8, y + 1.15, z - 0.9));
+    };
+    {
+      const x = -14.2,
+        y = dk(-14.2);
+      P.push(box(6.6, 2.2, 6.4, SUP, x, y + 1.1, 0), box(6.8, 0.12, 6.6, SUP3, x, y + 2.26, 0));
+      for (const s of [-1, 1]) for (let k = 0; k < 2; k++) P.push(box(0.7, 0.5, 0.06, WIN, x - 1.2 + k * 2.4, y + 1.3, s * 3.23));
+      P.push(box(0.05, 1.4, 0.8, 0x3a3d40, x + 3.3, y + 0.8, 1.2), box(0.05, 1.4, 0.8, 0x3a3d40, x + 3.3, y + 0.8, -1.2));
+      bofors(x - 0.4, y + 2.32, 0);
+      for (const s of [-1, 1]) P.push(box(0.04, 0.04, 0.04, 0x15171a, x + 1, y + 2.32, s * 2.8));
+    }
+    /* four 20 mm Oerlikons in tubs: two on the bridge wings' roof corners, two abaft the funnel casing */
+    const oerl = (x, y, z) => {
+      P.push(part(cyl(0.6, 0.65, 0.9, 12), 0x585d62, x, y + 0.45, z), part(cyl(0.64, 0.64, 0.07, 12), 0x15171a, x, y + 0.92, z), post(0.07, 0.9, STEEL, x, y + 1.35, z));
+      P.push(box(0.9, 0.16, 0.14, GUN, x + 0.1, y + 1.85, z), rod(0.032, 1.1, GUN, x + 0.95, y + 1.85, z), part(cyl(0.2, 0.2, 0.12, 10), 0x2b2d2f, x + 0.05, y + 2.05, z), box(0.04, 0.5, 0.6, 0x737a81, x + 0.55, y + 1.85, z), part(cyl(0.18, 0.18, 0.03, 10), STEEL, x - 0.45, y + 1.85, z, Z));
+    };
+    oerl(2.0, dk(2) + 2.52 + 0.1, 3.0);
+    oerl(2.0, dk(2) + 2.52 + 0.1, -3.0);
+    oerl(-18.5, dk(-18.5), 3.0);
+    oerl(-18.5, dk(-18.5), -3.0);
+    /* a second 40 mm on the fantail tub, a deckhouse hatch and the ensign staff; depth charge rails, drums and K-guns */
+    bofors(-22.8, dk(-22.8), 0);
+    for (const s of [-1, 1]) {
+      const z = s * 1.3;
+      P.push(box(7.0, 0.1, 0.1, 0x2b2d2f, -24.5, dk(-26) + 0.12, z - 0.25), box(7.0, 0.1, 0.1, 0x2b2d2f, -24.5, dk(-26) + 0.12, z + 0.25));
+      for (let i = 0; i < 7; i++) P.push(part(cyl(0.3, 0.3, 0.8, 10), i % 3 ? 0x303436 : 0x3a3f42, -27.2 + i * 0.95, dk(-26) + 0.55, z, Z));
+      for (let i = 0; i < 3; i++) P.push(part(cyl(0.16, 0.22, 0.9, 8), 0x3a3d40, -19.6 + i * 1.5, dk(-19) + 0.5, s * 4.0, 0, 0, 0), part(cyl(0.1, 0.12, 0.8, 8), 0x2b2d2f, -19.6 + i * 1.5, dk(-19) + 1.15, s * 4.2, s * 0.65), part(cyl(0.2, 0.2, 0.12, 8), 0x2b2d2f, -19.6 + i * 1.5, dk(-19) + 0.08, s * 3.95));
+      P.push(box(1.0, 0.5, 0.8, 0x2b2d2f, -28.0, 2.9, s * 0.9));
+    }
+    {
+      const x = -27.6,
+        y = dk(-27.6);
+      P.push(post(0.05, 3.3, 0x555555, x, y + 1.65, 0), ...FLG.at('us', 1.7, x - 0.05, y + 3.25, 0, Math.PI));
+    }
+    /* guard rails: stanchions every 2.2 m and a top and middle wire along both sides, from the stern to the break of the forecastle */
+    for (const s of [-1, 1]) {
+      const xs = [];
+      for (let x = -27; x <= 8; x += 2.2) xs.push(x);
+      for (const x of xs) P.push(post(0.025, 1.0, 0x6a6f74, x, dk(x) + 0.5, s * (sideZ(x, dk(x)) - 0.12)));
+      for (let i = 0; i < xs.length - 1; i++) {
+        const a = xs[i],
+          b = xs[i + 1];
+        P.push(wire(a, dk(a) + 1.0, b, dk(b) + 1.0, s * (sideZ(a, dk(a)) - 0.12), 0x4a4d50), wire(a, dk(a) + 0.5, b, dk(b) + 0.5, s * (sideZ(a, dk(a)) - 0.12), 0x4a4d50));
+      }
+    }
+    /* deck hatches and ventilators forward of the bridge and on the quarterdeck */
+    for (const x of [-20, 8.2]) P.push(box(1.1, 0.35, 1.1, 0x4a525b, x, dk(x) + 0.18, 2.0), box(1.1, 0.35, 1.1, 0x4a525b, x, dk(x) + 0.18, -2.0));
+    for (const s of [-1, 1]) P.push(part(cyl(0.3, 0.3, 0.9, 10), 0x4a4d50, 8.8, dk(8.8) + 0.45, s * 3.4), part(cyl(0.24, 0.42, 0.45, 10), 0x303236, 8.8, dk(8.8) + 1.0, s * 3.4, 0, 0, 0.4 * s));
+    return P;
+  };
+  AFLD.addShip(freighter('us'), 95, 1500, 3800, 6.5, 1);
+  AFLD.addShip(tanker('us'), 112, 2500, 6500, 5.5, 2);
+  AFLD.addShip(pce(), 56, 2000, 5000, 7.5, 3, -8.15, 0.6); /* the US Navy PCE; waterline at the sea plane */
   AFLD.hullSteps = hullSteps;
-  AFLD.models = { freighter, tanker, patrol, fighter, ki84, fuelTruck, cargoTruck, jeep, tug, crew, drums }; /* the port and the airbase reuse these models */
+  AFLD.models = { freighter, tanker, patrol, pce, fighter, ki84, fuelTruck, cargoTruck, jeep, tug, crew, drums }; /* the port and the airbase reuse these models */
   /* soft contact shadows under everything parked */
   {
     const c = document.createElement('canvas');
@@ -8170,8 +8587,7 @@ const VM = (() => {
     );
     P.push(
       part(cyl(0.07, 0.07, 9, 6), 0xcfcfcf, 7.2, 4.5, D / 2 + 2.5),
-      part(bx(1.7, 1.0, 0.04), 0xb22a24, 8.1, 8.4, D / 2 + 2.5),
-      part(bx(1.7, 0.33, 0.04), 0xf2f2ee, 8.1, 8.4, D / 2 + 2.5),
+      ...FLG.at('jn', 2.1, 7.27, 8.95, D / 2 + 2.5, 0), /* the Rising Sun over the HQ */
       part(cyl(0.06, 0.06, 7, 6), 0x3a3d40, -5.5, 8.4, -1),
       part(bx(2, 0.08, 0.08), 0x3a3d40, -5.5, 10.5, -1),
       part(bx(1.6, 0.08, 0.08), 0x3a3d40, -5.5, 9.8, -1),
@@ -9755,6 +10171,7 @@ const BLD = [];
   };
   yard(DEPOT, DEPF, DP);
   yard(BASE, BASEF, BS);
+  for (const [Fz, Ff] of [[DEPOT, DEPF], [BASE, BASEF]]) FLG.mesh('jn', 12, 3.0, Fz[0] + Ff[0] + 18, Fz[1] + Ff[2] + 18, 0.5);
 }
 /* compound dressing for the depot and the base: perimeter fence, guard towers, floodlights, stacks of crates and barrels, parked vehicles */
 {
@@ -10261,6 +10678,8 @@ AA.load();
       const L = AA.lamp[AA.lamp.length - 1];
       L.site = L.t.site = true;
     };
+  AA.mkGun = gun; /* the far sites place their own guns and lights */
+  AA.mkLamp = lamp;
   sg(-150, -20, 0.5);
   sg(150, -30, 0.5);
   sl(-110, -105, 1.2);
@@ -10719,6 +11138,7 @@ function updAA(dt) {
   add(104, Yp, -118, 3, 1.2, 3, 0x3a3d40); /* pump */
   P.push(part(cyl(0.4, 0.6, 34, 8), 0x8a2a20, 140, Y0 + 17, 100)); /* the KMM beacon mast */
   add(140, Y0, 108, 6, 3.2, 5, 0x8a8a84);
+  P.push(...FLG.pole('us', 10, 2.6, 62, Y0 + 0.14, -122, 0.4)); /* the Stars and Stripes at Kamome Field */
   /* a windsock beside the runway */
   P.push(part(cyl(0.15, 0.15, 8, 8), 0xdddddd, 20, Y0 + 4, 30));
   P.push(part(cyl(0.6, 0.2, 3, 10), 0xff6a00, 22.2, Y0 + 7.6, 30, 0, 0, Zr));
@@ -10761,6 +11181,7 @@ function updAA(dt) {
    beyond 27 km. Their buffers are pooled and reused, so nothing is allocated or garbage collected while you fly. All sea chunks are
    skipped altogether. The shore colours are painted per pixel from a height map, exactly as on the home map. */
 const WORLD = (() => {
+  let PBX = null;
   const SEGC = 64,
     NV = (SEGC + 1) * (SEGC + 1),
     TEXN = 194,
@@ -10804,7 +11225,7 @@ const WORLD = (() => {
         const x = (ri + 0.1 + 0.8 * hg(ri, rj, 100 + k * 2)) * RG,
           z = (rj + 0.1 + 0.8 * hg(ri, rj, 101 + k * 2)) * RG,
           h = WH(x, z);
-        if (h < 6 || h > 90 || tnAt(x, z) > 0.04 || Math.max(Math.abs(x), Math.abs(z)) < 13500 || Math.max(Math.abs(x), Math.abs(z)) > 49000) continue;
+        if (h < 6 || h > 90 || FS.near(x, z, 260) || tnAt(x, z) > 0.04 || Math.max(Math.abs(x), Math.abs(z)) < 13500 || Math.max(Math.abs(x), Math.abs(z)) > 49000) continue;
         let dry = true;
         for (let a = 0; a < 8 && dry; a++) if (WH(x + Math.cos(a * 0.785) * 160, z + Math.sin(a * 0.785) * 160) < 2) dry = false;
         if (dry && forestF(x, z) < 0.5) v = { x, z, h, id: 'h' + key, hamlet: true, yaw: hg(ri, rj, 99) * 6.283 };
@@ -10821,7 +11242,7 @@ const WORLD = (() => {
         const x = (ci + 0.2 + 0.6 * hg(ci, cj, 121)) * FC,
           z = (cj + 0.2 + 0.6 * hg(ci, cj, 122)) * FC,
           h = WH(x, z);
-        if (h >= 5 && h <= 85 && Math.max(Math.abs(x), Math.abs(z)) > 13500 && Math.max(Math.abs(x), Math.abs(z)) < 49000) {
+        if (h >= 5 && h <= 85 && !FS.near(x, z, 170) && Math.max(Math.abs(x), Math.abs(z)) > 13500 && Math.max(Math.abs(x), Math.abs(z)) < 49000) {
           const tn = tnAt(x, z);
           if (tn < 0.05 && farmK(x, z, h, tn) > 0.3) v = { x, z, h, id: 'f' + key, ci, cj, yaw: 0, par: undefined };
         }
@@ -10856,7 +11277,7 @@ const WORLD = (() => {
       for (let i = 0; i <= n && v; i++) {
         pathPt(a, b, i / n, P2);
         const h = WH(P2[0], P2[1]);
-        if (h < 1.5 || h > 450 || (ph !== null && Math.abs(h - ph) / (len / n) > 0.11)) v = false;
+        if (h < 1.5 || h > 450 || FS.near(P2[0], P2[1], 40) || (ph !== null && Math.abs(h - ph) / (len / n) > 0.11)) v = false;
         ph = h;
       }
       /* a road never runs through the yard of a farm or the green of a hamlet that is not one of its ends */
@@ -11174,6 +11595,7 @@ const WORLD = (() => {
       ];
       return { P, T: xf(x, 0, z, yaw) };
     };
+    PBX = { prismG, post, hut, bungalow, pig, hen, handcart }; /* the far sites reuse these */
     const farm = () => {
       const A = new Acc(),
         add = (o) => A.add(o.P, o.T);
@@ -11273,7 +11695,7 @@ const WORLD = (() => {
     GN = 326,
     GC = 20,
     RNOR = new THREE.BufferAttribute(new Float32Array(RV * 3).map((v, i) => (i % 3 === 1 ? 1 : 0)), 3),
-    ROADM = new THREE.MeshLambertMaterial({ color: 0x6e695d, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    ROADM = new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   const hg = (i, j, k) => {
     let h = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(k, 2147483629)) | 0;
     h = Math.imul(h ^ (h >>> 13), 1274126177);
@@ -11305,6 +11727,368 @@ const WORLD = (() => {
     'float row=(r3<0.5?u.x:u.y)*' + FCS.toFixed(1) + '/19.0;cp*=1.0-0.14*sk*smoothstep(0.35,0.65,sin(row*6.2832)*0.5+0.5);' +
     'vec2 e=min(ff,1.0-ff)*' + FCS.toFixed(1) + ';float hl=(1.0-smoothstep(1.2,3.2,min(e.x,e.y)))*(1.0-smoothstep(2500.0,6000.0,dq));cp=mix(cp,vec3(0.1,0.18,0.08),hl*0.8);' +
     'diffuseColor.rgb=mix(diffuseColor.rgb,cp*0.68,fk);}}\n';
+  /* =====================================================================================================================
+     THE ROUTES: dirt roads from the two colonial ports to the nearest villages, and paved roads between the enemy bases.
+     The paved roads may cross water on a bridge only where the gap is small (700 m or less); bases that would need a longer
+     crossing are not linked and keep to the sea lanes. Everything is fixed by position alone (planned once, at load).
+     A route is a polyline sampled every 12 m; the chunks drape it on the ground like any other road, so scenery keeps clear of it.
+     ===================================================================================================================== */
+  const RT = (() => {
+    const CELL = 160,
+      WET = -5.5,
+      cfg = { maxb: 700, wc: 25 },
+      STEP = 12,
+      MAXG = 0.11;
+    let routes = null;
+    const siteBlock = (x, z, own) => {
+      for (const s of FS.list) {
+        if (own.includes(s.id)) continue;
+        if (Math.hypot(x - s.O.x, z - s.O.z) < s.R + 250) return true;
+      }
+      return false;
+    };
+    const ruralBlock = (x, z, gx, gz) => {
+      const FC = NET.FC,
+        RG = NET.RG;
+      for (let ci = Math.floor((x - 110) / FC); ci <= Math.floor((x + 110) / FC); ci++)
+        for (let cj = Math.floor((z - 110) / FC); cj <= Math.floor((z + 110) / FC); cj++) {
+          const f = NET.farm(ci, cj);
+          if (f && Math.hypot(f.x - x, f.z - z) < 110) return true;
+        }
+      for (let ri = Math.floor((x - 140) / RG); ri <= Math.floor((x + 140) / RG); ri++)
+        for (let rj = Math.floor((z - 140) / RG); rj <= Math.floor((z + 140) / RG); rj++) {
+          const h = NET.hamlet(ri, rj);
+          if (h && Math.hypot(h.x - x, h.z - z) < 140 && Math.hypot(h.x - gx, h.z - gz) > 20) return true;
+        }
+      return false;
+    };
+    /* cost of moving from p to q (a short hop); Infinity when not allowed */
+    const hop = (x1, z1, h1, x2, z2, h2, paved, own, gx, gz) => {
+      const d = Math.hypot(x2 - x1, z2 - z1);
+      if (h2 > 420 || siteBlock(x2, z2, own) || ruralBlock(x2, z2, gx, gz)) return Infinity;
+      const w1 = h1 < WET,
+        w2 = h2 < WET;
+      if (w1 || w2) return paved ? d * (w2 ? cfg.wc : 1) : Infinity;
+      const g = Math.abs(h2 - h1) / d;
+      if (g > MAXG) return Infinity;
+      return d * (1 + 60 * g * g);
+    };
+    const astar = (ax, az, bx, bz, paved, own) => {
+      const dist = Math.hypot(bx - ax, bz - az),
+        M = dist * 0.35 + 4500,
+        x0 = Math.max(-48500, Math.min(ax, bx) - M),
+        z0 = Math.max(-48500, Math.min(az, bz) - M),
+        x1 = Math.min(48500, Math.max(ax, bx) + M),
+        z1 = Math.min(48500, Math.max(az, bz) + M),
+        nx = Math.ceil((x1 - x0) / CELL) + 1,
+        nz = Math.ceil((z1 - z0) / CELL) + 1,
+        N = nx * nz,
+        hA = new Float32Array(N).fill(NaN),
+        gS = new Float32Array(N).fill(Infinity),
+        from = new Int32Array(N).fill(-1),
+        done = new Uint8Array(N);
+      const hAt = (k) => {
+        let v = hA[k];
+        if (v !== v) {
+          v = WH(x0 + (k % nx) * CELL, z0 + Math.floor(k / nx) * CELL);
+          hA[k] = v;
+        }
+        return v;
+      };
+      const cellOf = (x, z) => Math.max(0, Math.min(nx - 1, Math.round((x - x0) / CELL))) + nx * Math.max(0, Math.min(nz - 1, Math.round((z - z0) / CELL)));
+      const s = cellOf(ax, az),
+        t = cellOf(bx, bz);
+      /* binary heap of [f, k] */
+      const hf = [],
+        hk = [];
+      const push = (f, k) => {
+        let i = hf.length;
+        hf.push(f);
+        hk.push(k);
+        while (i > 0) {
+          const p = (i - 1) >> 1;
+          if (hf[p] <= f) break;
+          hf[i] = hf[p];
+          hk[i] = hk[p];
+          i = p;
+        }
+        hf[i] = f;
+        hk[i] = k;
+      };
+      const pop = () => {
+        const k0 = hk[0],
+          fl = hf.pop(),
+          kl = hk.pop();
+        const n = hf.length;
+        if (n) {
+          let i = 0;
+          for (;;) {
+            let c = 2 * i + 1;
+            if (c >= n) break;
+            if (c + 1 < n && hf[c + 1] < hf[c]) c++;
+            if (hf[c] >= fl) break;
+            hf[i] = hf[c];
+            hk[i] = hk[c];
+            i = c;
+          }
+          hf[i] = fl;
+          hk[i] = kl;
+        }
+        return k0;
+      };
+      gS[s] = 0;
+      push(0, s);
+      let it = 0;
+      while (hf.length && it++ < 400000) {
+        const k = pop();
+        if (done[k]) continue;
+        done[k] = 1;
+        if (k === t) break;
+        const ki = k % nx,
+          kj = (k - ki) / nx,
+          cx = x0 + ki * CELL,
+          cz = z0 + kj * CELL,
+          ch = hAt(k);
+        for (let a = -1; a <= 1; a++)
+          for (let b = -1; b <= 1; b++) {
+            if (!a && !b) continue;
+            const ni = ki + a,
+              nj = kj + b;
+            if (ni < 0 || nj < 0 || ni >= nx || nj >= nz) continue;
+            const k2 = ni + nj * nx;
+            if (done[k2]) continue;
+            const x2 = x0 + ni * CELL,
+              z2 = z0 + nj * CELL;
+            const c = k2 === t ? Math.hypot(x2 - cx, z2 - cz) : hop(cx, cz, ch, x2, z2, hAt(k2), paved, own, bx, bz);
+            if (c === Infinity) continue;
+            const g2 = gS[k] + c;
+            if (g2 < gS[k2]) {
+              gS[k2] = g2;
+              from[k2] = k;
+              push(g2 + Math.hypot(bx - x2, bz - z2), k2);
+            }
+          }
+      }
+      if (!done[t]) return null;
+      const pts = [];
+      for (let k = t; k >= 0; k = from[k]) {
+        pts.push([x0 + (k % nx) * CELL, z0 + Math.floor(k / nx) * CELL]);
+        if (k === s) break;
+      }
+      pts.reverse();
+      pts[0] = [ax, az];
+      pts[pts.length - 1] = [bx, bz];
+      return pts;
+    };
+    /* cost of a straight run (sampled every 40 m) between two points, under the same rules */
+    const segCost = (p, q, paved, own, gx, gz) => {
+      const L = Math.hypot(q[0] - p[0], q[1] - p[1]),
+        n = Math.max(1, Math.ceil(L / 40));
+      let c = 0,
+        px = p[0],
+        pz = p[1],
+        ph = WH(px, pz);
+      for (let i = 1; i <= n; i++) {
+        const x = p[0] + ((q[0] - p[0]) * i) / n,
+          z = p[1] + ((q[1] - p[1]) * i) / n,
+          h = WH(x, z),
+          k = hop(px, pz, ph, x, z, h, paved, own, gx, gz);
+        if (k === Infinity) return Infinity;
+        c += k;
+        px = x;
+        pz = z;
+        ph = h;
+      }
+      return c;
+    };
+    const smooth = (pts, paved, own, gx, gz) => {
+      const n = pts.length,
+        pre = [0];
+      for (let i = 1; i < n; i++) {
+        const c = segCost(pts[i - 1], pts[i], paved, own, gx, gz);
+        pre.push(pre[i - 1] + (isFinite(c) ? c : 1e9));
+      }
+      const out = [pts[0]];
+      let i = 0;
+      while (i < n - 1) {
+        let j = Math.min(n - 1, i + 45),
+          took = false;
+        for (; j > i + 1; j--) {
+          const c = segCost(pts[i], pts[j], paved, own, gx, gz);
+          if (c <= (pre[j] - pre[i]) * 1.03 + 40) {
+            took = true;
+            break;
+          }
+        }
+        if (!took) j = i + 1;
+        out.push(pts[j]);
+        i = j;
+      }
+      return out;
+    };
+    const chaikin = (pts, times) => {
+      let P = pts;
+      for (let r = 0; r < times; r++) {
+        const Q = [P[0]];
+        for (let i = 0; i < P.length - 1; i++) {
+          const a = P[i],
+            b = P[i + 1];
+          Q.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]);
+        }
+        Q.push(P[P.length - 1]);
+        P = Q;
+      }
+      return P;
+    };
+    const resample = (pts) => {
+      const xs = [pts[0][0]],
+        zs = [pts[0][1]];
+      let carry = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1],
+          b = pts[i],
+          L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        let s = STEP - carry;
+        while (s <= L) {
+          xs.push(a[0] + ((b[0] - a[0]) * s) / L);
+          zs.push(a[1] + ((b[1] - a[1]) * s) / L);
+          s += STEP;
+        }
+        carry = L - (s - STEP);
+      }
+      xs.push(pts[pts.length - 1][0]);
+      zs.push(pts[pts.length - 1][1]);
+      return [xs, zs];
+    };
+    /* plan one route; returns {paved, x, z, y (deck height or NaN), ...} or null */
+    const make = (A, B, paved, own, hamEnd) => {
+      let raw = astar(A[0], A[1], B[0], B[1], paved, own);
+      if (!raw) return null;
+      raw = smooth(raw, paved, own, B[0], B[1]);
+      let xs, zs;
+      for (let pass = 0; pass < 2; pass++) {
+        const P = pass === 0 ? chaikin(raw, 2) : raw;
+        [xs, zs] = resample(P);
+        /* the rounded line must still obey the rules */
+        let ok = true;
+        for (let k = 1; k < xs.length && ok; k += 2) {
+          const h = WH(xs[k], zs[k]);
+          if (h > 420 || siteBlock(xs[k], zs[k], own) || (!paved && h < WET) || ruralBlock(xs[k], zs[k], B[0], B[1])) ok = false;
+        }
+        if (ok) break;
+        if (pass === 1) return null;
+      }
+      /* a village end stops at its ring road */
+      if (hamEnd) {
+        while (xs.length > 2 && Math.hypot(xs[xs.length - 1] - hamEnd.x, zs[zs.length - 1] - hamEnd.z) < 50) {
+          xs.pop();
+          zs.pop();
+        }
+        const lx = xs[xs.length - 1],
+          lz = zs[zs.length - 1],
+          dd = Math.hypot(lx - hamEnd.x, lz - hamEnd.z);
+        if (dd > 50) {
+          xs.push(hamEnd.x + ((lx - hamEnd.x) * 49.5) / dd);
+          zs.push(hamEnd.z + ((lz - hamEnd.z) * 49.5) / dd);
+        }
+      }
+      const n = xs.length,
+        wet = new Uint8Array(n);
+      for (let k = 0; k < n; k++) wet[k] = WH(xs[k], zs[k]) < WET ? 1 : 0;
+      const y = new Float32Array(n).fill(NaN);
+      let bridges = 0,
+        longest = 0;
+      if (paved) {
+        for (let k = 0; k < n; k++) {
+          if (!wet[k]) continue;
+          let e = k;
+          while (e + 1 < n && (wet[e + 1] || (e + 3 < n && (wet[e + 2] || wet[e + 3])))) e++;
+          const a = Math.max(0, k - 3),
+            b = Math.min(n - 1, e + 3),
+            ya = WH(xs[a], zs[a]),
+            yb = WH(xs[b], zs[b]);
+          longest = Math.max(longest, (b - a) * STEP);
+          for (let q = a; q <= b; q++) y[q] = Math.max(-1.5, ya + ((yb - ya) * (q - a)) / Math.max(1, b - a)) + 0.3;
+          bridges++;
+          k = b;
+        }
+        if (longest > cfg.maxb) return null;
+      } else if (wet.some((v) => v)) return null;
+      let x0 = 1e9,
+        x1 = -1e9,
+        z0 = 1e9,
+        z1 = -1e9;
+      for (let k = 0; k < n; k++) {
+        x0 = Math.min(x0, xs[k]);
+        x1 = Math.max(x1, xs[k]);
+        z0 = Math.min(z0, zs[k]);
+        z1 = Math.max(z1, zs[k]);
+      }
+      return { paved, x: Float64Array.from(xs), z: Float64Array.from(zs), y, n, x0, x1, z0, z1, bridges, longest, len: n * STEP };
+    };
+    const gate = (s) => (s.kind === 'air' ? s.w(0, -1045) : s.kind === 'conv' ? s.w(0, -138) : s.w(0, -150));
+    const plan = () => {
+      const out = [],
+        info = [];
+      /* dirt roads: each colonial port to its (up to two) nearest villages */
+      for (const s of FS.list.filter((q) => q.kind === 'port')) {
+        const g = gate(s),
+          ri = Math.floor(s.O.x / NET.RG),
+          rj = Math.floor(s.O.z / NET.RG),
+          cand = [];
+        for (let a = -3; a <= 3; a++)
+          for (let b = -3; b <= 3; b++) {
+            const h = NET.hamlet(ri + a, rj + b);
+            if (h && Math.hypot(h.x - s.O.x, h.z - s.O.z) < 20000) cand.push(h);
+          }
+        cand.sort((p, q) => Math.hypot(p.x - s.O.x, p.z - s.O.z) - Math.hypot(q.x - s.O.x, q.z - s.O.z));
+        let got = 0;
+        for (const h of cand.slice(0, 5)) {
+          if (got >= 2) break;
+          const r = make(g, [h.x, h.z], false, [s.id], h);
+          if (r) {
+            r.from = s.id;
+            r.to = h.id;
+            out.push(r);
+            got++;
+          }
+        }
+        info.push([s.id, 'dirt', cand.length, got]);
+      }
+      /* paved roads between the enemy bases: shortest links first, only those that join separate groups, bridges only over small gaps */
+      const en = FS.list.filter((q) => q.kind !== 'port'),
+        pairs = [];
+      for (let i = 0; i < en.length; i++) for (let j = i + 1; j < en.length; j++) pairs.push([en[i], en[j], Math.hypot(en[i].O.x - en[j].O.x, en[i].O.z - en[j].O.z)]);
+      pairs.sort((p, q) => p[2] - q[2]);
+      const grp = new Map(en.map((s) => [s.id, s.id]));
+      const root = (id) => (grp.get(id) === id ? id : root(grp.get(id)));
+      for (const [a, b, d] of pairs) {
+        if (root(a.id) === root(b.id) || d > 60000) continue;
+        const r = make(gate(a), gate(b), true, [a.id, b.id], null);
+        info.push([a.id + '-' + b.id, 'paved', (d / 1000).toFixed(1) + 'km', r ? 'ok ' + (r.len / 1000).toFixed(1) + 'km, ' + r.bridges + ' bridges, longest ' + r.longest + ' m' : 'no land route (ships only)']);
+        if (r) {
+          r.from = a.id;
+          r.to = b.id;
+          out.push(r);
+          grp.set(root(a.id), root(b.id));
+        }
+      }
+      routes = out;
+      routes.info = info;
+      return out;
+    };
+    /* is (x, z) within d of a route? (used by the site fences so a road gets its gate) */
+    const near = (x, z, d) => {
+      for (const R of list()) {
+        if (x < R.x0 - d || x > R.x1 + d || z < R.z0 - d || z > R.z1 + d) continue;
+        for (let k = 0; k < R.n; k++) if (Math.abs(R.x[k] - x) < d && Math.abs(R.z[k] - z) < d && Math.hypot(R.x[k] - x, R.z[k] - z) < d) return true;
+      }
+      return false;
+    };
+    const list = () => routes || plan();
+    return { list, near, STEP, cfg, plan, astar, gate, make };
+  })();
+
   const mkItem = () => {
     const g = new THREE.BufferGeometry(),
       pos = new Float32Array(NV * 3),
@@ -11317,6 +12101,7 @@ const WORLD = (() => {
       farm = new Float32Array(NV),
       rg = new Uint8Array(GN * GN),
       rpos = new Float32Array(RV * 3),
+      rcol = new Uint8Array(RV * 3),
       ridx = new Uint16Array(RI),
       rgeo = new THREE.BufferGeometry(),
       mat = new THREE.MeshLambertMaterial({ vertexColors: true }),
@@ -11336,6 +12121,7 @@ const WORLD = (() => {
     }
     rgeo.setAttribute('position', new THREE.BufferAttribute(rpos, 3));
     rgeo.setAttribute('normal', RNOR);
+    rgeo.setAttribute('color', new THREE.BufferAttribute(rcol, 3, true));
     rgeo.setIndex(new THREE.BufferAttribute(ridx, 1));
     rgeo.setDrawRange(0, 0);
     const roadMesh = new THREE.Mesh(rgeo, ROADM);
@@ -11383,7 +12169,7 @@ const WORLD = (() => {
     const mesh = new THREE.Mesh(g, mat);
     mesh.matrixAutoUpdate = false;
     mesh.frustumCulled = true;
-    return { g, pos, nor, col, td, tex, O, mat, mesh, hs, farm, TR, rg, rgeo, rpos, ridx, roadMesh, FM, HM, RSA: new Float64Array(40000), nR: 0, rOn: false };
+    return { g, pos, nor, col, td, tex, O, mat, mesh, hs, farm, TR, rg, rgeo, rpos, rcol, ridx, roadMesh, FM, HM, RSA: new Float64Array(40000), nR: 0, rOn: false };
   };
   const clr = [0, 0, 0];
   const paint = (h, ny, x, z, o) => {
@@ -11565,7 +12351,8 @@ const WORLD = (() => {
       let prevV = -1,
         lrx = 1e9,
         lrz = 1e9;
-      const emit = (x, z, tx, tz) => {
+      const DIRT = 0x6e695d;
+      const emit = (x, z, tx, tz, hw = 2.6, col = DIRT, yv = NaN) => {
         const inside = x >= c.x0 - 30 && x < c.x1 + 30 && z >= c.z0 - 30 && z < c.z1 + 30;
         if (x >= c.x0 - 100 && x < c.x1 + 100 && z >= c.z0 - 100 && z < c.z1 + 100) {
           /* the samples are 4 m apart at most, so a building cannot slip between them */
@@ -11590,16 +12377,22 @@ const WORLD = (() => {
           return;
         }
         if (rv + 2 > RV || ri + 6 > RI) return;
-        const lx = x - tz * 2.6,
-          lz = z + tx * 2.6,
-          rx = x + tz * 2.6,
-          rz = z - tx * 2.6;
+        const lx = x - tz * hw,
+          lz = z + tx * hw,
+          rx = x + tz * hw,
+          rz = z - tx * hw,
+          yo = col === DIRT ? 0.3 : 0.36;
         it.rpos[rv * 3] = lx;
-        it.rpos[rv * 3 + 1] = meshH0(lx, lz) + 0.3;
+        it.rpos[rv * 3 + 1] = yv === yv ? yv : meshH0(lx, lz) + yo;
         it.rpos[rv * 3 + 2] = lz;
         it.rpos[rv * 3 + 3] = rx;
-        it.rpos[rv * 3 + 4] = meshH0(rx, rz) + 0.3;
+        it.rpos[rv * 3 + 4] = yv === yv ? yv : meshH0(rx, rz) + yo;
         it.rpos[rv * 3 + 5] = rz;
+        for (let q = 0; q < 2; q++) {
+          it.rcol[(rv + q) * 3] = (col >> 16) & 255;
+          it.rcol[(rv + q) * 3 + 1] = (col >> 8) & 255;
+          it.rcol[(rv + q) * 3 + 2] = col & 255;
+        }
         if (prevV >= 0) {
           it.ridx[ri++] = prevV;
           it.ridx[ri++] = rv;
@@ -11722,6 +12515,94 @@ const WORLD = (() => {
           yield 4;
         }
       }
+      /* the routes: dirt roads from the colonial ports to the villages, paved roads between the enemy bases (a bridge where one crosses a small gap) */
+      {
+        const PAVE = 0x3b3b3e,
+          CONC = 0xa4a49c,
+          DARK = 0x5e5e5a,
+          sRL = { pv: -1 },
+          sRR = { pv: -1 },
+          sFL = { pv: -1 },
+          sFR = { pv: -1 },
+          sts = [sRL, sRR, sFL, sFR];
+        const rib = (st, ax, ay, az, bx, by, bz, col) => {
+          if (rv + 2 > RV || ri + 6 > RI) {
+            st.pv = -1;
+            return;
+          }
+          const o = rv * 3;
+          it.rpos[o] = ax;
+          it.rpos[o + 1] = ay;
+          it.rpos[o + 2] = az;
+          it.rpos[o + 3] = bx;
+          it.rpos[o + 4] = by;
+          it.rpos[o + 5] = bz;
+          for (let q = 0; q < 2; q++) {
+            it.rcol[o + q * 3] = (col >> 16) & 255;
+            it.rcol[o + q * 3 + 1] = (col >> 8) & 255;
+            it.rcol[o + q * 3 + 2] = col & 255;
+          }
+          if (st.pv >= 0) {
+            it.ridx[ri++] = st.pv;
+            it.ridx[ri++] = rv;
+            it.ridx[ri++] = st.pv + 1;
+            it.ridx[ri++] = st.pv + 1;
+            it.ridx[ri++] = rv;
+            it.ridx[ri++] = rv + 1;
+          }
+          st.pv = rv;
+          rv += 2;
+        };
+        for (const R of RT.list()) {
+          if (R.x1 < c.x0 - 130 || R.x0 > c.x1 + 130 || R.z1 < c.z0 - 130 || R.z0 > c.z1 + 130) continue;
+          const hw = R.paved ? 3.4 : 2.6,
+            col = R.paved ? PAVE : DIRT;
+          prevV = -1;
+          lrx = 1e9;
+          for (const st of sts) st.pv = -1;
+          let b0 = -1;
+          for (let k = 0; k < R.n; k++) {
+            const x = R.x[k],
+              z = R.z[k];
+            if (x < c.x0 - 100 || x >= c.x1 + 100 || z < c.z0 - 100 || z >= c.z1 + 100) {
+              prevV = -1;
+              lrx = 1e9;
+              for (const st of sts) st.pv = -1;
+              continue;
+            }
+            const ka = Math.max(0, k - 1),
+              kb = Math.min(R.n - 1, k + 1);
+            let tx = R.x[kb] - R.x[ka],
+              tz = R.z[kb] - R.z[ka];
+            const tl = Math.hypot(tx, tz) || 1;
+            tx /= tl;
+            tz /= tl;
+            const y = R.y[k];
+            emit(x, z, tx, tz, hw, col, y);
+            if (y === y && x >= c.x0 - 30 && x < c.x1 + 30 && z >= c.z0 - 30 && z < c.z1 + 30) {
+              if (b0 < 0) b0 = k;
+              const lx = x - tz * (hw + 0.1),
+                lz = z + tx * (hw + 0.1),
+                rx = x + tz * (hw + 0.1),
+                rz = z - tx * (hw + 0.1);
+              rib(sRL, lx, y, lz, lx, y + 0.95, lz, CONC);
+              rib(sRR, rx, y, rz, rx, y + 0.95, rz, CONC);
+              rib(sFL, lx, y, lz, lx, y - 1.5, lz, DARK);
+              rib(sFR, rx, y, rz, rx, y - 1.5, rz, DARK);
+              if ((k - b0) % 4 === 0) {
+                const pst = { pv: -1 };
+                rib(pst, lx, y - 1.5, lz, lx, -9.5, lz, DARK);
+                rib(pst, rx, y - 1.5, rz, rx, -9.5, rz, DARK);
+              }
+            } else {
+              for (const st of sts) st.pv = -1;
+              if (y !== y) b0 = -1;
+            }
+          }
+          prevV = -1;
+          lrx = 1e9;
+        }
+      }
       /* farms and their roads */
       {
         const f0 = Math.floor((c.x0 - 7200) / FCN),
@@ -11813,6 +12694,7 @@ nearRoads(h.x, h.z);
     it.nV = rv;
     it.rgeo.setDrawRange(0, ri);
     it.rgeo.attributes.position.needsUpdate = true;
+    it.rgeo.attributes.color.needsUpdate = true;
     it.rgeo.index.needsUpdate = true;
     {
       let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, z0 = 1e9, z1 = -1e9;
@@ -11875,7 +12757,7 @@ nearRoads(h.x, h.z);
       /* write one tree into its list */
       const put = (kind, x, z, hm, sd, sd2) => {
         const T = it.TR[kind].src;
-        if (T.n >= T.cap) return;
+        if (T.n >= T.cap || FS.near(x, z, 14)) return;
         const q1 = hg(sd, sd2, 5),
           q2 = hg(sd, sd2, 6),
           q3 = hg(sd, sd2, 7),
@@ -12098,8 +12980,10 @@ nearRoads(h.x, h.z);
     W.setItemQ(it);
   }
   const W = {
+    PB: PBX,
     CH,
     NET,
+    RT,
     live: 0,
     busy: 0,
     worst: 0,
@@ -12250,7 +13134,7 @@ nearRoads(h.x, h.z);
     },
     update(dt, force) {
       /* in photo mode the world is built round the photo camera, not the frozen aircraft */
-      const ph = typeof PHOTO !== 'undefined' && PHOTO.on,
+      const ph = (typeof PHOTO !== 'undefined' && PHOTO.on) || (typeof ROAM !== 'undefined' && ROAM.on),
         t0 = performance.now(),
         px = ph ? PHOTO.pos.x : pos.x,
         pz = ph ? PHOTO.pos.z : pos.z;
@@ -12259,16 +13143,20 @@ nearRoads(h.x, h.z);
       if (W.t <= 0 || force) {
         W.t = 0.25;
         W.queue.length = 0;
+        /* a free camera high above the map sees far more of it: build (and keep) more of the world the higher it goes */
+        const hi = ph ? Math.max(0, Math.min(45000, (cam.position.y - 3000) * 0.9)) : 0,
+          bR = BUILD_R + hi,
+          dR = DROP_R + hi;
         let probes = force || !started ? 99 : 3; /* the sea-or-land test of a chunk is spread over scans, a few at a time */
         for (const c of CH) {
           const d = W.near(c, px, pz);
-          if ((c.st === 0 || c.st === 1) && d < BUILD_R) {
+          if ((c.st === 0 || c.st === 1) && d < bR) {
             if (c.empty === undefined) {
               if (probes-- <= 0) continue;
               c.empty = !W.anyLand(c);
             }
             if (!c.empty) W.queue.push([d, c]);
-          } else if ((c.st === 1 || c.st === 2) && d > DROP_R) W.drop(c);
+          } else if ((c.st === 1 || c.st === 2) && d > dR) W.drop(c);
         }
         W.queue.sort((a, b) => a[0] - b[0]);
       }
@@ -12326,6 +13214,7 @@ const SITES = [],
     SITE_OBJ.push(...a);
     return _sceneAdd.apply(this, a);
   };
+  let FR = SITE; /* the frame the site builders work in (the home site, or a far one) */
   const { part, bx, cyl } = GX,
     Z = Math.PI / 2,
     M = AFLD.models,
@@ -12340,19 +13229,19 @@ const SITES = [],
     },
     target = (P, type, hp, r, u, d, ry, yOff) => {
       const [m, s1] = asMesh(P),
-        [x, z] = SITE.w(u, d);
+        [x, z] = FR.w(u, d);
       m.position.set(x, H(x, z) + s1 / 2 + (yOff || 0), z);
       m.rotation.y = ry;
       scene.add(m);
       const e = { m, lit: null, c: m.position, r, hp, hp0: hp, type, dead: false, s1, col: 0x555555, kind: 'st' };
       T.push(e);
-      SITES.push(e);
+      if (FR === SITE) SITES.push(e); /* the far sites keep their own lists */
       return e;
     },
     bld = (type, u, d, ry) => {
-      const [x, z] = SITE.w(u, d),
+      const [x, z] = FR.w(u, d),
         e = mkT(type, x, z, ry, 'st');
-      SITES.push(e);
+      if (FR === SITE) SITES.push(e);
       return e;
     };
   /* a texture and a mesh draped over the terrain */
@@ -12403,7 +13292,7 @@ const SITES = [],
         I = [];
       for (let j = 0; j <= nd; j++)
         for (let i = 0; i <= nu; i++) {
-          const [x, z] = SITE.w(u0 + ((u1 - u0) * i) / nu, d0 + ((d1 - d0) * j) / nd);
+          const [x, z] = FR.w(u0 + ((u1 - u0) * i) / nu, d0 + ((d1 - d0) * j) / nd);
           P.push(x, HMESH(x, z) + yoff, z);
           UV.push((i / nu) * ru, (j / nd) * rd);
         }
@@ -12440,17 +13329,59 @@ const SITES = [],
     u.needsUpdate = true;
     return u;
   };
+  /* colonial ground and deck textures (shared with the far harbours) */
+  const mkTex = (w, h, fn) => {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    fn(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = 8;
+    return t;
+  };
+  /* pale coral earth with grit, the ground of every yard */
+  const CORAL = mkTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#a89570';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 1500; i++) {
+      const v = 150 + ((Math.random() * 60) | 0);
+      g.fillStyle = 'rgba(' + v + ',' + (v - 14) + ',' + (v - 46) + ',.45)';
+      g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 3, 2 + Math.random() * 3);
+    }
+  });
+  /* weathered deck planks */
+  const PLANK = mkTex(128, 128, (g, w, h) => {
+    for (let k = 0; k < 8; k++) {
+      const v = 92 + ((Math.random() * 30) | 0);
+      g.fillStyle = 'rgb(' + v + ',' + (v - 20) + ',' + (v - 42) + ')';
+      g.fillRect(0, k * 16, w, 16);
+      g.fillStyle = 'rgba(20,12,6,.55)';
+      g.fillRect(0, k * 16 + 15, w, 1);
+      for (let n = 0; n < 3; n++) g.fillRect(Math.random() * w, k * 16, 1, 16);
+    }
+  });
+  /* split coconut drying in the sun */
+  const COPRA = mkTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#c4b48a';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 900; i++) {
+      const v = 150 + ((Math.random() * 60) | 0);
+      g.fillStyle = 'rgba(' + v + ',' + (v - 8) + ',' + (v - 40) + ',.6)';
+      g.fillRect(Math.random() * w, Math.random() * h, 3, 2);
+    }
+  });
   /* ===== the port ===== */
-  drape(-130, 130, -95, 48, cc(CT, 26, 14), 1, 1, 0.35); /* the quay */
+  drape(-130, 130, -95, 48, cc(CORAL, 26, 14), 1, 1, 0.35); /* the quay: pale coral earth */
   {
     /* a finger pier on piles, running 210 m out to deep water; the deck stays 4.5 m above the sea */
-    const P = [part(bx(210, 0.8, 16), 0x7d7f80, 0, 0, 0)];
+    const P = [part(bx(210, 0.8, 16), 0x6f5a40, 0, 0, 0)];
     for (let k = 0; k <= 8; k++)
       for (const s of [-1, 1]) {
-        P.push(part(cyl(0.45, 0.45, 9, 8), 0x4a4a44, -96 + k * 24, -4.6, s * 7.4));
+        P.push(part(cyl(0.45, 0.45, 9, 8), 0x4a3a2a, -96 + k * 24, -4.6, s * 7.4));
         P.push(part(cyl(0.3, 0.3, 1, 8), 0x2a2a28, -96 + k * 24, 0.9, s * 7.6));
       }
-    P.push(part(bx(210, 0.25, 0.4), 0xdcc13a, 0, 0.5, 7.9), part(bx(210, 0.25, 0.4), 0xdcc13a, 0, 0.5, -7.9));
+    P.push(part(bx(210, 0.25, 0.4), 0x5a4630, 0, 0.5, 7.9), part(bx(210, 0.25, 0.4), 0x5a4630, 0, 0.5, -7.9));
     const [m] = asMesh(P),
       [x, z] = SITE.w(0, 145);
     m.position.set(x, -3.0, z);
@@ -12459,9 +13390,9 @@ const SITES = [],
   }
   const ship = (parts, len, u, d, hp) => target(parts, 'ship', hp, len * 0.3, u, d, SITE.ryS);
   const hullUp = (P) => P; /* ship models are built with their keel 1.5 m below zero; asMesh puts the lowest point at the waterline */
-  ship(hullUp(M.freighter()), 95, -17, 188, 150);
-  ship(hullUp(M.tanker()), 112, 18, 190, 180);
-  ship(hullUp(M.patrol()), 32, -60, 175, 60);
+  ship(hullUp(M.freighter('jp')), 95, -17, 188, 150);
+  ship(hullUp(M.tanker('jp')), 112, 18, 190, 180);
+  ship(hullUp(M.patrol('jn')), 32, -60, 175, 60);
   /* a Ukuru-class kaibokan (77.7 m x 9.1 m): the coastal escort that patrols up and down the shore off the port.
      The hull is lofted from stations (flared bow, raked stem, tumblehome-free flush deck with bulwarks); the guns are the same Type 96 25 mm mounts as the bases. */
   const UK = { L: 78, X0: -39, mounts: [[20.5, 3.0], [20.5, -3.0], [-3, 3.55], [-3, -3.55]] };
@@ -12639,7 +13570,7 @@ const SITES = [],
       }
       const x = -38.3,
         y = dk(-38.3);
-      P.push(part(cyl(0.05, 0.05, 3.3, 6), 0x555555, x, y + 1.65, 0), box(0.03, 0.75, 1.15, 0xf2f2f2, x - 0.02, y + 2.9, 0.62), part(cyl(0.22, 0.22, 0.04, 14), 0xc62a2a, x - 0.04, y + 2.9, 0.62, 0, 0, Z));
+      P.push(part(cyl(0.05, 0.05, 3.3, 6), 0x555555, x, y + 1.65, 0), ...FLG.at('jn', 1.9, x - 0.05, y + 3.25, 0, Math.PI)); /* the Rising Sun ensign */
       P.push(part(bx(0.5, 1.0, 0.1), 0x40444a, -35.5, dk(-35.5) + 0.5, 3.2));
     }
     /* the four 25 mm twin mounts stand on tubs: the gun heads are added as live meshes (see below) */
@@ -12745,11 +13676,11 @@ const SITES = [],
   }
   /* cranes either side of the pier root: a tall gantry with a boom reaching toward the water */
   const crane = () => {
+    /* a timber gantry derrick (the colonial harbour's cargo gear) */
     const P = [];
-    for (const [x, z] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) P.push(part(bx(0.9, 16, 0.9), 0xa23b2a, x, 8, z));
-    P.push(part(bx(13, 1.4, 13), 0x8b2f22, 0, 16.5, 0), part(bx(5, 3.5, 6), 0xc9a227, -2, 19, 0));
-    P.push(part(bx(44, 1.2, 2.4), 0x8b2f22, 16, 18.4, 0), part(bx(0.25, 10, 0.25), 0x2a2a28, 34, 12.5, 0));
-    P.push(part(bx(1.4, 1.4, 1.4), 0x2a2a28, 34, 7, 0));
+    for (const [x, z] of [[-4, -4], [4, -4], [-4, 4], [4, 4]]) P.push(part(bx(0.7, 13, 0.7), 0x6a4a2a, x, 6.5, z));
+    P.push(part(bx(11, 1.2, 11), 0x5a4630, 0, 13.2, 0), part(bx(4, 3, 5), 0xb8a070, -2, 15.2, 0));
+    P.push(part(bx(40, 0.9, 1.8), 0x5a4630, 14, 15, 0), part(bx(0.2, 9, 0.2), 0x222222, 30, 10.5, 0), part(bx(1.2, 1.2, 1.2), 0x333333, 30, 6, 0));
     return P;
   };
   target(crane(), 'crane', 70, 15, -34, 40, SITE.ryS);
@@ -12759,76 +13690,17 @@ const SITES = [],
   );
   [[65, -25], [90, -25], [115, -25]].forEach(([u, d]) => bld('fuel', u, d, 0));
   [['truck', -60, 10], ['supply', 55, 15], ['tanker', 100, 12], ['jeep', -20, 20]].forEach(([t, u, d], i) => bld(t, u, d, SITE.ryA + i));
-  /* ===== the airbase ===== */
-  const DR = -750; /* runway centreline, 750 m inland */
-  drape(-600, 600, DR - 18, DR + 18, RT, 10, 1, 0.3); /* runway 1,200 m x 36 m */
-  drape(-460, 460, DR - 70, DR - 56, cc(CT, 92, 3), 1, 1, 0.28); /* parallel taxiway */
-  for (const u of [-380, 380]) drape(u - 7, u + 7, DR - 56, DR - 18, cc(CT, 3, 8), 1, 1, 0.28); /* the two links to the runway */
-  drape(-300, 300, DR - 150, DR - 70, cc(CT, 60, 14), 1, 1, 0.3); /* the apron */
-  let sd = 4242;
-  const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647,
-    bodies = [0x4d5a3c, 0x5d6341, 0x5a5f48, 0x6b6f5a];
-  for (let i = 0; i < 9; i++) {
-    const u = -250 + i * 62,
-      o = { ang: rnd(), stripes: 0 };
-    target(M.ki84(bodies[i % 4], o), 'plane', 14, 7, u, DR - 100, SITE.ryS + (rnd() - 0.5) * 0.25);
-  }
-  /* the base yard behind the apron: bare gravel ground for the hangars, offices and stores (as at the other two bases) */
-  const yc = document.createElement('canvas');
-  yc.width = yc.height = 256;
-  {
-    const g = yc.getContext('2d');
-    g.fillStyle = '#5a5240';
-    g.fillRect(0, 0, 256, 256);
-    for (let i = 0; i < 2600; i++) {
-      const v = 62 + Math.random() * 45 | 0;
-      g.fillStyle = 'rgba(' + v + ',' + (v - 8) + ',' + (v - 28) + ',0.5)';
-      g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 2 + Math.random() * 3);
-    }
-  }
-  const YT = new THREE.CanvasTexture(yc);
-  YT.wrapS = YT.wrapT = THREE.RepeatWrapping;
-  YT.anisotropy = 8;
-  drape(-330, 330, DR - 295, DR - 165, cc(YT, 66, 26), 1, 1, 0.27);
-  [['hangar', -210], ['hangar', -110], ['hangar', -10]].forEach(([t, u]) => bld(t, u, DR - 215, SITE.ryA + Z));
-  [['hq', -250, DR - 270], ['warehouse', 90, DR - 255], ['warehouse', 140, DR - 255], ['bunker', 230, DR - 230]].forEach(([t, u, d]) =>
-    bld(t, u, d, SITE.ryA),
-  );
-  [[210, DR - 175], [235, DR - 175]].forEach(([u, d]) => bld('fuel', u, d, 0));
-  [['truck', -160, DR - 150], ['supply', 40, DR - 160], ['tanker', 180, DR - 150], ['jeep', -60, DR - 130], ['apc', 120, DR - 165]].forEach(
-    ([t, u, d], i) => bld(t, u, d, SITE.ryA + 0.3 * i),
-  );
-  /* control tower on the yard, in front of the hangars (a target) */
-  {
-    const P = [],
-      c = 0xb8bcc0;
-    P.push(
-      part(bx(5, 14, 5), c, 0, 7, 0),
-      part(bx(7.6, 0.4, 7.6), 0x8e9398, 0, 14.2, 0),
-      part(bx(7, 2.4, 7), 0x5d6a74, 0, 15.6, 0),
-      part(bx(7.2, 1.3, 7.2), 0x1e2a33, 0, 15.7, 0),
-      part(bx(7.8, 0.35, 7.8), 0x6a6e72, 0, 17.0, 0),
-      part(cyl(0.06, 0.06, 5, 5), 0x2b2d2f, 2, 19.5, 2),
-      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 3.5, 0),
-      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 10.5, 0),
-    );
-    target(P, 'tower', 60, 9, 0, DR - 190, SITE.ryA);
-  }
-  /* perimeter fence round the whole airfield, with guard towers */
-  {
-    const acc = new GX.Acc(),
-      U0 = -650,
-      U1 = 650,
-      D0 = DR - 310,
-      D1 = DR + 80;
+  /* a perimeter fence (wire on posts) with a guard tower at each corner and at the given u along each long side; in the current frame FR */
+  const fenceRect = (U0, U1, D0, D1, mids) => {
+    const acc = new GX.Acc();
     const put = (P, x, z, yaw, y0) => acc.add(P, GX.xf(x, y0 == null ? H(x, z) : y0, z, yaw, 1));
     const edge = (u0, d0, u1, d1) => {
       const L = Math.hypot(u1 - u0, d1 - d0),
         n = Math.round(L / 6);
       for (let i = 0; i < n; i++) {
-        const [ax, az] = SITE.w(u0 + ((u1 - u0) * i) / n, d0 + ((d1 - d0) * i) / n),
-          [bx2, bz] = SITE.w(u0 + ((u1 - u0) * (i + 1)) / n, d0 + ((d1 - d0) * (i + 1)) / n);
-        if (nearRoad((ax + bx2) / 2, (az + bz) / 2, 13) || nearRoad(ax, az, 13) || nearRoad(bx2, bz, 13)) continue;
+        const [ax, az] = FR.w(u0 + ((u1 - u0) * i) / n, d0 + ((d1 - d0) * i) / n),
+          [bx2, bz] = FR.w(u0 + ((u1 - u0) * (i + 1)) / n, d0 + ((d1 - d0) * (i + 1)) / n);
+        if (nearRoad((ax + bx2) / 2, (az + bz) / 2, 13) || nearRoad(ax, az, 13) || nearRoad(bx2, bz, 13) || (FR !== SITE && WORLD.RT.near((ax + bx2) / 2, (az + bz) / 2, 9))) continue;
         const Ls = Math.hypot(bx2 - ax, bz - az),
           yaw = Math.atan2(-(bz - az), bx2 - ax);
         put(
@@ -12866,12 +13738,74 @@ const SITES = [],
         part(bx(0.7, 0.06, 2.6), 0x1e2a33, -1.28, 7.6, 0),
         part(new THREE.ConeGeometry(2.3, 1.1, 4).rotateY(Math.PI / 4), 0x4a4f3c, 0, 8.6, 0),
       );
-      const [x, z] = SITE.w(u, d);
-      put(P, x, z, SITE.ryA);
+      const [x, z] = FR.w(u, d);
+      put(P, x, z, FR.ryA);
     };
-    [[U0 + 4, D0 + 4], [U1 - 4, D0 + 4], [U1 - 4, D1 - 4], [U0 + 4, D1 - 4], [-320, D0 + 4], [320, D0 + 4], [-320, D1 - 4], [320, D1 - 4]].forEach(([u, d]) => gt(u, d));
+    [[U0 + 4, D0 + 4], [U1 - 4, D0 + 4], [U1 - 4, D1 - 4], [U0 + 4, D1 - 4]].concat(...mids.map((u) => [[u, D0 + 4], [u, D1 - 4]])).forEach(([u, d]) => gt(u, d));
     scene.add(new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true })));
+  };
+  /* ===== the airbase: a function of a site frame (the home one, and the two far ones) ===== */
+  const airbase = (F, DR, seed) => {
+    FR = F;
+  drape(-600, 600, DR - 18, DR + 18, RT, 10, 1, 0.3); /* runway 1,200 m x 36 m */
+  drape(-460, 460, DR - 70, DR - 56, cc(CT, 92, 3), 1, 1, 0.28); /* parallel taxiway */
+  for (const u of [-380, 380]) drape(u - 7, u + 7, DR - 56, DR - 18, cc(CT, 3, 8), 1, 1, 0.28); /* the two links to the runway */
+  drape(-300, 300, DR - 150, DR - 70, cc(CT, 60, 14), 1, 1, 0.3); /* the apron */
+  let sd = seed;
+  const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647,
+    bodies = [0x4d5a3c, 0x5d6341, 0x5a5f48, 0x6b6f5a];
+  for (let i = 0; i < 9; i++) {
+    const u = -250 + i * 62,
+      o = { ang: rnd(), stripes: 0 };
+    target(M.ki84(bodies[i % 4], o), 'plane', 14, 7, u, DR - 100, FR.ryS + (rnd() - 0.5) * 0.25);
   }
+  /* the base yard behind the apron: bare gravel ground for the hangars, offices and stores (as at the other two bases) */
+  const yc = document.createElement('canvas');
+  yc.width = yc.height = 256;
+  {
+    const g = yc.getContext('2d');
+    g.fillStyle = '#5a5240';
+    g.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 2600; i++) {
+      const v = 62 + Math.random() * 45 | 0;
+      g.fillStyle = 'rgba(' + v + ',' + (v - 8) + ',' + (v - 28) + ',0.5)';
+      g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 2 + Math.random() * 3);
+    }
+  }
+  const YT = new THREE.CanvasTexture(yc);
+  YT.wrapS = YT.wrapT = THREE.RepeatWrapping;
+  YT.anisotropy = 8;
+  drape(-330, 330, DR - 295, DR - 165, cc(YT, 66, 26), 1, 1, 0.27);
+  [['hangar', -210], ['hangar', -110], ['hangar', -10]].forEach(([t, u]) => bld(t, u, DR - 215, FR.ryA + Z));
+  [['hq', -250, DR - 270], ['warehouse', 90, DR - 255], ['warehouse', 140, DR - 255], ['bunker', 230, DR - 230]].forEach(([t, u, d]) =>
+    bld(t, u, d, FR.ryA),
+  );
+  [[210, DR - 175], [235, DR - 175]].forEach(([u, d]) => bld('fuel', u, d, 0));
+  [['truck', -160, DR - 150], ['supply', 40, DR - 160], ['tanker', 180, DR - 150], ['jeep', -60, DR - 130], ['apc', 120, DR - 165]].forEach(
+    ([t, u, d], i) => bld(t, u, d, FR.ryA + 0.3 * i),
+  );
+  /* control tower on the yard, in front of the hangars (a target) */
+  {
+    const P = [],
+      c = 0xb8bcc0;
+    P.push(
+      part(bx(5, 14, 5), c, 0, 7, 0),
+      part(bx(7.6, 0.4, 7.6), 0x8e9398, 0, 14.2, 0),
+      part(bx(7, 2.4, 7), 0x5d6a74, 0, 15.6, 0),
+      part(bx(7.2, 1.3, 7.2), 0x1e2a33, 0, 15.7, 0),
+      part(bx(7.8, 0.35, 7.8), 0x6a6e72, 0, 17.0, 0),
+      part(cyl(0.06, 0.06, 5, 5), 0x2b2d2f, 2, 19.5, 2),
+      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 3.5, 0),
+      part(bx(5.2, 0.5, 5.2), 0xb33a2e, 0, 10.5, 0),
+    );
+    P.push(...FLG.pole('jn', 8, 3.2, 1.8, 17.3, -1.8, 0)); /* the Rising Sun on the tower */
+    target(P, 'tower', 60, 9, 0, DR - 190, FR.ryA);
+  }
+  /* perimeter fence round the whole airfield, with guard towers */
+  fenceRect(-650, 650, DR - 310, DR + 80, [-320, 320]);
+    FR = SITE;
+  };
+  airbase(SITE, -750, 4242);
   delete scene.add;
   /* the site is some 7 km from your airfield: beyond 6.5 km none of its hundred-odd meshes is drawn (they leave the camera's layer) */
   {
@@ -12887,6 +13821,637 @@ const SITES = [],
       if (f === far) return;
       far = f;
       for (const o of all) o.traverse((q) => (q.layers.mask = f ? 2 : 1));
+    };
+  }
+  /* =====================================================================================================================
+     THE FAR SITES (phase 2): two colonial harbours, two enemy airbases and two enemy convoy bases, scattered over the far world.
+     Each one is built once, behind the menu, as a handful of merged meshes in its own frame (u along the coast, d out to sea; see FS), so nothing
+     is ever built or dropped while you fly: the sites are only hidden beyond 31 km, which the fog (and the terrain, built from 34 km) already covers.
+     The colonial look (palms, thatched huts on posts, timber wharves, corrugated-iron sheds, a copra shed, outrigger canoes) is shared with the home port.
+     ===================================================================================================================== */
+  const PB = WORLD.PB,
+    prismG = PB.prismG,
+    FARS = [],
+    FAR_R = 31000,
+    ZZ = Math.PI / 2;
+  const rng = (seed) => {
+    let s = (seed * 2654435761) % 2147483647 || 12345;
+    return () => (s = (s * 16807) % 2147483647) / 2147483647;
+  };
+  /* a flat textured quad in a site's own frame, at height y (the pads are dead level, so no draping is needed) */
+  const flat = (F, u0, u1, d0, d1, y, tex, ru, rd, off) => {
+    const q = [F.w(u0, d0), F.w(u1, d0), F.w(u1, d1), F.w(u0, d1)],
+      g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(q.flatMap((p) => [p[0], y, p[1]]), 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, ru, 0, ru, rd, 0, rd], 2));
+    g.setIndex([0, 1, 2, 0, 2, 3]);
+    g.computeBoundingSphere();
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, side: 2, polygonOffset: true, polygonOffsetFactor: -(off || 2), polygonOffsetUnits: -(off || 2) }));
+    scene.add(m);
+    return m;
+  };
+  /* merged scenery of one site: parts placed by (u, d) and a yaw; at() skips anything that would sit on a home road */
+  const siteAcc = (F) => {
+    const acc = new GX.Acc(),
+      home = F === SITE;
+    return {
+      acc,
+      at(P, u, d, yaw, y, k) {
+        const [x, z] = F.w(u, d);
+        if (home && nearRoad(x, z, 12)) return;
+        acc.add(P, GX.xf(x, y == null ? H(x, z) : y, z, yaw, k));
+      },
+      flush() {
+        const m = new THREE.Mesh(acc.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }));
+        scene.add(m);
+        return m;
+      },
+    };
+  };
+  /* ----- the colonial parts, all in local metres with the base at y = 0 ----- */
+  /* a coconut palm: a leaning trunk and a crown of drooping fronds (about 130 triangles) */
+  const palm = (h, r) => {
+    const a0 = r * 6.2832,
+      ca = Math.cos(a0),
+      sa = Math.sin(a0),
+      lean = 0.07 + r * 0.1,
+      tx = ca * Math.sin(lean) * h,
+      tz = sa * Math.sin(lean) * h,
+      ty = Math.cos(lean) * h,
+      P = [part(cyl(0.2, 0.34, h, 6), 0x7d6244, tx / 2, ty / 2, tz / 2, sa * lean, 0, -ca * lean)];
+    for (let j = 0; j < 9; j++) {
+      const a = (j / 9) * 6.2832 + r * 3;
+      P.push(part(bx(4.4, 0.05, 0.75), j % 2 ? 0x3b8a32 : 0x2f7a2a, tx + Math.cos(a) * 2.0, ty + 0.1, tz + Math.sin(a) * 2.0, 0, -a, -0.42));
+    }
+    P.push(part(GX.sph(6), 0x5a3a1a, tx, ty - 0.1, tz, 0, 0, 0, 0.32, 0.3, 0.32));
+    return P;
+  };
+  /* a corrugated-iron shed with timber walls: its long side along x, the door on +z */
+  const shed = (L, W, wall, roof) => [
+    part(bx(L, 3.4, W), wall, 0, 1.7, 0),
+    part(prismG(W + 1.4, 2.0, L + 1.4), roof, 0, 3.4, 0, 0, ZZ),
+    part(bx(4.2, 2.8, 0.14), 0x3a2a1c, 0, 1.4, W / 2 + 0.05),
+    part(bx(L, 0.3, W + 0.1), 0x6a5a40, 0, 0.15, 0),
+  ];
+  /* a timber derrick for working cargo: a mast, a slanting boom, a platform */
+  const derrick = () => [
+    part(bx(3.4, 0.5, 3.4), 0x6a5236, 0, 0.25, 0),
+    part(cyl(0.26, 0.36, 11, 6), 0x6a4a2a, 0, 5.75, 0),
+    part(bx(15, 0.36, 0.36), 0x5a4630, 5.2, 9.2, 0, 0, 0, 0.5),
+    part(bx(0.1, 7, 0.1), 0x222222, 10.4, 5.8, 0),
+    part(bx(1.6, 1.0, 1.4), 0xb8a070, 10.4, 2.0, 0),
+    part(bx(1.4, 1.4, 1.2), 0x7a2a22, -1.4, 1.2, 0),
+  ];
+  const canoe = (c) => [
+    part(bx(6.0, 0.5, 0.75), c, 0, 0.45, 0),
+    part(bx(1.0, 0.5, 0.7), c, 3.2, 0.7, 0, 0, 0, 0.45),
+    part(bx(1.0, 0.5, 0.7), c, -3.2, 0.7, 0, 0, 0, -0.45),
+    part(cyl(0.16, 0.16, 4.6, 6), 0x8a6a44, 0, 0.3, 2.0, 0, 0, ZZ),
+    part(bx(0.1, 0.1, 1.7), 0x6a4a2a, 1.3, 0.55, 1.2),
+    part(bx(0.1, 0.1, 1.7), 0x6a4a2a, -1.3, 0.55, 1.2),
+  ];
+  const stack = (r) => {
+    const P = [];
+    for (let i = 0; i < 6; i++) P.push(part(cyl(0.45, 0.45, 0.9, 8), i % 2 ? 0x5b3a2a : 0x3a4a5a, (i % 3) * 1.0 - 1, 0.45, (i >> 1) * 1.0 - 0.5));
+    for (let i = 0; i < 3; i++) P.push(part(bx(1.2, 1.0, 1.2), 0xa8885a, 3 + (i % 2) * 1.3, 0.5, -0.6 + (i >> 1) * 1.3));
+    for (let i = 0; i < 4; i++) P.push(part(bx(0.9, 0.5, 0.6), 0xb8a070, -3 + (i % 2) * 1.0, 0.3 + (i >> 1) * 0.5, 0.4 * (i >> 1)));
+    return P;
+  };
+  /* a moored schooner: black hull, white deckhouse, two masts and furled gaff sails (alongside the jetty, +x forward) */
+  const schooner = () => [
+    part(bx(14, 2.6, 5.2), 0x23313c, 0, 0.4, 0),
+    part(bx(6, 2.6, 3.4), 0x23313c, 9.5, 0.4, 0, 0, 0, 0),
+    part(bx(4, 2.4, 4.4), 0x23313c, -8.6, 0.4, 0),
+    part(bx(7, 0.2, 5.4), 0x6a5236, 0, 1.75, 0),
+    part(bx(4.6, 1.7, 3.2), 0xe8e4d8, -3.5, 2.7, 0),
+    part(bx(4.8, 0.2, 3.4), 0x8a2a22, -3.5, 3.6, 0),
+    part(cyl(0.16, 0.22, 12, 6), 0x6a4a2a, 3.2, 7.4, 0),
+    part(cyl(0.14, 0.2, 10.5, 6), 0x6a4a2a, -7.0, 6.6, 0),
+    part(bx(7, 0.16, 0.16), 0x6a4a2a, 0.6, 4.6, 0),
+    part(bx(6, 0.16, 0.16), 0x6a4a2a, -9.5, 4.2, 0),
+    part(bx(6.6, 0.2, 0.5), 0xd8d2bc, 0.6, 5.2, 0),
+    part(bx(5.6, 0.2, 0.5), 0xd8d2bc, -9.2, 4.8, 0),
+    part(cyl(0.1, 0.12, 7, 5), 0x6a4a2a, 14, 2.9, 0, 0, 0, -1.1),
+  ];
+  /* ----- the harbour ----- */
+  /* the colonial harbour in frame F. full: a whole new port (yard, wharf, jetty, sheds, village). The home port keeps its own quay, buildings and targets and is dressed only. */
+  const harbour = (F, full, seed) => {
+    const r = rng(seed),
+      S = siteAcc(F),
+      YF = F.ryA + Math.PI,
+      YA = F.ryA,
+      YS = F.ryS,
+      pad = full ? FS.PORT_H : 3.2;
+    const rects = []; /* occupied (u0, u1, d0, d1), so the palms keep clear */
+    const taken = (u, d, m) => rects.some((q) => u > q[0] - m && u < q[1] + m && d > q[2] - m && d < q[3] + m);
+    const use = (u0, u1, d0, d1) => rects.push([u0, u1, d0, d1]);
+    if (full) {
+      flat(F, -205, 205, -150, 48, pad + 0.12, CORAL, 41, 40, 2);
+      /* the main wharf: a timber deck on two rows of piles along the water's edge (site-local: x = d seaward, z = u along the coast) */
+      const wy = pad + 0.5,
+        [ox, oz] = F.w(0, 0),
+        L0 = GX.xf(ox, 0, oz, YS);
+      flat(F, -130, 130, 40, 66, wy, PLANK, 26, 5, 3);
+      const P = [];
+      for (let k = -13; k <= 13; k++) for (const dd of [41, 65]) P.push(part(cyl(0.3, 0.3, 11.5, 6), 0x4a3a2a, dd, wy - 5.7, k * 10));
+      P.push(part(bx(0.5, 0.5, 262), 0x5a4630, 66.1, wy - 0.1, 0), part(bx(0.5, 0.5, 262), 0x5a4630, 39.9, wy - 0.1, 0));
+      S.acc.add(P, L0);
+      /* the finger jetty, 190 m out to deep water, with bollards and a little white lighthouse at its end */
+      flat(F, -4, 4, 60, 255, wy, PLANK, 2, 40, 3);
+      const J = [];
+      for (let k = 0; k <= 19; k++) for (const s of [-1, 1]) J.push(part(cyl(0.3, 0.3, 11, 6), 0x4a3a2a, 62 + k * 10, wy - 5.4, s * 3.7));
+      for (let k = 0; k < 9; k++) for (const s of [-1, 1]) J.push(part(cyl(0.22, 0.26, 0.9, 6), 0x2a2a28, 75 + k * 20, wy + 0.45, s * 3.7));
+      J.push(part(cyl(1.1, 1.5, 8, 8), 0xece8da, 250, wy + 4, 0), part(cyl(1.35, 1.35, 1.2, 8), 0xb02a20, 250, wy + 8.6, 0), part(cyl(0.3, 0.3, 1.6, 6), 0x222222, 250, wy + 9.8, 0));
+      S.acc.add(J, L0);
+      use(-135, 135, 36, 70);
+      /* four long sheds along the back of the yard (timber walls, rusty and grey iron) */
+      const roofs = [0x8e9494, 0x9b4a35, 0x8e9494, 0xa05a3a];
+      FR = F;
+      for (let i = 0; i < 4; i++) {
+        target(shed(34, 15, 0xa8946a, roofs[i]), 'warehouse', 40, 17, -140 + i * 62, -62, YF); /* under the Hinomaru, so a target */
+        use(-160 + i * 62, -120 + i * 62, -75, -48);
+      }
+      FR = SITE;
+      /* the copra floor and its heaps */
+      flat(F, -60, 50, -20, 22, pad + 0.3, COPRA, 8, 3, 4);
+      for (let i = 0; i < 6; i++) S.at([part(GX.sph(8), 0xe6dcb8, 0, 0, 0, 0, 0, 0, 3.2, 0.9, 2.2)], -45 + i * 17, -6 + (i % 2) * 14, 0, pad + 0.3);
+      use(-65, 55, -25, 27);
+      /* harbour master's bungalow with a flagpole, derricks on the wharf, stacks of cargo */
+      S.at(PB.bungalow(0, 0, 0, 9, 7).P, 160, -20, YF);
+      S.at(FLG.pole('jp', 11, 2.7, 0, 0, 0, 0), 146, -4, YA); /* the Hinomaru over the harbour master's house */
+      use(140, 185, -40, 5);
+      FR = F;
+      for (const u of [-50, 50]) {
+        const [ex, ez] = F.w(u, 52);
+        target(derrick(), 'crane', 30, 7, u, 52, YS, wy - H(ex, ez));
+      }
+      FR = SITE;
+      for (let i = 0; i < 6; i++) S.at(stack(), -100 + i * 38, 22 + (i % 2) * 4, YA + i, pad);
+      /* a village of thatched huts on posts behind the sheds, and the harbour church */
+      for (let i = 0; i < 14; i++) {
+        const u = -190 + (i % 7) * 30 + (r() - 0.5) * 8,
+          d = -132 + (i >> 3) * 30 + (r() - 0.5) * 8;
+        S.at(PB.hut(0, 0, 0, 5 + (i % 3) * 0.5, 4 + (i % 2) * 0.5).P, u, d, r() * 6.28);
+        use(u - 5, u + 5, d - 5, d + 5);
+      }
+      /* canoes drawn up above the tide line and a schooner alongside the jetty */
+      const cc2 = [0x7a5a38, 0x3a6a78, 0x8a3a2a, 0x6a6a3a, 0x7a5a38];
+      for (let i = 0; i < 5; i++) S.at(canoe(cc2[i]), -150 + i * 12, 34, YA + (r() - 0.5) * 0.4, pad + 0.2);
+      for (let i = 0; i < 4; i++) S.at(canoe(cc2[i]), 70 + i * 12, 34, YA + (r() - 0.5) * 0.4, pad + 0.2);
+    } else {
+      /* the home port: huts and palms beyond its own buildings, canoes on the beach, a timber derrick pair stays as the cranes */
+      use(-135, 135, -100, 70);
+      for (let i = 0; i < 10; i++) {
+        const side = i < 5 ? -1 : 1,
+          u = side * (150 + (i % 5) * 9 + (r() - 0.5) * 6),
+          d = -118 + (i % 5) * 16 + (r() - 0.5) * 6;
+        S.at(PB.hut(0, 0, 0, 5 + (i % 3) * 0.5, 4 + (i % 2) * 0.5).P, u, d, r() * 6.28);
+        use(u - 5, u + 5, d - 5, d + 5);
+      }
+      S.at(FLG.pole('jp', 11, 2.7, 0, 0, 0, 0), 150, -60, YA);
+      const cc2 = [0x7a5a38, 0x3a6a78, 0x8a3a2a, 0x6a6a3a];
+      for (let i = 0; i < 4; i++) S.at(canoe(cc2[i]), -170 + i * 9, 24 + (i % 2) * 5, YA + (r() - 0.5) * 0.4, null);
+    }
+    /* palms over the whole yard, along the shore and round the huts */
+    const n = full ? 70 : 40;
+    for (let i = 0, k = 0; i < n && k < 400; k++) {
+      const u = (r() - 0.5) * (full ? 430 : 400),
+        d = -150 + r() * (full ? 175 : 190);
+      if (taken(u, d, 6)) continue;
+      i++;
+      S.at(palm(8 + r() * 5, r()), u, d, r() * 6.28);
+    }
+    return S.flush();
+  };
+  /* ----- a patrol ship off an enemy site: the home Ukuru-class kaibokan, racing up and down the coast in the site's own frame ----- */
+  const seaOK = (F, u0, u1, d0, R) => {
+    /* the whole racetrack (and 150 m round it) must be open deep sea */
+    for (let u = u0 - R - 150; u <= u1 + R + 150; u += 60)
+      for (let d = d0 - 150; d <= d0 + 2 * R + 150; d += 60) {
+        const [x, z] = F.w(u, d);
+        if (WH(x, z) > -14) return false;
+      }
+    return true;
+  };
+  const mkPatrol = (F) => {
+    const R = 60;
+    let pick = null;
+    for (const [u0, u1, d0] of [[-350, 1500, 420], [-350, 1000, 520], [-500, 500, 520], [-400, 400, 700], [-300, 300, 900]])
+      if (seaOK(F, u0, u1, d0, R)) {
+        pick = [u0, u1, d0];
+        break;
+      }
+    if (!pick) return null;
+    const [u0, u1, d0] = pick,
+      Ls = u1 - u0,
+      per = 2 * Ls + 2 * Math.PI * R;
+    FR = F;
+    const e = target(ukuru(), 'ship', 140, 78 * 0.3, u0, d0, F.ryS);
+    FR = SITE;
+    const y0 = e.m.position.y,
+      oy = 1.6 - e.s1 / 2,
+      MATu = () => new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }),
+      guns = [],
+      tmp = new V();
+    for (const [mx, mz] of UK.mounts) {
+      const tur = new THREE.Group(),
+        bar = new THREE.Group(),
+        top = UK.deckY(mx) + 0.96 + oy;
+      tur.position.set(mx, top + 0.25, mz);
+      tur.add(new THREE.Mesh(AA.mount.tur, MATu()));
+      tur.add(new THREE.Mesh(AA.mount.man, MATu()));
+      bar.position.set(0, 0.65, 0);
+      bar.add(new THREE.Mesh(AA.mount.bar, MATu()));
+      tur.add(bar);
+      e.m.add(tur);
+      const g = { t: e, grp: new THREE.Group(), tur, bar, x: 0, z: 0, nr: 0, bias: new V(0, 0, 0), yaw: 0, pit: 0.5, acq: 0, mag: 30, rl: 0, cd: 0, side: 1, rec: 0, snd: 0, v: new V(0, 0, 0), piv: new V(), site: true, ship: true, loc: new V(mx, top + 0.9, mz) };
+      AA.gun.push(g);
+      guns.push(g);
+    }
+    e.m.add(shipWakeMesh(1, 1.6 - e.s1 / 2 + 1.65));
+    e.m.matrixAutoUpdate = true;
+    let s = Math.random() * per;
+    const P = { e, vis: true, track: { u0, u1, d0, R } };
+    P.upd = (dt) => {
+      const m = e.m;
+      if (!e.dead) {
+        s = (s + 8.5 * dt) % per;
+        let q = s,
+          u,
+          d,
+          h;
+        if (q < Ls) {
+          u = u0 + q;
+          d = d0;
+          h = 0;
+        } else if ((q -= Ls) < Math.PI * R) {
+          const a = q / R;
+          u = u1 + Math.sin(a) * R;
+          d = d0 + R - Math.cos(a) * R;
+          h = a;
+        } else if ((q -= Math.PI * R) < Ls) {
+          u = u1 - q;
+          d = d0 + 2 * R;
+          h = Math.PI;
+        } else {
+          q -= Ls;
+          const a = q / R;
+          u = u0 - Math.sin(a) * R;
+          d = d0 + R + Math.cos(a) * R;
+          h = Math.PI + a;
+        }
+        const du = Math.cos(h),
+          dd = Math.sin(h),
+          [x, z] = F.w(u, d),
+          wx = F.A.x * du + F.S.x * dd,
+          wz = F.A.z * du + F.S.z * dd,
+          now = performance.now();
+        m.position.set(x, y0 + Math.sin(now / 900) * 0.12, z);
+        m.rotation.set(0, Math.atan2(-wz, wx), Math.sin(now / 1300) * 0.015);
+      }
+      m.updateMatrixWorld(true);
+      for (const g of guns) {
+        g.tur.matrixAutoUpdate = g.bar.matrixAutoUpdate = true;
+        g.tur.rotation.y = g.yaw - m.rotation.y;
+        g.bar.rotation.x = -g.pit;
+        g.bar.position.z = -0.12 * g.rec;
+        tmp.copy(g.loc);
+        m.localToWorld(tmp);
+        g.piv.copy(tmp);
+        g.x = tmp.x;
+        g.z = tmp.z;
+      }
+    };
+    return P;
+  };
+  /* guns and lights of a site (free flight only, like the home port and airbase) */
+  const farGun = (F, u, d, yaw) => {
+    const [x, z] = F.w(u, d);
+    AA.mkGun(x, z, 0, 0, yaw);
+    const g = AA.gun[AA.gun.length - 1];
+    g.site = g.t.site = true;
+    return g;
+  };
+  const farLamp = (F, u, d, yaw) => {
+    const [x, z] = F.w(u, d);
+    AA.mkLamp(x, z, 0, 0, yaw);
+    const L = AA.lamp[AA.lamp.length - 1];
+    L.site = L.t.site = true;
+    return L;
+  };
+  /* ----- the enemy convoy-style base: a fenced compound of stores and vehicles on gravel, two guns and two searchlights ----- */
+  const GRAVEL = mkTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#5a5240';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 1600; i++) {
+      const v = 62 + ((Math.random() * 45) | 0);
+      g.fillStyle = 'rgba(' + v + ',' + (v - 8) + ',' + (v - 28) + ',.5)';
+      g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 3, 2 + Math.random() * 3);
+    }
+  });
+  const compound = (F, seed) => {
+    const r = rng(seed),
+      S = siteAcc(F),
+      YA = F.ryA;
+    const hh = F.H + 0.18;
+    flat(F, -185, 185, -165, 165, hh, GRAVEL, 36, 32, 2);
+    FR = F;
+    [['warehouse', -110, -80], ['warehouse', -110, 0], ['warehouse', -40, -95], ['hq', 90, -80], ['bunker', 110, 20], ['warehouse', 20, 85]].forEach(([t, u, d]) => bld(t, u, d, F.ryA));
+    [['truck', -60, 40], ['supply', -20, 30], ['jeep', 30, -20], ['tanker', 60, 60], ['apc', 85, 90], ['truck', -90, 80]].forEach(([t, u, d], i) => bld(t, u, d, F.ryA + 0.4 * i));
+    fenceRect(-160, 160, -140, 140, []);
+    FR = SITE;
+    for (let i = 0; i < 5; i++) S.at(stack(), -120 + i * 55, 115 + (i % 2) * 10, YA + i * 0.7, hh);
+    S.at(FLG.pole('jn', 12, 3.0, 0, 0, 0, 0), 65, -78, YA, hh); /* the Rising Sun over the depot */
+    for (let i = 0, k = 0; i < 34 && k < 300; k++) {
+      const u = (r() - 0.5) * 440,
+        d = (r() - 0.5) * 420;
+      if (Math.abs(u) < 190 && Math.abs(d) < 175) continue;
+      i++;
+      S.at(palm(8 + r() * 5, r()), u, d, r() * 6.28);
+    }
+    S.flush();
+    farGun(F, -135, 100, 0.5);
+    farGun(F, 135, 105, 0.4);
+    farLamp(F, -140, -118, 1.4);
+    farLamp(F, 140, -112, 2.2);
+  };
+  /* ----- the far enemy airbase: the home airbase layout, two guns and two searchlights, palms round the fence and a patrol ship offshore ----- */
+  const farAirbase = (F, seed) => {
+    const r = rng(seed),
+      S = siteAcc(F);
+    airbase(F, -750, seed);
+    for (let i = 0, k = 0; i < 90 && k < 900; k++) {
+      const u = (r() - 0.5) * 1700,
+        d = -1180 + r() * 300;
+      if (Math.abs(u) < 700 && d > -1100 && d < -650) continue;
+      const [x, z] = F.w(u, d);
+      if (WH(x, z) < 1) continue;
+      i++;
+      S.at(palm(8 + r() * 5, r()), u, d, r() * 6.28);
+    }
+    S.flush();
+    farGun(F, -480, -700, 0.5);
+    farGun(F, 470, -705, 0.5);
+    farLamp(F, -330, -1010, 2.0);
+    farLamp(F, 360, -1010, 1.2);
+  };
+  /* ----- civilian ships: a freighter and a tanker sail between the two harbours, tie up at the jetty for a while, and sail back ----- */
+  const CIV = [];
+  const berthD = (F, u, len) => {
+    for (let d = 100 + len / 2; d <= 215; d += 5) {
+      let ok = true;
+      for (let uu = u - 14; uu <= u + 14 && ok; uu += 14)
+        for (let dd = d - len / 2; dd <= d + len / 2 + 25; dd += 20) {
+          const [x, z] = F.w(uu, dd);
+          if (WH(x, z) > -9.5) {
+            ok = false;
+            break;
+          }
+        }
+      if (ok) return d;
+    }
+    return 160 + len / 2 * 0.2;
+  };
+  /* a sea-lane finder: a coarse grid of open deep water (a cell counts only if it and its four neighbours are all at least 14 m deep), a breadth-first search, then the corners pulled tight by line of sight */
+  const SEA = (() => {
+    const C = 800,
+      N = 125,
+      O0 = -50000,
+      sea = new Uint8Array(N * N),
+      ok = new Uint8Array(N * N);
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) sea[j * N + i] = HR(O0 + (i + 0.5) * C, O0 + (j + 0.5) * C) < -14 ? 1 : 0;
+    const NB = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]];
+    for (let j = 0; j < N; j++)
+      for (let i = 0; i < N; i++) {
+        let k = 1;
+        for (const [a, b] of NB) {
+          const ii = i + a,
+            jj = j + b;
+          if (ii < 0 || jj < 0 || ii >= N || jj >= N || !sea[jj * N + ii]) k = 0;
+        }
+        ok[j * N + i] = k;
+      }
+    const cell = (p) => [Math.max(0, Math.min(N - 1, Math.floor((p[0] - O0) / C))), Math.max(0, Math.min(N - 1, Math.floor((p[1] - O0) / C)))];
+    const ctr = (i, j) => [O0 + (i + 0.5) * C, O0 + (j + 0.5) * C];
+    const los = (p, q) => {
+      const L = Math.hypot(q[0] - p[0], q[1] - p[1]),
+        n = Math.ceil(L / 150);
+      for (let k = 0; k <= n; k++) if (HR(p[0] + ((q[0] - p[0]) * k) / n, p[1] + ((q[1] - p[1]) * k) / n) > -9) return false;
+      return true;
+    };
+    /* the nearest open cell that can be seen from point p */
+    const near = (c, p) => {
+      let best = null,
+        bd = 1e12;
+      for (let dj = -12; dj <= 12; dj++)
+        for (let di = -12; di <= 12; di++) {
+          const i = c[0] + di,
+            j = c[1] + dj;
+          if (i < 0 || j < 0 || i >= N || j >= N || !ok[j * N + i]) continue;
+          const d = di * di + dj * dj;
+          if (d < bd && los(p, ctr(i, j))) {
+            bd = d;
+            best = [i, j];
+          }
+        }
+      return best;
+    };
+    /* the waypoints between two open-water points (excluding both), or null if there is no sea route */
+    const route = (a, b) => {
+      if (los(a, b)) return [];
+      const s0 = near(cell(a), a),
+        g0 = near(cell(b), b);
+      if (!s0 || !g0) return null;
+      const par = new Int32Array(N * N).fill(-2),
+        q = [s0[1] * N + s0[0]];
+      par[q[0]] = -1;
+      const goal = g0[1] * N + g0[0];
+      for (let h = 0; h < q.length && par[goal] === -2; h++) {
+        const c = q[h],
+          ci = c % N,
+          cj = (c / N) | 0;
+        for (let dj = -1; dj <= 1; dj++)
+          for (let di = -1; di <= 1; di++) {
+            const i = ci + di,
+              j = cj + dj;
+            if ((!di && !dj) || i < 0 || j < 0 || i >= N || j >= N || !ok[j * N + i] || par[j * N + i] !== -2) continue;
+            par[j * N + i] = c;
+            q.push(j * N + i);
+          }
+      }
+      if (par[goal] === -2) return null;
+      const cells = [];
+      for (let c = goal; c !== -1; c = par[c]) cells.push(ctr(c % N, (c / N) | 0));
+      cells.reverse();
+      const out = [];
+      let cur = a,
+        i = 0;
+      while (i < cells.length) {
+        let j = cells.length - 1;
+        while (j > i && !los(cur, cells[j])) j--;
+        if (los(cur, b)) break;
+        out.push(cells[j]);
+        cur = cells[j];
+        i = j + 1;
+      }
+      return out;
+    };
+    return { route, los };
+  })();
+  const mkCiv = (parts, len, FA, FB, u, phase) => {
+    const dA = berthD(FA, u, len),
+      dB = berthD(FB, u, len),
+      p0 = FA.w(u, dA),
+      p3 = FB.w(u, dB);
+    let p1 = null,
+      p2 = null,
+      mid = null;
+    for (const off of [900, 600, 400]) {
+      const a = FA.w(u, dA + off),
+        b = FB.w(u, dB + off);
+      if (!SEA.los(p0, a) || !SEA.los(b, p3)) continue;
+      const r = SEA.route(a, b);
+      if (r) {
+        p1 = a;
+        p2 = b;
+        mid = r;
+        break;
+      }
+    }
+    if (!p1) return null; /* no sea route between the two harbours: no ships (never a ship sailing over land) */
+    const [m, s1] = asMesh(parts);
+    m.add(shipWakeMesh(1, -s1 / 2 + 3.25));
+    scene.add(m);
+    const pts = [p0, p1, ...mid, p2, p3],
+      seg = [];
+    let L = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const l = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
+      seg.push(l);
+      L += l;
+    }
+    const c = { m, s1, pts, seg, L, v: 7.5, dock: 150, phase, yaw: FA.ryS, vis: true, len };
+    CIV.push(c);
+    /* under the Hinomaru, so a target: it sinks where it is hit and stays down until the flight restarts */
+    c.t = { m, lit: null, c: m.position, r: len * 0.3, hp: len * 1.6, hp0: len * 1.6, type: 'ship', dead: false, s1, col: 0x555555, kind: 'civ' };
+    T.push(c.t);
+    m.rotation.y = c.yaw;
+    m.position.set(p0[0], -8 + s1 / 2, p0[1]);
+    return c;
+  };
+  const updCiv = (c, t, dt) => {
+    if (c.t && c.t.dead) {
+      c.m.children[0].visible = false;
+      return;
+    }
+    const cyc = 2 * (c.L / c.v + c.dock),
+      tt = (t + c.phase) % cyc;
+    let s,
+      back = false,
+      moving = true;
+    if (tt < c.dock) {
+      s = 0;
+      moving = false;
+    } else if (tt < c.dock + c.L / c.v) s = (tt - c.dock) * c.v;
+    else if (tt < 2 * c.dock + c.L / c.v) {
+      s = c.L;
+      moving = false;
+      back = true;
+    } else {
+      s = c.L - (tt - 2 * c.dock - c.L / c.v) * c.v;
+      back = true;
+    }
+    let i = 0,
+      q = Math.max(0, Math.min(c.L, s));
+    while (i < c.seg.length - 1 && q > c.seg[i]) {
+      q -= c.seg[i];
+      i++;
+    }
+    const a = c.pts[i],
+      b = c.pts[i + 1],
+      k = q / (c.seg[i] || 1),
+      dx = b[0] - a[0],
+      dz = b[1] - a[1];
+    let want = Math.atan2(-dz, dx);
+    if (back) want = Math.atan2(dz, -dx);
+    let dy = want - c.yaw;
+    while (dy > Math.PI) dy -= 2 * Math.PI;
+    while (dy < -Math.PI) dy += 2 * Math.PI;
+    c.yaw += dy * Math.min(1, dt * 1.5);
+    const now = performance.now();
+    c.m.position.set(a[0] + dx * k, -8 + c.s1 / 2 + Math.sin(now / 1100 + c.phase) * 0.1, a[1] + dz * k);
+    c.m.rotation.set(0, c.yaw, Math.sin(now / 1500 + c.phase) * 0.012);
+    c.m.children[0].visible = moving;
+  };
+  /* ----- build everything ----- */
+  const farBuild = (F, fn) => {
+    const mine = [],
+      g0 = AA.gun.length,
+      l0 = AA.lamp.length;
+    scene.add = function (...a) {
+      mine.push(...a);
+      return _sceneAdd.apply(this, a);
+    };
+    let pat = null;
+    try {
+      pat = fn();
+    } finally {
+      delete scene.add;
+      FR = SITE;
+    }
+    for (let i = g0; i < AA.gun.length; i++) if (!AA.gun[i].ship) mine.push(AA.gun[i].grp);
+    for (let i = l0; i < AA.lamp.length; i++) mine.push(AA.lamp[i].grp);
+    FARS.push({ F, mine, pat, cx: F.O.x, cz: F.O.z, far: null });
+  };
+  for (const F of FS.list) {
+    WH(F.O.x, F.O.z); /* make sure the pad height is known */
+    const seed = Math.round(Math.abs(F.O.x) + Math.abs(F.O.z)) % 100000;
+    if (F.kind === 'port') farBuild(F, () => void harbour(F, true, seed));
+    else if (F.kind === 'air') farBuild(F, () => (farAirbase(F, seed), mkPatrol(F)));
+    else farBuild(F, () => (compound(F, seed), mkPatrol(F)));
+  }
+  {
+    const ports = FS.list.filter((f) => f.kind === 'port');
+    if (ports.length > 1) {
+      const [A, B] = ports;
+      mkCiv(M.freighter('jp'), 95, A, B, 13, 0);
+      mkCiv(M.tanker('jp'), 112, B, A, -13, 900);
+    }
+  }
+  SITE.far = FARS;
+  SITE.SEA = SEA;
+  SITE.civ = CIV;
+  /* the home port gets the same colonial dress */
+  farBuild(SITE, () => void harbour(SITE, false, 777));
+  {
+    const _vis = SITE.vis,
+      _pat = SITE.pat;
+    let tm = 0;
+    SITE.vis = (dt) => {
+      if (_vis) _vis(dt);
+      const nw = performance.now();
+      if (nw - tm < 400) return;
+      tm = nw;
+      for (const s of FARS) {
+        const d = Math.hypot(cam.position.x - s.cx, cam.position.z - s.cz),
+          f = !(PHOTO.on || ROAM.on) && d > Math.min(FAR_R, scene.fog.far + 3500) + (s.F.kind === 'air' ? 1500 : 0);
+        if (f === s.far) continue;
+        s.far = f;
+        for (const o of s.mine) o.traverse((q) => (q.layers.mask = f ? 2 : 1));
+        if (s.pat) s.pat.e.m.traverse((q) => (q.layers.mask = f ? 2 : 1));
+      }
+      for (const c of CIV) {
+        const d = Math.hypot(cam.position.x - c.m.position.x, cam.position.z - c.m.position.z);
+        c.vis = PHOTO.on || ROAM.on || d < Math.min(FAR_R, scene.fog.far + 3500) + 2000;
+        c.m.traverse((q) => (q.layers.mask = c.vis ? 1 : 2));
+      }
+    };
+    SITE.pat = (dt) => {
+      if (_pat) _pat(dt);
+      const t = performance.now() / 1000;
+      for (const s of FARS) if (s.pat && !s.far) s.pat.upd(dt);
+      for (const c of CIV) if (c.vis) updCiv(c, t, dt);
     };
   }
 }
@@ -18450,7 +20015,15 @@ function roamExit(quiet) {
   ROAM.on = false;
   PHOTO.drag = false;
   cam.fov = ROAM.fov0;
+  cam.far = 40000;
+  cam.near = 1;
   cam.updateProjectionMatrix();
+  if (SEAP) {
+    SEAP.position.set(0, -8.4, 0);
+    SEAP.scale.set(1, 1, 1);
+    SEAP.updateMatrix();
+  }
+  WX.apply();
   orbReset();
   camMode = 0;
   if (!quiet) note('CHASE CAMERA');
@@ -20411,7 +21984,7 @@ function updWX(dt) {
   WX.update(dt);
   DECK.update(dt);
   /* photo mode: the fog is measured from the ground, so a camera high above the map still sees the whole of it instead of a white-out */
-  if (PHOTO.on && !DECK.fogOn) {
+  if ((PHOTO.on || ROAM.on) && !DECK.fogOn) {
     const fs = WX.deckAbove ? WX_SET.clear : WX_SET[WX.wx],
       ay = Math.max(0, PHOTO.pos.y - 400);
     scene.fog.near = fs.fogN + ay * 4;
@@ -20873,6 +22446,23 @@ function photoKey(e) {
 }
 const PHV1 = new V(),
   PHV2 = new V();
+/* high up the camera must still see the ground: the view distance and the open sea grow with the height (the old 40 km limit blanked the whole picture above ~40 km); photo and roam cameras both use it */
+function highView() {
+  const alt = Math.max(0, PHOTO.pos.y),
+    far = Math.min(600000, Math.max(40000, alt * 3 + 40000)),
+    nr = Math.max(0.3, alt * 0.004);
+  if (Math.abs(cam.far - far) > far * 0.02 || Math.abs(cam.near - nr) > nr * 0.05) {
+    cam.far = far;
+    cam.near = nr;
+    cam.updateProjectionMatrix();
+  }
+  if (SEAP) {
+    const sc = Math.max(1, (alt * 4 + 60000) / 60000);
+    SEAP.position.set(Math.round(PHOTO.pos.x / 2000) * 2000, -8.4, Math.round(PHOTO.pos.z / 2000) * 2000);
+    SEAP.scale.set(sc, 1, sc);
+    SEAP.updateMatrix();
+  }
+}
 function photoCam(dt) {
   const k = keys,
     sp = PHOTO.spd * (k.ShiftLeft || k.ShiftRight ? 5 : 1) * dt,
@@ -20887,23 +22477,7 @@ function photoCam(dt) {
   PHOTO.pos.y += (sx * fw + up2) * sp;
   PHOTO.pos.z += (-cy * cx * fw - sy * rt) * sp;
   PHOTO.roll += ((k.KeyC ? 1 : 0) - (k.KeyZ ? 1 : 0)) * dt * 0.8;
-  /* high up the camera must still see the ground: the view distance and the open sea grow with the height (the old 40 km limit blanked the whole picture above ~40 km) */
-  {
-    const alt = Math.max(0, PHOTO.pos.y),
-      far = Math.min(600000, Math.max(40000, alt * 3 + 40000)),
-      nr = Math.max(1, alt * 0.004);
-    if (Math.abs(cam.far - far) > far * 0.02 || Math.abs(cam.near - nr) > nr * 0.05) {
-      cam.far = far;
-      cam.near = nr;
-      cam.updateProjectionMatrix();
-    }
-    if (SEAP) {
-      const sc = Math.max(1, (alt * 4 + 60000) / 60000);
-      SEAP.position.set(Math.round(PHOTO.pos.x / 2000) * 2000, -8.4, Math.round(PHOTO.pos.z / 2000) * 2000);
-      SEAP.scale.set(sc, 1, sc);
-      SEAP.updateMatrix();
-    }
-  }
+  highView();
   cam.position.copy(PHOTO.pos);
   cam.quaternion.setFromEuler(PHE.set(PHOTO.pitch, PHOTO.yaw, PHOTO.roll));
   if (Math.abs(cam.fov - PHOTO.fov) > 0.01) {
@@ -21363,7 +22937,10 @@ function frame(now) {
   if (PHOTO.on) photoCam(dt);
   else if (ROAM.on) {
     if (BL.on || RPL.on) roamExit(true);
-    else roamCam();
+    else {
+      roamCam();
+      highView();
+    }
   }
   {
     const gh = H(cam.position.x, cam.position.z) + (PHOTO.on || ROAM.on ? 0.3 : 1);
@@ -21374,7 +22951,7 @@ function frame(now) {
   sky.position.copy(cam.position);
   terrU.uTime.value = now / 1000;
   {
-    const nn = PHOTO.on || ROAM.on ? 0.3 : !orbitOn && (camMode == 1 || lb > 0.3) ? 0.12 : 1;
+    const nn = PHOTO.on || ROAM.on ? Math.max(0.3, Math.max(0, PHOTO.pos.y) * 0.004) : !orbitOn && (camMode == 1 || lb > 0.3) ? 0.12 : 1;
     if (cam.near !== nn) {
       cam.near = nn;
       cam.updateProjectionMatrix();

@@ -718,6 +718,44 @@ with sync_playwright() as p:
       o.built=[nr>0,nf>0,nh>0];return o}""")
     check("far world: every farm has a road through the farms nearer the hamlet to a hamlet, no road or building lies in the sea or on a cliff, hamlets are joined, and roads, farms and hamlets are built", rn["farms"] > 50 and rn["bad"] == 0 and rn["noRoad"] == 0 and rn["wet"] == 0 and rn["hamlets"] > 30 and rn["links"] > 30 and all(rn["built"]), str(rn))
     check("far world: at 250 m/s across 100 km no chunk is finished inside the fog and at most a rare garbage-collection pause passes 6 ms", fw["early"] == 0 and fw["over"] <= 3 and fw["live"] < 110, str(fw))
+    # ---- the far sites (phase 2): two colonial harbours, two enemy airbases, two enemy convoy bases, patrol ships and sailing civilian ships
+    fsx = pg.evaluate("""()=>{
+      const o={};
+      o.kinds=FS.list.map(f=>f.kind).join(',');
+      /* every pad is dead level over its working area (the terrain function, so collision, mesh and scenery agree) */
+      o.level=FS.list.every(f=>{WH(f.O.x,f.O.z);const q=f.kind==='air'?[[-500,-800],[0,-750],[500,-800]]:f.kind==='port'?[[-100,-80],[0,-20],[100,-60]]:[[-100,-60],[0,0],[100,60]];
+        return q.every(([u,d])=>{const [x,z]=f.w(u,d);return Math.abs(WH(x,z)-f.H)<0.01&&Math.abs(H(x,z)-f.H)<0.01})});
+      /* no farm, hamlet or tree-free exclusion broken: nothing of the rural world on a pad */
+      o.clear=(()=>{const N=WORLD.NET;let bad=0;for(const f of FS.list)for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const x=f.O.x+a*1200,z=f.O.z+b*1200;const fm=N.farm(Math.floor(x/N.FC),Math.floor(z/N.FC));if(fm&&FS.near(fm.x,fm.z,0))bad++;const hm=N.hamlet(Math.floor(x/N.RG),Math.floor(z/N.RG));if(hm&&FS.near(hm.x,hm.z,0))bad++}return bad})();
+      o.far=SITE.far.length;o.pat=SITE.far.filter(s=>s.pat).length;o.civ=SITE.civ.length;
+      o.guns=AA.gun.filter(g=>g.site&&!g.ship&&FS.list.some(f=>Math.hypot(g.x-f.O.x,g.z-f.O.z)<1500)).length;
+      o.shipGuns=AA.gun.filter(g=>g.ship).length;
+      o.lamps=AA.lamp.filter(l=>l.site&&FS.list.some(f=>Math.hypot(l.x-f.O.x,l.z-f.O.z)<1500)).length;
+      /* every sailing route stays in deep water */
+      o.lanes=SITE.civ.every(c=>{for(let i=0;i<c.pts.length-1;i++){const a=c.pts[i],b=c.pts[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);for(let d=0;d<=L;d+=100){const t=d/L;if(HR(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t)>-8)return false}}return true});
+      return o}""")
+    check("far sites: 2 harbours, 2 enemy airbases and 2 enemy convoy bases on dead-level pads, nothing of the rural world on them", fsx["kinds"] == "port,port,air,air,conv,conv" and fsx["level"] and fsx["clear"] == 0, str(fsx))
+    check("far sites: each enemy site has two guns and two lights (free flight only), a patrol ship with four mounts, and two civilian ships sail a lane of open deep water", fsx["guns"] == 8 and fsx["lamps"] == 8 and fsx["pat"] == 4 and fsx["shipGuns"] >= 16 and fsx["civ"] == 2 and fsx["lanes"], str(fsx))
+    # ---- the routes: dirt roads from each colonial port to its villages, paved roads between enemy bases, bridges only over small gaps
+    rtx = pg.evaluate("""()=>{
+      const L=WORLD.RT.list(),o={};
+      o.dirt=L.filter(r=>!r.paved).length;o.paved=L.filter(r=>r.paved).length;
+      o.portsServed=FS.list.filter(f=>f.kind==='port').every(f=>L.some(r=>!r.paved&&r.from===f.id));
+      o.maxBridge=Math.max(0,...L.map(r=>r.longest||0));
+      /* a dirt road never leaves dry ground; a paved road is on dry ground or on a deck above the sea */
+      o.wetDirt=L.filter(r=>!r.paved).reduce((n,r)=>{for(let k=0;k<r.n;k++)if(WH(r.x[k],r.z[k])<-5.5)n++;return n},0);
+      o.wetPaved=L.filter(r=>r.paved).reduce((n,r)=>{for(let k=0;k<r.n;k++)if(WH(r.x[k],r.z[k])<-5.5&&!(r.y[k]===r.y[k]))n++;return n},0);
+      /* routes keep out of every site they do not serve */
+      o.trespass=L.reduce((n,r)=>{for(let k=0;k<r.n;k+=4)for(const s of FS.list)if(s.id!==r.from&&s.id!==r.to&&Math.hypot(r.x[k]-s.O.x,r.z[k]-s.O.z)<s.R)n++;return n},0);
+      /* a route is continuous: samples are one step apart */
+      o.gaps=L.reduce((n,r)=>{for(let k=1;k<r.n;k++)if(Math.hypot(r.x[k]-r.x[k-1],r.z[k]-r.z[k-1])>13)n++;return n},0);
+      /* a route is drawn in the chunk that holds a sample of it */
+      pos.set(L[0].x[(L[0].n>>1)],600,L[0].z[(L[0].n>>1)]);for(let i=0;i<120;i++)WORLD.update(0.3,true);
+      const R=L[0],k=R.n>>1;const ch=WORLD.CH.find(c=>R.x[k]>=c.x0&&R.x[k]<c.x1&&R.z[k]>=c.z0&&R.z[k]<c.z1);
+      o.drawn=!!(ch&&ch.it&&ch.it.nV>0);
+      return o}""")
+    check("routes: each colonial port has dirt roads to its villages, the enemy bases are joined by paved road where land allows, bridges are 700 m or less", rtx["dirt"] >= 4 and rtx["portsServed"] and rtx["paved"] >= 1 and rtx["maxBridge"] <= 700, str(rtx))
+    check("routes: dirt roads stay on dry ground, paved roads cross water only on a bridge, no route enters a site it does not serve, no gaps, and the road is drawn", rtx["wetDirt"] == 0 and rtx["wetPaved"] == 0 and rtx["trespass"] == 0 and rtx["gaps"] == 0 and rtx["drawn"], str(rtx))
     check("Kamome Field: level runway, open sea around the island, 43 km out, the ADF needle points at the beacon, the ADF mission starts", isl[0] < 0.01 and isl[1] and 40000 < isl[2] < 46000 and isl[3] == "adf" and isl[4] and isl[5] and isl[6], str(isl))
     pg.evaluate("()=>{PP.off=true;const i=MENU.findIndex(m=>m[0]==='free');menuPick(i)}")
     sg = pg.evaluate("""()=>{ const gs=AA.gun.filter(g=>g.site); if(!gs.length) return null; trn.mode='free'; updAA(0.05); const a=gs.every(g=>g.grp.visible); trn.mode='bomb'; updAA(0.05); const b=gs.every(g=>!g.grp.visible); trn.mode='free'; return [gs.length,a,b]}""")
