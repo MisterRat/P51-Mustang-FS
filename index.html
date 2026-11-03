@@ -585,7 +585,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.14';
+const VERSION = '5.19';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -1578,11 +1578,14 @@ function HR(x, z) {
   {
     /* the world beyond the terrain mesh is open sea (there is nothing to see there, so nothing to hit) */
     const ed = Math.max(Math.abs(x), Math.abs(z));
-    if (ed > 11500) {
-      const w = ss(11500, 12800, ed);
-      r = r * (1 - w) + -40 * w;
+    /* the home land runs out into the sea along a wandering coast, not a straight line, so it meets the far world naturally */
+    const ew = ed + 2600 * vn(x / 3300 + 3.1, z / 3300 - 7.7);
+    if (ew > 9000) {
+      const w = ss(9000, 11800, ew);
+      r = r * (1 - w) + -64 * w; /* as deep as the far sea, so the water colour does not change at the edge */
     }
-    if (ed > 12800) r = WH(x, z);
+    if (ed > 12800) r = Math.min(r, -8);
+    if (ed > 14500) r = WH(x, z);
     if (ed > 12000) {
       const o = ISL.h(x, z);
       if (o) r = o.h;
@@ -1713,7 +1716,7 @@ function fieldTex() {
       im.data[o] = Math.min(255, col[i * 3] * 255 * sh * 1.05);
       im.data[o + 1] = Math.min(255, col[i * 3 + 1] * 255 * sh * 1.05);
       im.data[o + 2] = Math.min(255, col[i * 3 + 2] * 255 * sh * 1.05);
-      im.data[o + 3] = 255;
+      im.data[o + 3] = Math.round(255 * Math.min(1, Math.min(u, v, SEG - u, SEG - v) / 60)); /* fades out over its last 6 km so it melts into the far-world picture */
     }
     cx.putImageData(im, 0, 0);
   }
@@ -18545,6 +18548,194 @@ function drawADF() {
   g.font = '12px sans-serif';
   g.fillText(String(Math.round(b.brg)).padStart(3, '0') + '°  ' + (b.dist / 1000).toFixed(1) + ' km  ' + fmtT(eta), 85, 201);
 }
+const MFS = 104000,
+  MFN = 416,
+  MMF = document.createElement('canvas');
+let mmFd = false;
+const MMW = [[6, 97, 172, 234], [10, 54, 138, 213], [14, 52, 133, 208], [18, 49, 127, 202], [22, 46, 120, 194], [26, 42, 112, 185], [30, 38, 103, 176], [34, 34, 95, 168], [38, 30, 86, 159], [42, 26, 79, 151], [46, 23, 73, 145], [50, 21, 68, 140], [54, 20, 66, 138], [62, 20, 65, 137]];
+/* colour of one map pixel of the far world from its height, its slope and where it is (field patches give the land the same mottled look as the home map) */
+function mmCol(h, sl, x, z, d, o) {
+  let r, g, b;
+  if (h < -5.5) {
+    /* the sea colour by depth, measured from the detailed home picture so the two pictures meet without a seam */
+    const dp = -h;
+    let k = 0;
+    while (k < MMW.length - 2 && dp > MMW[k + 1][0]) k++;
+    const t = Math.max(0, Math.min(1, (dp - MMW[k][0]) / (MMW[k + 1][0] - MMW[k][0])));
+    (r = MMW[k][1] + (MMW[k + 1][1] - MMW[k][1]) * t), (g = MMW[k][2] + (MMW[k + 1][2] - MMW[k][2]) * t), (b = MMW[k][3] + (MMW[k + 1][3] - MMW[k][3]) * t);
+  } else {
+    const k = Math.min(1, Math.max(0, (h - 100) / 600)),
+      f1 = vn(x / 650 + 5.1, z / 650 - 2.3),
+      f2 = vn(x / 170 + 1.7, z / 170 + 8.4),
+      lo = h < 60 ? 1 : 0.35, /* the lowlands are patchwork farmland, the hills are more even */
+      tone = 1 + lo * (0.7 * f1 + 0.3 * f2) + (1 - lo) * 0.25 * f1,
+      sh = Math.max(0.55, Math.min(1.3, 1 + sl * 2.4));
+    (r = 101 + 30 * k + 38 * lo * f1), (g = 140 - 25 * k), (b = 54 + 36 * k);
+    (r *= tone * sh), (g *= (1 + 0.55 * (tone - 1)) * sh), (b *= tone * sh);
+    if (h > 900) (r += 40 * (h - 900) / 400), (g += 40 * (h - 900) / 400), (b += 40 * (h - 900) / 400);
+  }
+  d[o] = Math.min(255, r);
+  d[o + 1] = Math.min(255, g);
+  d[o + 2] = Math.min(255, b);
+  d[o + 3] = 255;
+}
+const mmHt = (x, z) => (Math.abs(x) < SZ / 2 && Math.abs(z) < SZ / 2 ? HR(x, z) : WH(x, z)); /* the home area has its own height function */
+function mmFar() {
+  /* the terrain picture of the whole world (the detailed one only covers the home area), drawn once from the height function */
+  if (mmFd) return;
+  mmFd = true;
+  const cv = MMF,
+    cx = cv.getContext('2d');
+  cv.width = cv.height = MFN;
+  const im = cx.createImageData(MFN, MFN),
+    hh = new Float32Array(MFN * MFN),
+    st = MFS / MFN;
+  for (let j = 0; j < MFN; j++) for (let i = 0; i < MFN; i++) hh[j * MFN + i] = mmHt((i + 0.5) * st - MFS / 2, (j + 0.5) * st - MFS / 2);
+  for (let j = 0; j < MFN; j++)
+    for (let i = 0; i < MFN; i++) {
+      const hx = hh[j * MFN + Math.min(MFN - 1, i + 1)] - hh[j * MFN + Math.max(0, i - 1)],
+        hz = hh[Math.min(MFN - 1, j + 1) * MFN + i] - hh[Math.max(0, j - 1) * MFN + i];
+      mmCol(hh[j * MFN + i], (hx * 0.5 + hz * 0.4) / (2 * st), (i + 0.5) * st - MFS / 2, (j + 0.5) * st - MFS / 2, im.data, (j * MFN + i) * 4);
+    }
+  cx.putImageData(im, 0, 0);
+}
+/* close up, the far world is drawn in 4 km tiles at 64 m a pixel, made a few at a time as they come into view */
+const MMTL = new Map(),
+  MTS = 4096,
+  MTN = 64;
+function mmTile(tx, tz) {
+  const N = MTN + 2,
+    st = MTS / MTN,
+    cv = document.createElement('canvas'),
+    cx = cv.getContext('2d');
+  cv.width = cv.height = N;
+  const im = cx.createImageData(N, N),
+    hh = new Float32Array(N * N);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) hh[j * N + i] = mmHt(tx * MTS + (i - 0.5) * st, tz * MTS + (j - 0.5) * st);
+  for (let j = 1; j <= MTN; j++)
+    for (let i = 1; i <= MTN; i++) {
+      const hx = hh[j * N + i + 1] - hh[j * N + i - 1],
+        hz = hh[(j + 1) * N + i] - hh[(j - 1) * N + i];
+      mmCol(hh[j * N + i], (hx * 0.5 + hz * 0.4) / (2 * st), tx * MTS + (i - 0.5) * st, tz * MTS + (j - 0.5) * st, im.data, (j * N + i) * 4);
+    }
+  for (let i = 0; i < N; i++) for (const j of [0, N - 1]) for (const [a, b] of [[i, j], [j, i]]) {
+    const q = (Math.max(1, Math.min(MTN, b)) * N + Math.max(1, Math.min(MTN, a))) * 4,
+      o = (b * N + a) * 4;
+    im.data[o] = im.data[q]; im.data[o + 1] = im.data[q + 1]; im.data[o + 2] = im.data[q + 2]; im.data[o + 3] = 255;
+  }
+  cx.putImageData(im, 0, 0);
+  return cv;
+}
+const MMC = document.createElement('canvas'),
+  MCN = 10; /* the tiles are laid into one picture, pixel for pixel, so there are no tile edges to show */
+let mmCk = '';
+function mmTiles(g, Rm) {
+  const x0 = Math.floor((pos.x - Rm) / MTS),
+    x1 = Math.floor((pos.x + Rm) / MTS),
+    z0 = Math.floor((pos.z - Rm) / MTS),
+    z1 = Math.floor((pos.z + Rm) / MTS),
+    cx0 = Math.floor(pos.x / MTS) - 4,
+    cz0 = Math.floor(pos.z / MTS) - 4;
+  let made = 0;
+  const want = [];
+  for (let tz = z0; tz <= z1; tz++) for (let tx = x0; tx <= x1; tx++) want.push([tx, tz, Math.hypot((tx + 0.5) * MTS - pos.x, (tz + 0.5) * MTS - pos.z)]);
+  want.sort((a, b) => a[2] - b[2]);
+  let dirty = false;
+  for (const [tx, tz] of want) {
+    const key = tx + ',' + tz;
+    if (!MMTL.has(key)) {
+      if (made >= 3) continue;
+      made++;
+      MMTL.set(key, mmTile(tx, tz));
+      if (MMTL.size > 160) MMTL.delete(MMTL.keys().next().value);
+      dirty = true;
+    }
+  }
+  const k = cx0 + ',' + cz0;
+  if (k !== mmCk) (mmCk = k), (dirty = true);
+  if (dirty) {
+    const c = MMC.getContext('2d');
+    MMC.width = MMC.height = MCN * MTN;
+    for (let j = 0; j < MCN; j++)
+      for (let i = 0; i < MCN; i++) {
+        const t = MMTL.get(cx0 + i + ',' + (cz0 + j));
+        if (t) c.drawImage(t, 1, 1, MTN, MTN, i * MTN, j * MTN, MTN, MTN);
+      }
+  }
+  g.imageSmoothingEnabled = false;
+  g.drawImage(MMC, cx0 * MTS, cz0 * MTS, MCN * MTS, MCN * MTS);
+  g.imageSmoothingEnabled = true;
+}
+/* the far world's hamlets, farms and the tracks that join them (the same fixed network the 3D world builds from) */
+function mmRural(g, Rm, lw) {
+  const N = WORLD.NET,
+    R = Rm * 1.1,
+    RG = N.RG,
+    FC = N.FC,
+    drawn = new Set(),
+    P = [0, 0];
+  let budget = 6;
+  const road = (a, b, col, w) => {
+    const key = a.id < b.id ? a.id + b.id : b.id + a.id;
+    if (drawn.has(key)) return;
+    drawn.add(key);
+    const n = Math.max(3, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / 400));
+    g.strokeStyle = col;
+    g.lineWidth = w;
+    g.beginPath();
+    for (let i = 0; i <= n; i++) {
+      N.pathPt(a, b, i / n, P);
+      if (i) g.lineTo(P[0], P[1]);
+      else g.moveTo(P[0], P[1]);
+    }
+    g.stroke();
+  };
+  const hams = [];
+  for (let ri = Math.floor((pos.x - R - RG * 2) / RG); ri <= Math.floor((pos.x + R + RG * 2) / RG); ri++)
+    for (let rj = Math.floor((pos.z - R - RG * 2) / RG); rj <= Math.floor((pos.z + R + RG * 2) / RG); rj++) {
+      const h = N.hamlet(ri, rj);
+      if (h) hams.push(h);
+    }
+  /* the paved roads between the far enemy bases */
+  g.strokeStyle = '#f0dfa0';
+  g.lineWidth = Math.max(lw(1.7), 22);
+  for (const r of WORLD.RT.list()) {
+    if (r.x1 < pos.x - R || r.x0 > pos.x + R || r.z1 < pos.z - R || r.z0 > pos.z + R) continue;
+    g.beginPath();
+    for (let k = 0; k < r.n; k += 3) (k ? g.lineTo(r.x[k], r.z[k]) : g.moveTo(r.x[k], r.z[k]));
+    g.stroke();
+  }
+  const col = '#e2d49a';
+  for (const h of hams) for (const o of N.links(h)) road(h, o, col, Math.max(lw(1.4), 14));
+  const farms = [];
+  if (Rm <= 8000)
+  for (let ci = Math.floor((pos.x - R) / FC); ci <= Math.floor((pos.x + R) / FC); ci++)
+    for (let cj = Math.floor((pos.z - R) / FC); cj <= Math.floor((pos.z + R) / FC); cj++) {
+      const f = N.farm(ci, cj);
+      if (!f) continue;
+      if (f.par === undefined) {
+        if (budget <= 0) continue; /* worked out a few at a time as they come into view */
+        budget--;
+      }
+      if (N.live(f)) farms.push(f);
+    }
+  for (const f of farms) road(f, f.par, col, Math.max(lw(1), 10));
+  g.fillStyle = '#f0e6c0';
+  g.strokeStyle = '#3a3220';
+  g.lineWidth = lw(1);
+  for (const f of farms) {
+    g.fillRect(f.x - lw(1.5), f.z - lw(1.5), lw(3), lw(3));
+    g.strokeRect(f.x - lw(1.5), f.z - lw(1.5), lw(3), lw(3));
+  }
+  for (const h of hams) {
+    const w = lw(5);
+    g.fillStyle = '#ffe9a0';
+    g.fillRect(h.x - w / 2, h.z - w / 2, w, w);
+    g.strokeRect(h.x - w / 2, h.z - w / 2, w, w);
+    g.fillStyle = '#7a4a2a';
+    g.fillRect(h.x - lw(1.2), h.z - lw(1.2), lw(2.4), lw(2.4));
+  }
+}
 function drawMinimap() {
   const now = performance.now();
   if (now - mmT < 100) return;
@@ -18574,7 +18765,11 @@ function drawMinimap() {
   g.scale(s, s);
   g.translate(-pos.x, -pos.z);
   g.imageSmoothingEnabled = true;
+  mmFar();
+  g.drawImage(MMF, -MFS / 2, -MFS / 2, MFS, MFS); /* the whole far world, coarse, behind the detailed home area */
+  if (mmZ <= 2) mmTiles(g, Rm * 1.05);
   g.drawImage(MMT, -SZ / 2, -SZ / 2, SZ, SZ);
+  mmRural(g, Rm, lw);
   g.strokeStyle = '#e9e9e4';
   g.lineWidth = Math.max(lw(2.4), 45);
   g.beginPath();
