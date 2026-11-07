@@ -5,7 +5,7 @@
 **A casual-to-hardcore P-51D sim in a single offline HTML file.**
 Take off, navigate by radio compass (ADF), strafe convoys, bomb buildings and dogfight in free flight, on your keyboard, a gamepad or your phone.
 
-### [Play it in your browser](https://github.mrrat.org/p51-mustang-fs/)
+### [Play it in your browser](https://github.mrrat.org/P51-Mustang-FS/)
 
 by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://discord.gg/FybAhsxQHZ)
 
