@@ -589,7 +589,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.26';
+const VERSION = '5.27';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -17720,7 +17720,8 @@ function finalLineFor() {
       Dg: 3600,
       Dmin: 1500,
       Dmax: 9000,
-      descLim: 0.12,
+      descLim: 0.16,
+      bank: 35,
       lin: true,
       marks: [{ d: 0, t: 'touch' }],
     };
@@ -17860,7 +17861,7 @@ function buildPlan(F) {
     pz = pos.z,
     vh = Math.max(45, Math.hypot(vel.x, vel.z)),
     vp = Math.max(vh, F.kind === 'land' ? 70 : 100),
-    R = F.ground ? 260 : Math.max(300, (vp * vp) / (9.8 * Math.tan(((F.kind === 'land' ? 30 : F.kind === 'strafe' ? 50 : 38) * Math.PI) / 180)));
+    R = F.ground ? 260 : Math.max(300, (vp * vp) / (9.8 * Math.tan(((F.bank || (F.kind === 'land' ? 30 : F.kind === 'strafe' ? 50 : 38)) * Math.PI) / 180)));
   const psi = Math.atan2(-fwd.x, -fwd.z);
   let psiF = Math.atan2(-F.u.x, -F.u.z);
   let dAlong = -((px - F.A.x) * F.u.x + (pz - F.A.z) * F.u.z),
