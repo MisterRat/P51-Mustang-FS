@@ -589,7 +589,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.27';
+const VERSION = '5.28';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -19843,7 +19843,7 @@ const UI = {
   hint: false,
   load() {
     this.hid = store.get('p51ui', {}) || {};
-    if (this.hid.adf === undefined) this.hid.adf = 1; /* the ADF radio compass starts switched off in free flight (L turns it on) */
+    if (this.hid.adf === undefined) this.hid.adf = 1; if (this.hid.rkring === undefined) this.hid.rkring = 1; if (this.hid.bmring === undefined) this.hid.bmring = 1; /* rocket and bomb sight rings start off */ /* the ADF radio compass starts switched off in free flight (L turns it on) */
   },
   save() {
     store.set('p51ui', this.hid);
@@ -19853,7 +19853,7 @@ const UI = {
   },
   set(id, v) {
     if (v) {
-      if (id === 'adf') this.hid[id] = 0; /* remembered as 'on' */
+      if (id === 'adf' || id === 'rkring' || id === 'bmring') this.hid[id] = 0; /* remembered as 'on' */
       else delete this.hid[id];
     } else this.hid[id] = 1;
     document.body.classList.toggle('hide-' + id, !v);
