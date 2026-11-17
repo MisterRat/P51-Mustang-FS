@@ -76,10 +76,6 @@ The airframe and flight model are based on the original P-51D drawings and fligh
 
 Repeatable tests are in this repo: `P-51_Mustang_FS_perf_test.py` (climb, top speed, cruise and glide) and `P-51_Mustang_FS_smoke_test.py` (everything else). `P-51_Mustang_FS_Briefing_Map.pdf` is a printable map.
 
-## Run your own copy
-
-Download `index.html` and open it in a browser. To host it, publish the repo with GitHub Pages (Settings, Pages, deploy from `main` / root).
-
 ## License
 
 Free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0). Commercial use needs written permission. See [`LICENSE`](LICENSE).
