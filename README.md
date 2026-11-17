@@ -2,8 +2,8 @@
 
 # P-51D Mustang Flight Simulator
 
-**A casual-to-hardcore P-51D sim in a single offline HTML file.**
-Take off, navigate by radio compass (ADF), strafe convoys, bomb buildings and dogfight in free flight, on your keyboard, a gamepad or your phone.
+**A P-51D Mustang flight sim in a single offline HTML file.**
+Fly over a World War II South Pacific island chain, learn to take off, land and navigate, then strafe convoys, bomb targets and dogfight.
 
 ### [Play it in your browser](https://github.mrrat.org/P51-Mustang-FS/)
 
@@ -13,38 +13,38 @@ by [MrRat Gaming](https://github.mrrat.org/) &nbsp;·&nbsp; [Discord](https://di
 
 </div>
 
-## Why you might like it
-- **Fun first.** It flies like a P-51D (440 mph level, 500 mph dive) but stays casual. Realism is optional and switched on piece by piece.
-- **One file, works offline.** `index.html` has everything, including three.js. No installs, no accounts, no network needed after the page loads.
-- **Plays everywhere.** Desktop keyboard, gamepad, or phone and tablet with tilt controls and touch. Add it to your phone's home screen to use it like an app.
-- **Looks good.** Rolling islands, beaches, fields and hedgerows, wind-swayed trees, clouds with shadows, day and night, and a detailed cockpit.
+## About
+
+You fly a North American P-51D Mustang from a small airfield on a Pacific island. It handles like the real aircraft but stays easy to fly, and you can switch on realistic systems (engine, fuel, damage, weather) when you want more of a challenge.
+
+- **One file, works offline.** `index.html` contains everything, including three.js. After the page loads you need no network, install or account.
+- **Plays anywhere.** Keyboard, gamepad, or phone and tablet with tilt and touch controls. Add it to your home screen to use it like an app.
+- **Guided training.** A green ring shows the path a test pilot flew, so you can learn each manoeuvre by following it.
 
 ![Cockpit, minimap and instruments](screenshots/hud.jpg)
 
-## What you can do
-| | |
+## How to play
+
+1. Open the [game](https://github.mrrat.org/P51-Mustang-FS/) (or `index.html` from this repo) in a modern browser.
+2. Press **Free flight** to start, or press `P` / `Esc` and open the **Missions** tab to pick a guided mission.
+3. **Take off:** raise the throttle to full (`Shift`). At about 190 km/h (about 120 mph) ease back on the stick, then raise the gear (`G`).
+4. **Fly:** pitch with `W` / `S`, roll with `A` / `D`, and use `Q` / `E` for rudder. Press `C` to switch between chase and cockpit views.
+5. **Land:** line up with the runway, lower the gear and flaps, keep a gentle descent, and touch down at low speed. Stop with the throttle at idle to repair and rearm.
+6. **Follow the green ring (training missions):** keep the white flight-path marker inside the ring. Press `L` to show or hide the guide.
+
+### Missions
+
+| Mission | What you do |
 |---|---|
-| **Free flight** | Explore the whole island chain, with a minimap and path guide. Beyond the home map the world goes on for 100 km in every direction: more islands, farmland with hedgerows, villages and farms linked by roads, all streamed in as you fly. |
-| **Trainers** | Takeoff, Landing, ADF Navigation, Building Bombing and Convoy Strafing and the six aerobatic trainers are guided by a green ring on the line a hidden sim pilot flew first (put the white flight-path marker in the ring to follow it); the aerobatics are Barrel Roll, Immelmann Turn, Split S, Wingover, Low Yo-Yo and High Yo-Yo (the coaching adapts to Hardcore mode). |
-| **Combat** | Machine guns, rockets and bombs. Enemies come in Low (40%), Medium (65%) and Hard (100%) performance. |
-| **Ground fire** | Each enemy base has two Type 96 25 mm twin AA guns and two 150 cm searchlights. At night the beams sweep, lock on and dazzle, and the guns fire at what they light. Switch it off in Settings. |
-| **Wrecks and smoke** | Destroyed targets burn with a smoke column you can see for miles. Bombs leave craters and scorch marks. They stay for the rest of the flight. |
-| **A busy airfield, and ships** | A fighter taxis, vehicles drive and ground crew walk around your airfield. A freighter, a tanker and a patrol boat sail the sea nearby. |
-| **A solid cloud deck** | Overcast, rain and thunderstorm have a real cloud layer: grey from below, white-out inside it, and clear sky and sun above it. |
-| **Weather and time** | Pick your clock, dawn to night, and clear, cloud, fog or rain. |
-| **Photo mode** | Press **F9** for a free camera. Drag to look, right-drag to pan, wheel to dolly, Ctrl+wheel to zoom. Save JPG snapshots. |
-| **Graphics** | Auto, Low, Medium and High, so it runs on a phone and looks good on a PC. |
+| Takeoff / Landing | Fly the guided departure and approach. |
+| ADF Navigation | Find the island airfield with the radio compass, then land. |
+| Convoy strafing | Attack a convoy with guns and rockets, then come around for another pass. |
+| Building bombing | Hit buildings with bombs. |
+| Aerobatics | Barrel roll, Immelmann, Split S, Wingover, Low Yo-Yo and High Yo-Yo. |
+| Free flight | Explore the islands, ports and airbases. Enemies come in Low, Medium and Hard difficulty. |
 
-![The coast and runway](screenshots/coast.jpg)
+### Controls
 
-## Built from the original documents
-The aircraft is modelled on the real P-51D. We built the airframe and tuned the flight model against our copies of the original factory blueprints (the three-view general arrangement with its area table, the fuselage stations, the wing, tail and landing gear drawings) and the P-51D flight-characteristics manual (stall speeds, flap and redline limits, load factors, glide and approach speeds). We matched them as closely as the documents and a browser game allow: dimensions, areas and stations follow the drawings, and the performance is checked against the published figures with repeatable tests (`P-51_Mustang_FS_perf_test.py` for climb, top speed, cruise and glide, and `P-51_Mustang_FS_smoke_test.py` for the rest). It is a game, so a few things stay approximate. The About page lists every item, what the real aircraft does, what this simulator does, and how close it is.
-
-## Hardcore mode (optional)
-Open **Settings** and use the master switch, then pick what you want. Each option has its own switch:
-engine gauges and overheating, fuel and weight and balance, air density and the supercharger, damage, **working trim tabs** (elevator, rudder and aileron; keyboard and controller), and weather effects such as **wind, turbulence, wet runways (hydroplaning) and icing**. The About page compares the sim against the real P-51D and marks what each option brings closer.
-
-## Controls
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Pitch | `W` / `S` or arrows | Right stick |
@@ -58,22 +58,40 @@ engine gauges and overheating, fuel and weight and balance, air density and the 
 | Rocket / bomb | `R` / `Z` | LT / X |
 | Camera (chase / cockpit) | `C` | Y |
 | Pause menu | `P` or `Esc` | Start |
-| Manual (About, Controls, Operations) | `I` | |
-| Trim (Hardcore) | `[` `]` pitch, `,` `.` rudder, `;` `'` aileron, `Backspace` centre | Hold Back + D-pad / LB / RB, Back + A centres |
-| Photo mode | `F9` | |
-| Path guide (trainers) / ADF on-off (free flight) | `L` | |
+| Manual | `I` | |
+| Path guide / ADF on-off | `L` | |
 | Minimap and zoom | `O`, `-`, `=` | |
-| Graphics, sound | `N`, `U` | |
+| Photo mode | `F9` | |
 
-The in-game **Controls** tab always lists the full, current bindings, including phone controls.
+The in-game **Controls** tab lists every binding, including the phone controls and the trim keys.
 
-## Run it yourself
-Download `index.html` and open it in a modern browser. To host your own copy, publish the repo with GitHub Pages (Settings, Pages, deploy from `main` / root).
+## Features
 
-Built with [three.js](https://threejs.org/) r128 (MIT), inlined in the file.
+- **A large world.** Islands, beaches, fields, villages and roads stream in as you fly, with open sea beyond the mapped land.
+- **Combat.** Machine guns, rockets and bombs. Optional sight rings for each (Settings, Sight rings); the rocket and bomb rings start off.
+- **Ground fire.** Enemy bases have anti-aircraft guns and searchlights, and the port has an escort ship. You can switch it off in Settings.
+- **Weather and time of day.** Dawn to night; clear, cloud, rain, thunderstorm and fog.
+- **Photo mode.** Free camera and JPG snapshots.
+- **Graphics options.** Auto, Low, Medium and High, so it runs on a phone and looks good on a PC.
+
+![The coast and runway](screenshots/coast.jpg)
+
+### Hardcore mode (optional)
+
+Open **Settings** and turn on the master switch, then choose what you want: engine gauges and overheating, fuel and balance, air density and the supercharger, damage, working trim tabs, and weather effects such as wind, turbulence, wet runways and icing.
+
+## Accuracy
+
+The airframe and flight model are based on the original P-51D drawings and flight-characteristics manual, and the performance is checked against the published figures. It is still a game, so some things are approximate. The in-game **About** page lists each item, what the real aircraft does and how close the sim comes.
+
+Repeatable tests are in this repo: `P-51_Mustang_FS_perf_test.py` (climb, top speed, cruise and glide) and `P-51_Mustang_FS_smoke_test.py` (everything else). `P-51_Mustang_FS_Briefing_Map.pdf` is a printable map.
+
+## Run your own copy
+
+Download `index.html` and open it in a browser. To host it, publish the repo with GitHub Pages (Settings, Pages, deploy from `main` / root).
 
 ## License
+
 Free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0). Commercial use needs written permission. See [`LICENSE`](LICENSE).
 
-| Kamome Field and ADF | A small island airfield 43 km out to sea (runway 07/25, tower, hangars, radio beacon KMM). The ADF radio compass has a needle that always points at a beacon; the ADF Navigation mission coaches you to find the island with it and land. Beyond the mapped land the world is open sea. |
-| Port, airbase and coast road | A free-flight port (pier, ships, cranes) and a fenced second airbase (control tower, gravel yard, parked fighters), joined by enemy roads (port to airbase to the depot, and the second base back to the port), with a Ukuru-class escort patrolling the coast under Ground Fire |
+Built with [three.js](https://threejs.org/) r128 (MIT), included in `index.html`.
