@@ -52,18 +52,8 @@ You fly a North American P-51D Mustang from a small airfield on a Pacific island
 | Rudder | `Q` / `E` | LB / RB |
 | Throttle | `Shift` up, `Ctrl` down | D-pad up / down |
 | Flaps | `F` down, `V` up | D-pad right / left |
-| Gear | `G` | A |
-| Brakes | `B` (hold) | B |
-| Guns | `Space` (hold) | RT |
-| Rocket / bomb | `R` / `Z` | LT / X |
-| Camera (chase / cockpit) | `C` | Y |
-| Pause menu | `P` or `Esc` | Start |
-| Manual | `I` | |
-| Path guide / ADF on-off | `L` | |
-| Minimap and zoom | `O`, `-`, `=` | |
-| Photo mode | `F9` | |
 
-The in-game **Controls** tab lists every binding, including the phone controls and the trim keys.
+Press `I` for the manual, which lists all in-game controls including controller and phone.
 
 ## Features
 
