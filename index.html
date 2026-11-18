@@ -515,7 +515,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>Resupply</td><td>Land and stop with the throttle at idle: about 4 seconds to repair, rearm and (in Hardcore mode) refuel. The trainers also top up ammunition and hull for you.</td></tr>
 <tr><td>Ground fire</td><td>Settings &gt; Ground fire. Each enemy base (the depot and the base) has two <b>Type 96 25 mm</b> twin anti-aircraft guns in sandbagged pits and two <b>Type 96 150 cm searchlights</b> (beam reach about 8 km). The guns open fire from about 2.8 km in free flight, convoy and bombing, in bursts of tracer, with a pause to change magazines. They fire about 220 rounds a minute (15-round magazines, so a pause every few seconds to change them), one round in four a tracer. They are hand-cranked and fire at where they think you will be, so the aim is good on a steady run, bad when you jink, and poor beyond a couple of kilometres (the real gun was judged ineffective past about 2 km). A hit hurts the hull and may damage a system. They shoot back less accurately at Low and more at Hard. At night the lights sweep the sky; once a beam finds you (or the sound locators have given the crews a bearing) the lights lock on and the guns fire at the lit aircraft, and the glare dazzles you, worst below about 1,200 m. The lights follow a hard turn slowly, so jink out of the beam to lose it; held in the beams for more than 20 seconds you are hit about twice as hard. <b>Weather limits them:</b> a beam stops at the first cloud and only lights its underside, so a target behind a cloud is not lit; rain cuts the beam to about 3 km, a thunderstorm to 1.5 km and fog to about 300 m. The gun crews cannot see through cloud either, and by day see only as far as the weather lets them (about 700 m in fog); at night in fog they fire only at what a beam or the close range lights up. The lights can still follow you by sound. The guns and lights are targets (pink squares on the free-flight map) and can be strafed, rocketed or bombed. Training missions other than convoy and bombing, and the replay, are not shot at. Your own airfield has a QF 3.7-inch gun and a searchlight for show.</td></tr>
 <tr><td>Wrecks, smoke and craters</td><td>A destroyed building, vehicle, gun or fuel store leaves a scorch mark and burns for a while, with a smoke column you can see from miles away (fuel and tanker fires burn longest). Bombs leave craters, rockets small scorch marks, and a bandit that hits the ground or your own crash leaves a burning wreck. Smoke leans downwind. They stay for the rest of the flight and are cleared when you restart. Graphics Low shows fewer fires at once.</td></tr>
-<tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water a freighter, a tanker and a patrol boat sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
+<tr><td>The working airfield and the sea</td><td>Your airfield is busy: a fighter taxis out to the hold short line and back, a jeep and a fuel truck drive along the apron edge, and ground crew walk between the parked fighters. They stop and give way if you taxi close. Out over the water two US Navy patrol craft escorts (PCE-842 and PCE-843, with the dazzle camouflage) and two Elco PT boats (PT-105 and PT-106) sail steady courses with wakes, a few km from the airfield. They are scenery, not targets.</td></tr>
 <tr><td>ADF Navigation (mission) and Kamome Field</td><td>A small island airfield, <b>Kamome Field</b>, lies 43 km out over the sea to the north-north-west of your airfield (fog hides it until you are within about 15 km). It has a 1,300 m runway, 07 / 25 (heading 070 / 250), a tower, two hangars and a radio beacon, <b>KMM</b>. The <b>ADF radio compass</b> (the round dial on the right) has a red needle that always points at the beacon: the top of the dial is your nose, so the needle straight up means you are flying at the station. Needle to the right: turn right. A crosswind drifts you, so correct a few degrees toward the needle and do not chase it. The dial also shows the beacon bearing, distance and flying time. In free flight, click the dial to switch between KMM and your own field (HOM). The <b>ADF Navigation</b> mission starts you high over your airfield pointed the wrong way and coaches you in five steps: point at the beacon, home on the needle, let down and look for the island, pass over the station (the needle swings to the tail), then land on the runway. The ADF can be hidden in the pause menu (Instruments). Beyond the mapped land the world is open sea.</td></tr>
 <tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate to the depot where the convoy starts, and another from the second base, where the convoy ends, back to the port. No road reaches your airfield. Red squares on the map and the compass point to the targets.</td></tr>
 <tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out; hold the backtick key ` for six times bigger steps) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
@@ -589,7 +589,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.28';
+const VERSION = '5.29';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -3383,6 +3383,2967 @@ const FLG = (() => {
   const flagOnly = (kind, w, x, y, z, yaw) => new THREE.Mesh(new GX.Acc().add(make(kind, w), xf(x, y, z, yaw || 0)).geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: 2 }));
   return { make, at, pole, mesh, flagOnly };
 })();
+
+/* =====================================================================================================================
+   THE PCE-842 MODEL - built from the PCE-874 Booklet of General Plans (BuShips PCE 874-S0103-426816, plates 3 to 8), which the
+   user chose as the closest deck layout to PCE-842, checked against the A. D. Baker PCE-827 class drawing and photographs of PCE-842.
+   Model frame: bow toward +x, waterline at y = 0, starboard +z, origin amidships. Frames are the plans' 24 in (0.6096 m) frames,
+   numbered aft from frame 0 at the forward perpendicular: x = XF(frame).
+   Key measurements taken from the plans (above the 8 ft 4 in design waterline):
+     stem head 5.77 m; forecastle (upper) deck at the side 5.6 m at frame 3, 4.75 at 22, 4.45 at 40, 4.35 at the break (frame 62.8);
+     main deck aft 2.8 m, fantail 2.55 to 2.7; keel 2.54 m below the waterline from frame 6 to 70; beam 10.08 m (33 ft 1 in);
+     navigating bridge (02) deck 7.03 m, open bridge 9.6 m, A/S hut roof 11.7 m, searchlight platform 13.8 m, mast at frame 40.
+   Paint: Measure 32 dazzle as photographed on PCE-842 (port side; the starboard side is mirrored until a starboard photo turns up),
+   in 5-L light gray, 5-O ocean gray and BK dull black, with 20-B deck blue on the decks. The pattern is painted per pixel by the
+   ship's material (PCEM.material) on every part coloured with the KEY colour, so the band edges stay sharp.
+   The six playable stations have their own first-person interiors (rooms face inward, so they cannot be seen from outside):
+   1 OOD open bridge, 2 engine room, 3 radar / radio room (and the sonar in the A/S hut), 4 pilothouse, 5 3"/50 and aft twin 40 mm,
+   6 the depth-charge fantail (and a K-gun).
+   ===================================================================================================================== */
+const PCEM = (() => {
+  const FR = 0.6096,
+    XF = (f) => 27.75 - FR * f,
+    PI = Math.PI,
+    HP = PI / 2;
+  const sst = (a) => (a <= 0 ? 0 : a >= 1 ? 1 : a * a * (3 - 2 * a));
+  const tab = (T, v) => {
+    if (v <= T[0][0]) return T[0][1];
+    for (let i = 1; i < T.length; i++)
+      if (v <= T[i][0]) {
+        const a = T[i - 1],
+          b = T[i],
+          t = (v - a[0]) / (b[0] - a[0]);
+        return a[1] + (b[1] - a[1]) * t;
+      }
+    return T[T.length - 1][1];
+  };
+  /* ---------- the hull, from the plans ---------- */
+  const F_STEM = -1.1,
+    F_BRK = 62.8,
+    F_END = 91.16 /* the transom at the deck: plate 4 (outboard profile) shows it raked, from frame 90 at the counter's knuckle to
+      the deck at about 91.2 (measured on plate 4); 91.16 makes her the published 184 ft 6 in (56.24 m) overall from the stem head (it was
+      once a square stern at 90.2, 0.6 m short) */,
+    F_KN = 90 /* the transom at the knuckle */;
+  /* the frame of the raked transom at height y (between the knuckle c and the deck t) */
+  const fTr = (y, c, t) => F_KN + (F_END - F_KN) * Math.min(1, Math.max(0, (y - c) / Math.max(0.01, t - c)));
+  const HD = [
+      [-1.1, 5.77],
+      [2.6, 5.62],
+      [10, 5.18],
+      [22, 4.75],
+      [40, 4.45],
+      [62.8, 4.35],
+    ] /* forecastle deck at the side */,
+    HM = [
+      [62.8, 2.82],
+      [77, 2.75],
+      [82, 2.55],
+      [91.5, 2.7],
+    ] /* main deck aft of the break */,
+    BD = [
+      [-1.1, 0.1],
+      [3.5, 1.51],
+      [8.1, 2.62],
+      [12.7, 3.38],
+      [17.3, 3.93],
+      [22, 4.33],
+      [26.6, 4.64],
+      [31.2, 4.84],
+      [35.9, 4.96],
+      [40.5, 5.04],
+      [72.9, 5.04],
+      [77.6, 4.84],
+      [82.2, 4.54],
+      [86.9, 3.93],
+      [91.5, 3.02],
+    ] /* deck-edge half-breadth (main deck plan outline, scaled to the 33 ft 1 in beam) */,
+    BC = [
+      [0, 0],
+      [2, 0.55],
+      [5, 1.25],
+      [10, 2.25],
+      [15, 3.05],
+      [20, 3.7],
+      [25, 4.15],
+      [30, 4.5],
+      [35, 4.75],
+      [40, 4.88],
+      [45, 4.92],
+      [55, 4.92],
+      [60, 4.85],
+      [70, 4.6],
+      [76, 4.25],
+      [80, 3.85],
+      [84, 3.3],
+      [88.3, 2.6],
+      [91.5, 2.35],
+    ] /* half-breadth at the waterline (aft of frame 88.3: at the counter's knuckle) */,
+    NX = [
+      [0, 1.5],
+      [8, 2.2],
+      [18, 3.2],
+      [30, 3.8],
+      [62, 3.8],
+      [76, 2.8],
+      [88, 2.2],
+      [91.5, 2.0],
+    ] /* section fullness below the waterline (superellipse exponent) */;
+  const hd = (f) => tab(HD, f),
+    hm = (f) => tab(HM, f),
+    top = (f) => (f <= F_BRK ? hd(f) : hm(f)),
+    Bd = (f) => tab(BD, f),
+    Bc = (f) => (f < 0 ? 0 : tab(BC, f));
+  /* the knuckle: the waterline under the hull, rising above it at the overhanging counter stern */
+  /* (plate 4: the counter meets the 8 ft 4 in waterline at about frame 89.7, a waterline length of 179 ft 4.5 in; it once rose from frame 86 and
+     ended the waterline at 88.3, 0.85 m short) */
+  const yc = (f) => (f < 0 ? 5.77 * (-f / 1.1) : f > 89.7 ? 0.5 * sst((f - 89.7) / 1.5) : 0);
+  /* the keel: a curved forefoot, flat from frame 6 to 70, rising in the run to the counter */
+  const yk = (f) => {
+    if (f < 0) return yc(f);
+    if (f < 5.7) return -2.54 * Math.sqrt(f / 5.7);
+    if (f <= 70) return -2.54;
+    if (f < 88.3) return -2.54 * Math.pow(1 - (f - 70) / 18.3, 1.15);
+    return yc(f) - 0.22;
+  };
+  /* half-breadth of the hull at height y at frame f (the shell, inside out: used for the hull, the ocean mask and the rooms) */
+  function hb(f, y) {
+    const k = yk(f),
+      c = yc(f),
+      b = Bc(f),
+      t = top(f),
+      d = Bd(f);
+    if (y <= k) return 0;
+    if (y < c) {
+      const D = c - k,
+        n = tab(NX, f);
+      return b * Math.pow(Math.max(0, 1 - Math.pow((c - y) / D, n)), 1 / n);
+    }
+    const v = Math.min(1, (y - c) / Math.max(0.01, t - c));
+    return b + (d - b) * Math.pow(v, 1.5);
+  }
+
+  /* ---------- colours ---------- */
+  const KEY = [1, 0, 1] /* painted by the dazzle shader (Measure 32), with the red bottom and black boot-topping below */,
+    KEY_IN = 0x55606a /* 5-O ocean gray on the inboard faces of bulwarks and tubs */,
+    DECK = 0x39434e /* 20-B deck blue */,
+    GUNC = 0x4b5258,
+    BARREL = 0x2e3135,
+    STEEL = 0x3c4045,
+    DARK = 0x1a1d20,
+    WIN = 0x10161b,
+    WHITE = 0xe6e6e0,
+    BRASS = 0xa8823a,
+    CANVAS = 0x6d6f5d,
+    WOOD = 0x8a6a45,
+    RUBBER = 0x2b2b2b,
+    INT_W = 0xd4d6cf /* interior bulkheads: white */,
+    INT_F = 0x4d4a46 /* interior deck: dark linoleum / steel */,
+    INT_C = 0xe2e2dc,
+    ENG_W = 0xb9bdb6 /* engine room: light gray */,
+    ENG_F = 0x5a5d5f /* engine room floor plates */,
+    ENG_M = 0x6f7a72 /* machinery: gray-green enamel */,
+    GLOW = 0x47ff8e /* radar scope */,
+    DIAL = 0xf2efe2;
+  const { part, cyl, bx, sph, M4 } = GX;
+  const groups = [];
+  let P = [];
+  let INTR = false; /* while true, emitted groups are interiors (their own mesh, evenly lit) */
+  const begin = () => (P = []),
+    emit = (T) => groups.push([P, T || null, INTR]);
+  const add = (g, hex, x, y, z, rx, ry, rz, sx, sy, sz) => {
+    const p = part(g, hex, x, y, z, rx, ry, rz, sx, sy, sz);
+    if (Array.isArray(hex)) {
+      p.c = hex;
+      p.hex = 0;
+    }
+    P.push(p);
+    return p;
+  };
+  const B = (sx, sy, sz, hex, x, y, z, ry, rx, rz) => add(bx(sx, sy, sz), hex, x, y, z, rx || 0, ry || 0, rz || 0);
+  const C = (r1, r2, h, hex, x, y, z, rx, ry, rz, n) => add(cyl(r1, r2, h, n || 12), hex, x, y, z, rx || 0, ry || 0, rz || 0);
+  const Cx = (r, l, hex, x, y, z, n) => C(r, r, l, hex, x, y, z, 0, 0, HP, n) /* a cylinder lying along x */,
+    Cz = (r, l, hex, x, y, z, n) => C(r, r, l, hex, x, y, z, HP, 0, 0, n) /* along z */;
+  const S = (r, hex, x, y, z, sx, sy, sz) => add(sph(10), hex, x, y, z, 0, 0, 0, r * (sx || 1), r * (sy || 1), r * (sz || 1));
+  /* a geometry with its faces turned inside out (an inner face that can be seen from inside a tub, a room, a boat) */
+  const flip = (g) => {
+    g = g.index ? g.toNonIndexed() : g;
+    const p = g.attributes.position.array,
+      n = g.attributes.normal.array;
+    for (let i = 0; i < p.length; i += 9)
+      for (let k = 0; k < 3; k++) {
+        const t = p[i + 3 + k];
+        p[i + 3 + k] = p[i + 6 + k];
+        p[i + 6 + k] = t;
+        const u = n[i + 3 + k];
+        n[i + 3 + k] = n[i + 6 + k];
+        n[i + 6 + k] = u;
+      }
+    for (let i = 0; i < n.length; i++) n[i] = -n[i];
+    return g;
+  };
+  /* a surface lofted through rows of points (each row the same length) */
+  const loft = (rows) => {
+    const pos = [],
+      idx = [],
+      I = rows[0].length;
+    for (const r of rows) for (const p of r) pos.push(p[0], p[1], p[2]);
+    for (let j = 0; j < rows.length - 1; j++)
+      for (let i = 0; i < I - 1; i++) {
+        const a = j * I + i,
+          b = a + 1,
+          c = a + I + 1,
+          d = a + I;
+        idx.push(a, b, c, a, c, d);
+      }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  };
+  /* a vertical prism from a plan outline [x, z] (anticlockwise seen from above), walls only; with a roof in roofHex */
+  const prism = (pts, y0, y1, hex, roofHex) => {
+    const sh = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+    const g = new THREE.ExtrudeGeometry(sh, { depth: y1 - y0, bevelEnabled: false, curveSegments: 6 });
+    g.rotateX(-HP);
+    g.translate(0, y0, 0);
+    add(g, hex, 0, 0, 0);
+    if (roofHex !== undefined) {
+      const r = new THREE.ShapeGeometry(sh, 6);
+      r.rotateX(-HP);
+      r.translate(0, y1 + 0.006, 0);
+      add(r, roofHex, 0, 0, 0);
+    }
+  };
+  /* a plate between two polylines (a bulwark, a windscreen): outer face key-painted, inner face in hexIn */
+  const plate = (a, b, hexOut, hexIn, ctr) => {
+    let g1 = loft([a, b]),
+      g2 = flip(loft([a, b]));
+    if (ctr) {
+      /* the outer face must face away from ctr: test the first triangle */
+      const m = Math.floor(a.length / 2),
+        p0 = new THREE.Vector3(...a[m - 1]),
+        p1 = new THREE.Vector3(...a[m]),
+        p2 = new THREE.Vector3(...b[m]),
+        n = p1.clone().sub(p0).cross(p2.clone().sub(p0)),
+        o = p0.clone().sub(new THREE.Vector3(...ctr));
+      o.y = 0;
+      if (n.dot(o) < 0) [g1, g2] = [g2, g1];
+    }
+    add(g1, hexOut, 0, 0, 0);
+    add(g2, hexIn, 0, 0, 0);
+  };
+  /* an open tub (a gun tub, a director's tub): wall inside and out, a rim, and a deck */
+  const tub = (x, y, z, r, h, deckHex) => {
+    C(r, r, h, KEY, x, y + h / 2, z, 0, 0, 0, 28).g;
+    P[P.length - 1].g = new THREE.CylinderGeometry(r, r, h, 28, 1, true);
+    add(flip(new THREE.CylinderGeometry(r - 0.04, r - 0.04, h, 28, 1, true)), KEY_IN, x, y + h / 2, z);
+    add(new THREE.TorusGeometry(r - 0.02, 0.035, 5, 28), KEY_IN, x, y + h, z, HP, 0, 0);
+    C(r - 0.03, r - 0.03, 0.04, deckHex === undefined ? DECK : deckHex, x, y + 0.02, z, 0, 0, 0, 28);
+  };
+  /* rails: stanchions along a polyline at deck height, with two wires */
+  const rails = (pts, h) => {
+    h = h || 1.0;
+    for (let i = 0; i < pts.length; i++) {
+      const [x, y, z] = pts[i];
+      C(0.022, 0.022, h, STEEL, x, y + h / 2, z, 0, 0, 0, 5);
+      if (i < pts.length - 1) {
+        const [x2, y2, z2] = pts[i + 1],
+          L = Math.hypot(x2 - x, z2 - z, y2 - y),
+          ry = -Math.atan2(z2 - z, x2 - x),
+          rz = Math.atan2(y2 - y, Math.hypot(x2 - x, z2 - z));
+        for (const k of [0.52, 1.0]) B(L, 0.02, 0.02, STEEL, (x + x2) / 2, (y + y2) / 2 + h * k, (z + z2) / 2, ry, 0, rz);
+      }
+    }
+  };
+  /* a run of stanchion points along the deck edge from frame a to b on one side */
+  const edge = (a, b, side, step, inset) => {
+    const out = [];
+    const n = Math.max(1, Math.round(Math.abs(b - a) / (step || 2)));
+    for (let i = 0; i <= n; i++) {
+      const f = a + ((b - a) * i) / n,
+        t = top(f);
+      out.push([XF(f), t, side * (hb(f, t) - (inset || 0.12))]);
+    }
+    return out;
+  };
+  /* a round gauge: black bezel and a white face, facing along x ('x') or z ('z') */
+  const dial = (x, y, z, r, ax) => {
+    const rx = ax === 'z' ? HP : 0,
+      rz = ax === 'z' ? 0 : HP;
+    C(r, r, 0.04, DARK, x, y, z, rx, 0, rz, 16);
+    return C(r * 0.86, r * 0.86, 0.046, DIAL, x, y, z, rx, 0, rz, 16);
+  };
+
+  /* ================= THE GUN CREWS: a US Navy sailor, 1945 =================
+     Mk 2 steel helmet (navy gray), kapok life jacket, chambray shirt, dungarees, black shoes; talkers wear a sound-powered phone headset
+     with the mouthpiece on the chest. Built facing +x with the feet at the origin; pose = 'stand' | 'sit' | 'lean' (a 20 mm gunner
+     strapped into the shoulder rests); arms = 'down' | 'wheel' (hands forward on the hand wheels) | 'clip' (a loader holding a clip up to
+     the guide) | 'round' (holding a 3 in round) | 'rests' (hands up on the 20 mm's grips) | 'glass' (at a director's sight). */
+  const SKIN = [0xc89a7a, 0xb8835e, 0x8d5a3b, 0xd7a98a, 0xa8754f],
+    DUNG = 0x2d3a52,
+    SHIRT = 0x8ea6c4,
+    KAPOK = 0x7e8170,
+    HELM = 0x5b6570,
+    SHOE = 0x1b1b1b;
+  let crewN = 0;
+  const bone = (a, b, w, d, hex) => {
+    const dir = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]),
+      L = dir.length();
+    const p = add(bx(w, L, d), hex, 0, 0, 0);
+    p.m = new M4().compose(new THREE.Vector3((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()), new THREE.Vector3(1, 1, 1));
+    return p;
+  };
+  const sailor = (pose, arms, talker) => {
+    const Q = [],
+      P0 = P;
+    P = Q;
+    const skin = SKIN[crewN++ % SKIN.length],
+      sin = Math.sin,
+      cos = Math.cos,
+      D = PI / 180;
+    /* pelvis height, lean of the trunk (+ forward), thigh and shin angles from straight down (+ forward) */
+    const seat = pose === 'sit',
+      px = 0,
+      py = seat ? 0.62 : 0.93,
+      lean = pose === 'lean' ? -12 * D : seat ? 8 * D : 4 * D,
+      th = seat ? 85 * D : pose === 'lean' ? -6 * D : 0,
+      sh = seat ? 10 * D : pose === 'lean' ? 6 * D : 0;
+    const T = [px + 0.56 * sin(lean), py + 0.56 * cos(lean)] /* top of the trunk */,
+      Hd = [T[0] + 0.15 * sin(lean), T[1] + 0.15 * cos(lean)] /* the head's centre: 15 cm above the shoulders (it was 24, a long neck) */;
+    /* legs */
+    for (const s of [-1, 1]) {
+      const z = s * 0.11,
+        hip = [px, py - 0.04, z],
+        kn = [hip[0] + 0.44 * sin(th), hip[1] - 0.44 * cos(th), z],
+        ft = [kn[0] + 0.45 * sin(sh), kn[1] - 0.45 * cos(sh), z];
+      bone(hip, kn, 0.17, 0.16, DUNG);
+      bone(kn, ft, 0.14, 0.13, DUNG);
+      B(0.27, 0.09, 0.12, SHOE, ft[0] + 0.07, ft[1] + 0.045, z);
+    }
+    /* trunk: shirt, then the kapok jacket over it, collar, belt */
+    bone([px, py - 0.05, 0], [T[0], T[1], 0], 0.24, 0.36, SHIRT);
+    bone([px + 0.01, py + 0.08, 0], [T[0] - 0.01 * sin(lean), T[1] - 0.03, 0], 0.32, 0.44, KAPOK);
+    for (const s of [-1, 1]) bone([T[0] - 0.02, T[1] - 0.04, s * 0.18], [T[0] - 0.08, T[1] - 0.16, s * 0.22], 0.12, 0.1, KAPOK);
+    B(0.26, 0.05, 0.38, 0x3a3326, px, py - 0.02, 0, 0, 0, -lean);
+    /* neck, head, Mk 2 helmet with its brim and chin strap */
+    bone([T[0], T[1] - 0.04, 0], [Hd[0] - 0.02, Hd[1] - 0.06, 0], 0.09, 0.09, skin);
+    S(0.1, skin, Hd[0], Hd[1], 0, 0.95, 1.15, 0.92);
+    B(0.04, 0.035, 0.035, skin, Hd[0] + 0.1, Hd[1] - 0.01, 0);
+    S(0.155, HELM, Hd[0] - 0.01, Hd[1] + 0.06, 0, 1, 0.62, 1.02);
+    C(0.18, 0.185, 0.02, HELM, Hd[0] - 0.01, Hd[1] + 0.03, 0, 0, 0, 0, 14);
+    B(0.02, 0.15, 0.17, 0x2a2a26, Hd[0] + 0.02, Hd[1] - 0.06, 0);
+    if (talker) {
+      for (const s of [-1, 1]) Cz(0.05, 0.04, DARK, Hd[0] - 0.01, Hd[1] - 0.01, s * 0.12, 10);
+      bone([Hd[0] - 0.01, Hd[1] + 0.09, -0.12], [Hd[0] - 0.01, Hd[1] + 0.09, 0.12], 0.015, 0.015, DARK);
+      C(0.06, 0.03, 0.09, DARK, T[0] + 0.21, T[1] - 0.1, 0, 0, 0, HP, 10);
+      bone([T[0] + 0.2, T[1] - 0.1, 0], [Hd[0] - 0.02, Hd[1] - 0.06, 0.11], 0.012, 0.012, DARK);
+    }
+    /* arms: upper arm and forearm angles from straight down (+ forward), and how far apart the hands are */
+    const A = {
+      down: [12, 22, 0.24],
+      wheel: [62, 88, 0.3],
+      clip: [150, 172, 0.13],
+      round: [55, 95, 0.16],
+      rests: [108, 158, 0.24],
+      glass: [80, 118, 0.12],
+    }[arms || 'down'];
+    for (const s of [-1, 1]) {
+      const sh0 = [T[0] - 0.03, T[1] - 0.05, s * 0.24],
+        a1 = A[0] * D + lean,
+        a2 = A[1] * D + lean,
+        zH = s * A[2],
+        el = [sh0[0] + 0.3 * sin(a1), sh0[1] - 0.3 * cos(a1), (sh0[2] + zH) / 2 + s * 0.02],
+        hn = [el[0] + 0.27 * sin(a2), el[1] - 0.27 * cos(a2), zH];
+      bone(sh0, el, 0.11, 0.11, SHIRT);
+      bone(el, hn, 0.09, 0.09, SHIRT);
+      S(0.05, skin, hn[0], hn[1], hn[2]);
+    }
+    /* what the hands hold */
+    const hx = T[0] + (arms === 'clip' ? 0.12 : 0.5),
+      hy = arms === 'clip' ? T[1] + 0.48 : T[1] - 0.12;
+    if (arms === 'clip') for (let k = 0; k < 4; k++) C(0.022, 0.022, 0.38, BRASS, hx, hy, -0.12 + k * 0.08, 0, 0, 0, 5);
+    if (arms === 'round') {
+      Cx(0.04, 0.6, BRASS, T[0] + 0.45, T[1] - 0.18, 0, 8);
+      add(cyl(0.04, 0.01, 0.2, 8), 0x4a5a3a, T[0] + 0.85, T[1] - 0.18, 0, 0, 0, -HP);
+    }
+    P = P0;
+    return Q;
+  };
+  /* put a crewman into the current group: (x, y, z) of his feet, facing yaw (0 = toward +x, + turns toward -z, i.e. to port) */
+  const man = (x, y, z, yaw, pose, arms, talker) => {
+    const Q = sailor(pose, arms, talker),
+      T = GX.xf(x, y, z, yaw || 0);
+    for (const q of Q) q.m = q.m ? new M4().multiplyMatrices(T, q.m) : T.clone();
+    P.push(...Q);
+  };
+
+  /* lead angles for the ring sights' 100, 200 and 300 knot rings: target speed / the shell's mean velocity, 618 m/s for the 20 mm out to
+     1,000 yd and 739 m/s for the 40 mm out to 1,500 m (the drag fits in the game's GUNS table) */
+  const KN = 0.5144,
+    LEAD20 = [100, 200, 300].map((k) => Math.atan((k * KN) / 618)),
+    LEAD40 = [100, 200, 300].map((k) => Math.atan((k * KN) / 739));
+  /* live instrument faces: the game paints them (radar, sonar, gauges, telegraphs, compass cards); p is the face's centre (model frame),
+     w x h its size, n the way it faces, up the way its top points */
+  const FACES = [],
+    WHEEL = { parts: [], pivot: [0, 0, 0] },
+    OOD = { parts: [] };
+  const face = (id, p, w, h, n, up) => FACES.push({ id, p, w, h, n, up: up || [0, 1, 0] });
+  /* collect the parts a function adds into a list of their own */
+  const grab = (fn) => {
+    const Q = [],
+      P0 = P;
+    P = Q;
+    fn();
+    P = P0;
+    return Q;
+  };
+  /* the guns the player can man (station 5) are moving parts, not baked into the hull: d.T places the mount (its rest bearing
+     included) in the model frame, d.base stays fixed with the hull, d.train turns about the mount's vertical axis, d.elev is
+     built level about the trunnions at d.pivot (in the training frame), d.pm is the crewman the player replaces, d.sight (if any)
+     is a sight built about the eye that tilts with the guns (a sight linkage). d.eye is in the training frame, or in the
+     elevating frame when d.eyeEl (the 20 mm gunner rides the gun in its shoulder rests). d.muzzles are in the elevating frame. */
+  const MNT = [];
+  const mount = (d) => {
+    groups.push([d.base, d.T, false]);
+    MNT.push(d);
+  };
+  /* ================= THE HULL ================= */
+  begin();
+  {
+    const FS = [];
+    for (let f = F_STEM; f < 0; f += 0.275) FS.push(f);
+    for (const f of [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8]) FS.push(f);
+    for (let f = 10; f < F_BRK; f += 2.5) FS.push(f);
+    const FA = [F_BRK];
+    for (let f = 64; f < 86; f += 2.5) FA.push(f);
+    for (const f of [86, 87, 88, 88.3, 89, 89.6, 90, 90.7, F_END]) FA.push(f);
+    FS.push(F_BRK);
+    const NB = 9,
+      NA = 10;
+    const ring = (f, side) => {
+      const x = XF(f),
+        k = yk(f),
+        c = yc(f),
+        t = top(f),
+        pts = [];
+      /* aft of the knuckle each point stops at the raked transom */
+      const at = (y) => (f > F_KN ? Math.min(f, fTr(y, c, t)) : f);
+      for (let j = 0; j <= NB; j++) {
+        const y = k + (c - k) * (1 - Math.pow(1 - j / NB, 1.6)),
+          fe = at(y);
+        pts.push([XF(fe), y, side * hb(fe, y)]);
+      }
+      for (let j = 1; j <= NA; j++) {
+        const y = c + (t - c) * (j / NA),
+          fe = at(y);
+        pts.push([XF(fe), y, side * hb(fe, Math.min(y, t - 1e-4))]);
+      }
+      return pts;
+    };
+    for (const list of [FS, FA]) {
+      const R = list.map((f) => ring(f, 1)),
+        L = list.map((f) => ring(f, -1).reverse());
+      /* starboard: rows run bow to stern, points keel to deck edge; port is mirrored with reversed winding */
+      add(loft(R), KEY, 0, 0, 0);
+      add(loft(L), KEY, 0, 0, 0);
+      /* the deck: five points across, with 12 cm of camber */
+      const D = list.map((f) => {
+        const t = top(f),
+          w = hb(f, t - 1e-4) - 0.01,
+          x = XF(f);
+        return [1, 0.5, 0, -0.5, -1].map((u) => [x, t + 0.12 * (1 - u * u), u * w]);
+      });
+      add(loft(D), DECK, 0, 0, 0);
+    }
+    /* the transom: a fan from its centre */
+    {
+      const f = F_END,
+        r = ring(f, 1),
+        l = ring(f, -1),
+        x = (XF(F_KN) + XF(F_END)) / 2,
+        cy = (yk(f) + top(f)) / 2,
+        pos = [];
+      /* each triangle both ways round, so the plate is solid whichever way its winding faces (from astern part of it was culled, and
+         the sea showed through) */
+      for (let i = 0; i < r.length - 1; i++) {
+        pos.push(x, cy, 0, ...r[i], ...r[i + 1]);
+        pos.push(x, cy, 0, ...r[i + 1], ...r[i]);
+        pos.push(x, cy, 0, ...l[i + 1], ...l[i]);
+        pos.push(x, cy, 0, ...l[i], ...l[i + 1]);
+      }
+      /* and the triangles that close the fan along the deck edge across the top and the keel across the bottom (the top one was
+         missing: a wedge of sea showed through the stern from astern) */
+      for (const [a, b] of [
+        [r[r.length - 1], l[l.length - 1]],
+        [l[0], r[0]],
+      ])
+        pos.push(x, cy, 0, ...a, ...b, x, cy, 0, ...b, ...a);
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.computeVertexNormals();
+      add(g, KEY, 0, 0, 0);
+      /* the deck edge across the transom */
+      B(0.06, 0.12, 2 * hb(f, top(f) - 0.01), KEY, XF(F_END) + 0.02, top(f) + 0.06, 0);
+    }
+    /* the end of the forecastle deck: a bulkhead across the ship at the break, with doors and the ladder down */
+    {
+      const f = F_BRK,
+        x = XF(f),
+        w = hb(f, hd(f) - 0.01),
+        y0 = hm(f),
+        y1 = hd(f);
+      B(0.1, y1 - y0, 2 * w, KEY, x - 0.05, (y0 + y1) / 2, 0);
+      for (const s of [-1, 1]) {
+        B(0.04, 1.75, 0.7, STEEL, x - 0.12, y0 + 0.9, s * 1.9);
+        B(0.03, 0.12, 0.12, DARK, x - 0.15, y0 + 0.95, s * 1.62);
+      }
+      /* the ladder from the main deck up to the forecastle, on the centreline */
+      for (const s of [-1, 1]) B(1.9, 0.08, 0.05, STEEL, x - 0.9, (y0 + y1) / 2 + 0.05, s * 0.38, 0, 0, 0.72);
+      for (let i = 0; i < 7; i++) B(0.18, 0.03, 0.72, STEEL, x - 1.6 + i * 0.22, y0 + 0.2 + i * 0.22, 0);
+    }
+    /* the bulwark at the bow: about a metre high at the stem, fading into the rails by frame 12 */
+    for (const s of [-1, 1]) {
+      const a = [],
+        b = [];
+      for (let f = F_STEM + 0.05; f <= 9; f += 0.6) {
+        const t = top(f),
+          z = s * hb(f, t - 1e-3),
+          h = 0.55 * Math.pow(Math.max(0, 1 - f / 9), 0.9) + 0.06;
+        a.push([XF(f), t - 0.02, z]);
+        b.push([XF(f), t + h, z * 1.01]);
+      }
+      plate(a, b, KEY, KEY_IN, [XF(6), 5, 0]);
+    }
+    /* rails along the rest of the decks */
+    for (const s of [-1, 1]) {
+      rails(edge(F_STEM + 0.4, 22, s, 1.9));
+      rails(edge(40, 57.5, s, 2.0));
+      rails(edge(63.3, 89.9, s, 1.9));
+    }
+    /* the hull number on each bow, white, as photographed (about 18 m forward of amidships, high on the bow) */
+    {
+      const SEG = { a: [0.5, 0.94, 0.86, 0.12], b: [0.94, 0.72, 0.12, 0.44], c: [0.94, 0.28, 0.12, 0.44], d: [0.5, 0.06, 0.86, 0.12], e: [0.06, 0.28, 0.12, 0.44], f: [0.06, 0.72, 0.12, 0.44], g: [0.5, 0.5, 0.86, 0.12] },
+        DIG = { 8: 'abcdefg', 4: 'bcfg', 2: 'abged' },
+        HN = 1.0,
+        WN = 0.62;
+      for (const s of [-1, 1])
+        [].forEach((ch, di) => {
+          /* read left to right from outside: on the port side the bow is on the left (8 forward), on the starboard side the stern is */
+          const xl = s < 0 ? 19.2 - di * 0.82 : 16.94 + di * 0.82;
+          for (const k of DIG[ch]) {
+            const q = SEG[k],
+              x = s < 0 ? xl - q[0] * WN : xl + q[0] * WN,
+              y = 3.5 + q[1] * HN,
+              f = (27.75 - x) / FR;
+            /* each stroke lies along the plating: turned to the hull's waterline angle at that point */
+            B(q[2] * WN, q[3] * HN, 0.03, WHITE, x, y, s * (hb(f, y) + 0.025), s * Math.atan2(hb(f + 0.5, y) - hb(f - 0.5, y), FR));
+          }
+        });
+    }
+    /* portholes: under the forecastle deck, and aft above the main deck */
+    for (const s of [-1, 1]) {
+      for (let f = 6; f <= 58; f += 3.9) {
+        if ((f > 30 && f < 36) || (f > 12.5 && f < 19)) continue; /* none behind the hull number or the bridge front */
+        const y = top(f) - 1.05,
+          z = hb(f, y);
+        C(0.17, 0.17, 0.06, BRASS, XF(f), y, s * (z + 0.005), HP, 0, 0, 10);
+        C(0.13, 0.13, 0.07, WIN, XF(f), y, s * (z + 0.012), HP, 0, 0, 10);
+      }
+      for (let f = 66; f <= 80; f += 3.6) {
+        const y = 1.85,
+          z = hb(f, y);
+        C(0.15, 0.15, 0.06, BRASS, XF(f), y, s * (z + 0.005), HP, 0, 0, 10);
+        C(0.11, 0.11, 0.07, WIN, XF(f), y, s * (z + 0.012), HP, 0, 0, 10);
+      }
+    }
+    /* a rubbing strake along the side at the main-deck level, as on the plans */
+    for (const s of [-1, 1]) {
+      const a = [];
+      for (let f = 2; f <= 88; f += 2) {
+        const y = f < F_BRK ? Math.min(top(f) - 1.55, 3.3) : top(f) - 0.25;
+        a.push([XF(f), y, s * (hb(f, y) + 0.04)]);
+      }
+      for (let i = 0; i < a.length - 1; i++) {
+        const [x1, y1, z1] = a[i],
+          [x2, y2, z2] = a[i + 1];
+        B(Math.hypot(x2 - x1, z2 - z1) + 0.02, 0.09, 0.08, KEY, (x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2, -Math.atan2(z2 - z1, x2 - x1), 0, Math.atan2(y2 - y1, x2 - x1));
+      }
+    }
+    /* bilge keels, twin screws on shafts and struts, and the rudder */
+    for (const s of [-1, 1]) {
+      for (let f = 30; f < 62; f += 2) B(1.25, 0.04, 0.42, KEY, XF(f + 1), -1.95, s * 4.28, 0, s * 0.75, 0);
+      const zs = s * 1.65;
+      Cx(0.11, 13.5, STEEL, XF(76.5), -1.62, zs, 8);
+      P[P.length - 1].m = new M4().compose(new THREE.Vector3(XF(76.5), -1.55, zs), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, HP - 0.035)), new THREE.Vector3(1, 1, 1));
+      C(0.06, 0.06, 1.2, STEEL, XF(82.5), -1.2, zs * 0.85, s * 0.35, 0, 0, 6);
+      Cx(0.22, 0.6, BRASS, XF(84.2), -1.82, zs, 12);
+      for (let i = 0; i < 4; i++) {
+        const a = (i * PI) / 2 + 0.4;
+        B(0.06, 0.62, 0.3, BRASS, XF(84.2) - 0.1, -1.82 + Math.cos(a) * 0.45, zs + Math.sin(a) * 0.45, 0, a, 0);
+      }
+    }
+    B(1.5, 1.6, 0.12, KEY, XF(87.6), -1.05, 0); /* the rudder, under the counter */
+    /* the centreline skeg under the run, from frame 70 to the rudder post */
+    {
+      const a = [],
+        b = [];
+      for (let f = 70; f <= 87.5; f += 1.75) {
+        a.push([XF(f), yk(f) + 0.05, 0]);
+        b.push([XF(f), -2.54 + (f - 70) * 0.06, 0]);
+      }
+      for (const z of [-0.07, 0.07]) {
+        const g = loft([a.map((p) => [p[0], p[1], z]), b.map((p) => [p[0], p[1], z])]);
+        add(z > 0 ? g : flip(g), KEY, 0, 0, 0);
+      }
+    }
+  }
+  emit();
+
+  /* ================= THE FORECASTLE: anchors, windlass, the 3"/50 and the Hedgehog ================= */
+  begin();
+  {
+    const yF = (f) => hd(f) + 0.12;
+    /* jackstaff and the forward anchor light */
+    C(0.035, 0.05, 4.6, WOOD, XF(-0.6), hd(-0.6) + 2.3 + 0.9, 0, 0, 0, 0, 6);
+    S(0.1, WHITE, XF(-0.6), hd(-0.6) + 5.65, 0);
+    /* anchors in their hawse pipes, chain pipes, the windlass and bitts */
+    for (const s of [-1, 1]) {
+      const f = 5.4,
+        y = 3.85,
+        z = s * (hb(f, y) + 0.06);
+      C(0.32, 0.32, 0.14, DARK, XF(f), y, z, HP, 0, 0, 12);
+      B(0.14, 1.25, 0.12, STEEL, XF(f) - 0.05, y - 0.55, z + s * 0.06);
+      B(0.95, 0.2, 0.14, STEEL, XF(f) - 0.05, y - 1.15, z + s * 0.06, 0, 0, 0.0);
+      for (const d of [-1, 1]) B(0.42, 0.13, 0.14, STEEL, XF(f) - 0.05 + d * 0.38, y - 1.0, z + s * 0.06, 0, 0, d * 0.7);
+      C(0.2, 0.2, 0.08, STEEL, XF(7.2), yF(7.2), s * 0.75, 0, 0, 0, 10);
+      for (let i = 0; i < 9; i++) B(0.17, 0.05, 0.1, DARK, XF(7.4 + i * 0.35), yF(7.4 + i * 0.35) + 0.03, s * 0.75, 0, 0, 0);
+      for (const f2 of [3.2, 13.6])
+        for (const d of [-0.22, 0.22]) C(0.13, 0.13, 0.45, STEEL, XF(f2) + d, yF(f2) + 0.22, s * (hb(f2, hd(f2)) - 0.55), 0, 0, 0, 10);
+    }
+    {
+      const x = XF(10.6),
+        y = yF(10.6);
+      B(1.0, 0.75, 1.3, STEEL, x, y + 0.37, 0);
+      for (const s of [-1, 1]) {
+        Cz(0.36, 0.3, DARK, x, y + 0.55, s * 0.82, 14);
+        Cz(0.42, 0.04, STEEL, x, y + 0.55, s * 0.99, 14);
+      }
+      Cz(0.12, 2.3, STEEL, x, y + 0.55, 0, 8);
+    }
+    /* the 3"/50 Mk 22 on its pedestal (open mount), ready-service boxes, and the platform ring */
+    {
+      const f = 16.0 /* plates 4 and 5: the mount at frame 16 (it was at 17.5) */,
+        x = XF(f),
+        y = yF(f);
+      C(2.4, 2.4, 0.05, 0x2f3740, x, y + 0.02, 0, 0, 0, 0, 32);
+      emit();
+      begin();
+      /* the mount is the player's (station 5): its pedestal stays put, the carriage trains and the slide elevates (see MNT) */
+      const base = grab(() => {
+        C(0.42, 0.55, 0.85, GUNC, 0, 0.42, 0, 0, 0, 0, 16);
+        C(0.62, 0.62, 0.12, GUNC, 0, 0.9, 0, 0, 0, 0, 18);
+      });
+      const train = grab(() => {
+        B(1.0, 0.55, 0.95, GUNC, 0, 1.2, 0);
+        for (const s of [-1, 1]) B(0.75, 0.55, 0.08, GUNC, 0.05, 1.5, s * 0.42);
+        Cz(0.11, 1.0, STEEL, 0.05, 1.62, 0, 10);
+        /* hand wheels for training (right) and elevating (left), the pointer's and trainer's seats and shoulder pieces */
+        for (const s of [-1, 1]) {
+          add(new THREE.TorusGeometry(0.2, 0.02, 5, 14), BRASS, -0.2, 1.25, s * 0.55, 0, 0, 0);
+          B(0.32, 0.05, 0.3, STEEL, -0.6, 1.0, s * 0.62);
+          C(0.025, 0.025, 0.45, STEEL, -0.6, 0.75, s * 0.62, 0, 0, 0, 5);
+          B(0.25, 0.2, 0.06, RUBBER, -0.25, 1.55, s * 0.6);
+          /* footrests */
+          B(0.3, 0.04, 0.28, STEEL, -0.2, 0.42, s * 0.66);
+        }
+        /* the trainer (right) on his seat; the loader behind the breech with a round; the sight-setter, a talker */
+        man(-0.82, 0.4, 0.66, 0, 'sit', 'wheel', true);
+        man(-1.62, 0, -1.12, 0.25, 'stand', 'round');
+        man(-1.5, 0, 1.12, -0.3, 'stand', 'down', true);
+      });
+      /* the elevating part, built level about the trunnions: slide, barrel, recoil cylinders, breech, and the pointer's and
+         trainer's sight telescopes on their brackets either side of the slide */
+      const elev = grab(() => {
+        B(1.35, 0.36, 0.42, GUNC, -0.1, 0, 0);
+        Cx(0.075, 3.25, BARREL, 2.2, 0.02, 0, 12);
+        Cx(0.095, 0.9, BARREL, 0.95, 0.02, 0, 12);
+        Cx(0.06, 0.18, DARK, 3.86, 0.02, 0, 10);
+        for (const s of [-1, 1]) Cx(0.07, 1.1, GUNC, 0.35, -0.2, s * 0.13, 10);
+        B(0.55, 0.42, 0.36, GUNC, -0.95, 0.02, 0);
+        B(0.15, 0.3, 0.3, STEEL, -1.25, 0.02, 0);
+        for (const s of [-1, 1]) {
+          Cx(0.05, 0.45, DARK, -0.2, 0.3, s * 0.32, 8);
+          B(0.1, 0.12, 0.1, DARK, -0.45, 0.3, s * 0.32);
+          /* the telescope: tube, eyepiece and its rubber eyecup toward the seat, sun shade forward */
+          Cx(0.035, 0.55, DARK, -0.2, 0.2, s * 0.6, 10);
+          Cx(0.045, 0.08, RUBBER, -0.5, 0.2, s * 0.6, 10);
+          Cx(0.05, 0.12, DARK, 0.12, 0.2, s * 0.6, 10);
+          B(0.3, 0.05, 0.16, STEEL, -0.15, 0.13, s * 0.5);
+        }
+      });
+      /* the pointer (left seat): the player when he mans this gun */
+      const pm = grab(() => man(-0.82, 0.4, -0.66, 0, 'sit', 'wheel'));
+      mount({
+        id: '3in',
+        T: GX.xf(x, y, 0, 0),
+        ry0: 0,
+        base,
+        train,
+        elev,
+        pm,
+        pivot: [0.05, 1.62, 0],
+        eye: [-0.63, 1.82, -0.6] /* the pointer's eye at his telescope */,
+        muzzles: [[3.97, 0.02, 0]],
+      });
+      begin();
+      for (const s of [-1, 1]) {
+        B(0.9, 0.7, 0.55, KEY, XF(21.2), yF(21.2) + 0.35, s * 3.15, s * 0.5);
+        B(0.92, 0.04, 0.57, STEEL, XF(21.2), yF(21.2) + 0.72, s * 3.15, s * 0.5);
+      }
+    }
+    /* the Hedgehog Mk 10: four cradles of six spigots, loaded, on the centreline ahead of the bridge; its ready boxes */
+    {
+      const f0 = 21.6 /* plate 5: the Mk 10 projector spans frames 20.1 to 23.0 (it was at 22.2) */,
+        x = XF(f0),
+        y = yF(f0);
+      B(2.0, 0.32, 1.85, STEEL, x, y + 0.16, 0);
+      for (let r = 0; r < 4; r++) {
+        const xr = x + 0.7 - r * 0.46;
+        B(0.14, 0.42, 1.75, STEEL, xr, y + 0.5, 0);
+        for (let i = 0; i < 6; i++) {
+          const z = -0.72 + i * 0.29,
+            tilt = 0.68 - r * 0.06;
+          /* the spigot (the bombs themselves are separate in the game, so they leave when fired and come back as loaded) */
+          C(0.032, 0.032, 0.62, DARK, xr + 0.12, y + 0.82, z, 0, 0, -tilt, 6);
+          C(0.06, 0.07, 0.08, STEEL, xr + 0.02, y + 0.71, z, 0, 0, -tilt, 8);
+        }
+      }
+      for (const s of [-1, 1])
+        for (const d of [0, 1]) {
+          B(1.4, 0.6, 0.5, KEY, XF(25.4 + d * 1.6), yF(25) + 0.3, s * (2.6 + d * 0.5), s * 0.62);
+        }
+    }
+  }
+  emit();
+
+  /* ================= THE BRIDGE: deckhouse (01), navigating bridge (02) with pilothouse and radar room, open bridge (03) with the A/S hut ================= */
+  const Y1 = 4.45,
+    Y2 = 7.03,
+    Y3 = 9.6,
+    YG = 10.15 /* the open bridge's raised grating (the compass stands on it, as on plate 3) */,
+    YHUT = 11.5;
+  const X_PH0 = XF(25.0) /* plates 4 and 5: the steering station's front at frame 25 (it was 23.8) */,
+    X_PH1 = XF(29.0) /* pilothouse */,
+    X_RR1 = XF(35.8) /* radar plot / radio room aft end */,
+    W_PH = 2.15;
+  begin();
+  {
+    /* 01: the deckhouse on the forecastle deck, frames 26.6 to 38 (its after wall, behind the blower rooms, on the PCE 874/875
+       upper deck plan; it once ran on to 43.4 and into the 20 mm tub), angled at the forward corners */
+    const a = XF(26.6),
+      b = XF(38.0),
+      w = 3.85;
+    prism(
+      [
+        [b, -w],
+        [a - 1.6, -w],
+        [a, -w + 1.6],
+        [a, w - 1.6],
+        [a - 1.6, w],
+        [b, w],
+      ],
+      hd(35) - 0.05,
+      Y2,
+      KEY,
+      DECK,
+    );
+    /* doors and a few portholes in the deckhouse */
+    for (const s of [-1, 1]) {
+      B(0.8, 1.8, 0.05, STEEL, XF(36.9), Y1 + 1.0, s * (w + 0.02));
+      for (const f of [30, 33.5]) {
+        C(0.16, 0.16, 0.05, BRASS, XF(f), Y1 + 1.55, s * (w + 0.02), HP, 0, 0, 10);
+        C(0.12, 0.12, 0.06, WIN, XF(f), Y1 + 1.55, s * (w + 0.03), HP, 0, 0, 10);
+      }
+    }
+    /* 02: the navigating bridge deck, wide with wings, overhanging the deckhouse */
+    const wa = XF(23.6),
+      wb = XF(36.6);
+    prism(
+      [
+        [wb, -5.15],
+        [wa + 0.4, -5.15],
+        [wa + 0.8, -4.3],
+        [wa + 0.8, 4.3],
+        [wa + 0.4, 5.15],
+        [wb, 5.15],
+      ],
+      Y2 - 0.22,
+      Y2,
+      KEY,
+      DECK,
+    );
+    /* the bridge wings' splinter shields (open to the sky) */
+    for (const s of [-1, 1]) {
+      const o = [
+          [wb + 0.05, Y2, s * 5.12],
+          [wa + 0.4, Y2, s * 5.12],
+          [wa + 0.78, Y2, s * 4.3],
+        ],
+        t = o.map(([x, y, z]) => [x, y + 1.12, z]);
+      plate(o, t, KEY, KEY_IN, [XF(30), Y2, 0]);
+    }
+    /* the pilothouse (steering station) and the radar plot / radio room: one enclosure, rounded forward */
+    const ph = [
+      [X_RR1, -W_PH],
+      [X_PH0 - 0.75, -W_PH],
+      [X_PH0, -W_PH + 0.75],
+      [X_PH0, W_PH - 0.75],
+      [X_PH0 - 0.75, W_PH],
+      [X_RR1, W_PH],
+    ];
+    prism(ph, Y2, Y3, KEY, DECK);
+    /* pilothouse windows: five across the front and the angled corners, two each side (dark from outside) */
+    {
+      const yw = Y2 + 1.55;
+      const pane = (w, h, x, y, z, ry) => add(new THREE.PlaneGeometry(w, h), WIN, x, y, z, 0, ry, 0);
+      for (let i = -1; i <= 1; i++) pane(0.62, 0.42, X_PH0 + 0.012, yw, i * 0.78, HP);
+      for (const s of [-1, 1]) {
+        pane(0.5, 0.42, X_PH0 - 0.36 + 0.01, yw, s * (W_PH - 0.36 + 0.01), HP - s * (PI / 4));
+        for (const d of [0.9, 1.7]) pane(0.5, 0.42, X_PH0 - 0.75 - d, yw, s * (W_PH + 0.012), s > 0 ? 0 : PI);
+        B(0.8, 1.85, 0.05, STEEL, XF(31.5), Y2 + 0.95, s * (W_PH + 0.02));
+      }
+    }
+    /* 20 mm tubs on the wings: two forward (frame 24.0, z 3.2), two aft (frame 35.3): the navigating bridge plan (they were at 21.8 and 34.5) */
+    for (const s of [-1, 1]) {
+      tub(XF(24.0), Y2 - 0.2, s * 3.2, 1.05, 1.15);
+      tub(XF(35.3), Y2, s * 4.35, 0.95, 1.1);
+    }
+    /* life rafts on the wing sides, and the radio direction-finder cable */
+    for (const s of [-1, 1]) {
+      add(new THREE.TorusGeometry(1, 0.17, 6, 18), 0x8b8d78, XF(29.5), Y2 - 0.75, s * 5.32, 0, 0, 0, 0.95, 0.42, 1);
+      P[P.length - 1].m = new M4().compose(new THREE.Vector3(XF(29.5), Y2 - 0.75, s * 5.32), new THREE.Quaternion(), new THREE.Vector3(0.95, 0.42, 1));
+      /* the Carley float's bottom: a wooden grating slung inside the ring (its floor), seen from outboard as the raft hangs */
+      add(new THREE.CylinderGeometry(1, 1, 0.05, 20), 0x6e6450, XF(29.5), Y2 - 0.75, s * 5.27);
+      P[P.length - 1].m = new M4().compose(
+        new THREE.Vector3(XF(29.5), Y2 - 0.75, s * 5.27),
+        new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2),
+        new THREE.Vector3(0.86, 1, 0.37),
+      );
+      for (let i = -3; i <= 3; i++) {
+        const xs = i * 0.22,
+          h = 2 * 0.37 * Math.sqrt(Math.max(0, 1 - (xs / 0.86) ** 2));
+        add(new THREE.BoxGeometry(0.07, h, 0.03), 0x8a7a5a, XF(29.5) + xs, Y2 - 0.75, s * 5.3);
+      }
+      add(new THREE.BoxGeometry(1.6, 0.06, 0.03), 0x8a7a5a, XF(29.5), Y2 - 0.75, s * 5.3);
+    }
+    /* 03: the open bridge on the pilothouse roof: bulwark and windscreen, with the A/S hut at its forward end */
+    {
+      const ob0 = XF(24.1),
+        ob1 = XF(33.0),
+        w3 = 2.9;
+      prism(
+        [
+          [ob1, -w3],
+          [ob0 - 0.9, -w3],
+          [ob0, -w3 + 0.9],
+          [ob0, w3 - 0.9],
+          [ob0 - 0.9, w3],
+          [ob1, w3],
+        ],
+        Y3 - 0.12,
+        Y3,
+        KEY,
+        DECK,
+      );
+      /* the bulwark, 1.15 m, with a glass windscreen (shown as a thin dark frame) on its forward part */
+      const ring = [
+        [ob1, -w3],
+        [ob0 - 0.9, -w3],
+        [ob0, -w3 + 0.9],
+        [ob0, w3 - 0.9],
+        [ob0 - 0.9, w3],
+        [ob1, w3],
+      ];
+      const lo = ring.map(([x, z]) => [x, Y3, z]),
+        hi = ring.map(([x, z]) => [x, Y3 + 2.0, z]);
+      plate(lo, hi, KEY, KEY_IN, [XF(28.5), Y3, 0]);
+      /* bulwark cap and the wind deflector */
+      for (let i = 0; i < ring.length - 1; i++) {
+        const [x1, z1] = ring[i],
+          [x2, z2] = ring[i + 1];
+        B(Math.hypot(x2 - x1, z2 - z1), 0.05, 0.16, STEEL, (x1 + x2) / 2, Y3 + 2.02, (z1 + z2) / 2, -Math.atan2(z2 - z1, x2 - x1));
+      }
+      /* the A/S hut (sonar), enclosed, across the forward end of the open bridge */
+      prism(
+        [
+          [ob0 - 2.25, -1.85],
+          [ob0 - 0.35, -1.85],
+          [ob0 + 0.02, -1.4],
+          [ob0 + 0.02, 1.4],
+          [ob0 - 0.35, 1.85],
+          [ob0 - 2.25, 1.85],
+        ],
+        Y3,
+        YHUT,
+        KEY,
+        DECK,
+      );
+      for (let i = -1; i <= 1; i++) add(new THREE.PlaneGeometry(0.55, 0.36), WIN, ob0 + 0.032, Y3 + 1.42, i * 0.85, 0, HP, 0);
+      B(0.05, 1.8, 0.7, STEEL, ob0 - 2.27, Y3 + 0.92, 0.95);
+      /* the grating, from the hut back to the after bulwark */
+      B(ob0 - 2.3 - ob1, 0.06, 2 * w3 - 0.15, WOOD, (ob0 - 2.3 + ob1) / 2, YG - 0.03, 0);
+      for (let k = 0; k < 3; k++) B(ob0 - 2.3 - ob1, YG - Y3 - 0.06, 0.08, STEEL, (ob0 - 2.3 + ob1) / 2, (Y3 + YG) / 2 - 0.03, -2.5 + k * 2.5);
+      /* the open bridge's fittings: compass binnacle, gyro repeater, voice tubes, the RDF loop, signal lights, flag bag */
+      const xc = XF(30.4);
+      C(0.2, 0.26, 1.05, BRASS, xc, YG + 0.52, 0, 0, 0, 0, 14);
+      S(0.24, BRASS, xc, YG + 1.12, 0, 1, 0.55, 1);
+      for (const s of [-1, 1]) S(0.1, 0x2f4f6d, xc, YG + 1.0, s * 0.36);
+      C(0.05, 0.07, 1.0, STEEL, XF(28.6), YG + 0.5, 0, 0, 0, 0, 8);
+      C(0.17, 0.17, 0.06, DARK, XF(28.6), YG + 1.04, 0, 0, 0, 0.35, 14);
+      C(0.15, 0.15, 0.065, DIAL, XF(28.6), YG + 1.045, 0, 0, 0, 0.35, 14);
+      face('oodGyro', [XF(28.6) - 0.035 * Math.sin(0.35), YG + 1.045 + 0.035 * Math.cos(0.35), 0], 0.29, 0.29, [-Math.sin(0.35), Math.cos(0.35), 0], [1, 0, 0]);
+      for (const [f, z] of [
+        [26.8, -1.3],
+        [26.8, -1.0],
+        [26.8, 1.0],
+        [26.8, 1.3],
+      ]) {
+        C(0.035, 0.035, 0.85, BRASS, XF(f), YG + 0.45, z, 0, 0, 0, 6);
+        C(0.075, 0.045, 0.12, BRASS, XF(f), YG + 0.92, z, 0, 0, 0, 8);
+      }
+      C(0.04, 0.04, 1.3, STEEL, XF(29.1), YG + 0.65, 1.55, 0, 0, 0, 6);
+      add(new THREE.TorusGeometry(0.42, 0.035, 6, 4), STEEL, XF(29.1), YG + 1.6, 1.55, 0, 0, PI / 4);
+      B(0.7, 0.85, 0.5, WOOD, XF(31.5), YG + 0.42, -1.9);
+      B(0.74, 0.04, 0.54, WOOD, XF(31.5), YG + 0.86, -1.9);
+      for (const s of [-1, 1]) {
+        C(0.05, 0.05, 0.6, STEEL, ob1 + 0.25, YG + 1.4, s * (w3 - 0.15), 0, 0, 0, 6);
+        Cx(0.17, 0.42, STEEL, ob1 + 0.25, YG + 1.82, s * (w3 - 0.15), 14);
+        C(0.15, 0.15, 0.03, 0xdedcc0, ob1 + 0.47, YG + 1.82, s * (w3 - 0.15), 0, 0, HP, 14);
+      }
+      B(1.4, 0.6, 0.6, CANVAS, ob1 - 0.6, YG + 0.3, 0);
+      /* the watch on the open bridge: a lookout in each wing with binoculars, the OOD's talker on the sound-powered phone,
+         and the OOD himself (a moving part: hidden while the player has the watch, see OOD below) */
+      man(XF(27.6), YG, -2.35, 1.0, 'stand', 'glass');
+      man(XF(27.6), YG, 2.35, -1.0, 'stand', 'glass');
+      man(XF(32.3), YG, -1.05, 0.25, 'stand', 'down', true);
+      OOD.parts = grab(() => man(XF(31.7) - 0.18, YG, 0, 0, 'stand', 'down'));
+    }
+  }
+  emit();
+
+  /* ================= THE MAST: pole with bipod legs to the open bridge, searchlight platform, yard, radar ================= */
+  begin();
+  {
+    const xm = XF(39.8),
+      y0 = Y2,
+      yb = hd(39.8) /* the mast is stepped on the deck abaft the deckhouse (frame 40 on the plan) */;
+    C(0.1, 0.18, y0 + 13.0 - yb, STEEL, xm, (y0 + 13.0 + yb) / 2, 0, 0, 0, 0, 10);
+    /* the pointed platform at the navigating bridge level, from the deckhouse's after wall back round the mast */
+    {
+      const pa = XF(38.0) + 0.05,
+        pb = XF(41.6);
+      prism(
+        [
+          [pb, 0],
+          [xm + 0.3, -0.75],
+          [pa, -1.1],
+          [pa, 1.1],
+          [xm + 0.3, 0.75],
+        ],
+        y0 - 0.12,
+        y0,
+        KEY,
+        DECK,
+      );
+    }
+    /* bipod legs to the open bridge's after corners */
+    for (const s of [-1, 1]) {
+      const ax = XF(33.0) - 0.15,
+        ay = Y3 + 0.1,
+        az = s * 2.6,
+        bx2 = xm,
+        by = 13.2,
+        L = Math.hypot(bx2 - ax, by - ay, az),
+        mid = new THREE.Vector3((ax + bx2) / 2, (ay + by) / 2, az / 2),
+        dir = new THREE.Vector3(bx2 - ax, by - ay, -az).normalize(),
+        qq = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      const p = C(0.08, 0.1, L, STEEL, 0, 0, 0, 0, 0, 0, 8);
+      p.m = new M4().compose(mid, qq, new THREE.Vector3(1, 1, 1));
+    }
+    /* searchlight platform (13.8 m) with its rail and the 24 in searchlight */
+    C(0.95, 0.95, 0.08, STEEL, xm + 0.3, 13.8, 0, 0, 0, 0, 20);
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * PI * 2;
+      C(0.018, 0.018, 0.9, STEEL, xm + 0.3 + Math.cos(a) * 0.92, 14.25, Math.sin(a) * 0.92, 0, 0, 0, 4);
+    }
+    add(new THREE.TorusGeometry(0.92, 0.02, 4, 20), STEEL, xm + 0.3, 14.7, 0, HP, 0, 0);
+    C(0.08, 0.1, 0.5, STEEL, xm + 0.6, 14.1, 0, 0, 0, 0, 8);
+    Cx(0.34, 0.6, STEEL, xm + 0.65, 14.65, 0, 16);
+    C(0.3, 0.3, 0.03, 0xdedcc0, xm + 0.96, 14.65, 0, 0, 0, HP, 16);
+    /* the signal yard with halyards, and the small whip antennas */
+    Cz(0.05, 4.6, STEEL, xm, 17.1, 0, 6);
+    for (const s of [-1, 1]) {
+      C(0.012, 0.012, 7.3, DARK, xm - 0.2, 13.4, s * 2.2, 0.0, 0, 0.05, 3);
+      B(0.03, 0.03, 0.03, DARK, xm, 17.1, s * 2.25);
+    }
+    /* the surface-search radar at the masthead: pedestal and radome */
+    C(0.12, 0.12, 0.5, STEEL, xm, 20.1, 0, 0, 0, 0, 8);
+    C(0.38, 0.38, 0.55, 0x8a9096, xm, 20.6, 0, 0, 0, 0, 16);
+    S(0.38, 0x8a9096, xm, 20.88, 0, 1, 0.5, 1);
+    /* the truck: masthead lights */
+    S(0.07, WHITE, xm, 19.9, 0);
+    /* the gaff for the ensign */
+    B(1.0, 0.04, 0.04, STEEL, xm - 0.45, 16.3, 0, 0, 0, -0.15);
+  }
+  emit();
+
+  /* ================= AMIDSHIPS: the hood, the boat, the 20 mm, the 40 mm directors and the twin 40 mm tubs ================= */
+  begin();
+  {
+    const yd = (f) => hd(f) + 0.12;
+    /* the deck gear locker and the ventilation hood (the stack), frames 44.7 to 54.5 */
+    B(XF(50) - XF(54.5), 1.9, 1.5, KEY, (XF(50) + XF(54.5)) / 2, yd(52) + 0.95, 0);
+    {
+      const a = XF(50),
+        b = XF(44.9),
+        h0 = yd(48),
+        side = [];
+      const prof = [
+        [a, h0],
+        [b, h0],
+        [b, h0 + 2.6],
+        [b - 0.5, h0 + 3.6],
+        [a + 1.7, h0 + 4.3],
+        [a + 0.6, h0 + 4.25],
+        [a, h0 + 3.7],
+      ];
+      const sh = new THREE.Shape(prof.map(([x, y]) => new THREE.Vector2(x, y)));
+      const g = new THREE.ExtrudeGeometry(sh, { depth: 1.45, bevelEnabled: false });
+      g.translate(0, 0, -0.725);
+      add(g, KEY, 0, 0, 0);
+      C(0.2, 0.2, 0.7, DARK, a + 1.2, h0 + 4.55, 0.25, 0, 0, 0, 10);
+      C(0.2, 0.2, 0.7, DARK, a + 1.2, h0 + 4.55, -0.25, 0, 0, 0, 10);
+      for (const s of [-1, 1]) B(1.4, 0.6, 0.03, DARK, (a + b) / 2, h0 + 2.2, s * 0.74);
+    }
+    /* ventilator cowls */
+    for (const [f, z] of [
+      [44, -1.4],
+      [44, 1.4],
+      [56.5, 0],
+    ]) {
+      C(0.22, 0.22, 1.2, KEY, XF(f), yd(f) + 0.6, z, 0, 0, 0, 12);
+      S(0.3, KEY, XF(f) + 0.12, yd(f) + 1.35, z, 1, 0.9, 1);
+      C(0.24, 0.24, 0.05, DARK, XF(f) + 0.36, yd(f) + 1.38, z, 0, 0, HP, 12);
+    }
+    /* the 26 ft motor whaleboat on the port side, frames 44.5 to 57.4, on chocks, with its boom from the mast */
+    {
+      const L = 7.92,
+        Bm = 2.15,
+        x0 = (XF(44.5) + XF(57.4)) / 2 /* plate 5: bow at frame 44.5, stern at 57.4 (it was 46 to 57) */,
+        z0 = -3.1,
+        y0 = yd(51) + 0.75;
+      const rowsO = [],
+        rowsI = [];
+      for (let i = 0; i <= 14; i++) {
+        const u = i / 14,
+          x = x0 + (u - 0.5) * L,
+          w = (Bm / 2) * Math.pow(Math.sin(PI * Math.min(0.999, 0.04 + 0.96 * u)), 0.55) * (u < 0.5 ? 1 : 0.92 + 0.08 * (1 - u) * 2),
+          d = 0.85 * Math.pow(Math.sin(PI * (0.08 + 0.84 * u)), 0.4);
+        const sec = [];
+        for (let j = 0; j <= 8; j++) {
+          const a = -HP + (j / 8) * PI;
+          sec.push([x, y0 - Math.cos(a) * d * 0.95 + 0.0, z0 + Math.sin(a) * w]);
+        }
+        rowsO.push(sec);
+        rowsI.push(sec.map(([px, py, pz]) => [px, py + 0.05, z0 + (pz - z0) * 0.93]));
+      }
+      add(flip(loft(rowsO)), 0x5d6870, 0, 0, 0);
+      add(loft(rowsI), 0x75685a, 0, 0, 0);
+      for (let i = 1; i < 5; i++) B(0.22, 0.04, Bm * 0.85, WOOD, x0 - L / 2 + i * 1.55, y0 - 0.25, z0);
+      B(1.5, 0.75, 1.2, 0x5d6870, x0 + 0.6, y0 - 0.1, z0);
+      for (const d of [-2.4, 2.4]) B(0.3, 0.75, 1.6, WOOD, x0 + d, y0 - 1.05, z0);
+      const p = C(0.08, 0.1, 9.6, STEEL, 0, 0, 0, 0, 0, 0, 8),
+        a = new THREE.Vector3(XF(40.3), Y2 + 0.4, -0.3),
+        b = new THREE.Vector3(x0 + 2.0, y0 + 2.2, z0 + 0.3),
+        dir = b.clone().sub(a);
+      p.m = new M4().compose(a.clone().add(b).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()), new THREE.Vector3(1, a.distanceTo(b) / 9.6, 1));
+      C(0.012, 0.012, 2.6, DARK, x0 + 2.0, y0 + 0.9, z0 + 0.3, 0, 0, 0, 3);
+    }
+    /* the boat winch (port) */
+    {
+      const x = XF(46.2),
+        y = yd(46);
+      B(0.9, 0.55, 0.7, STEEL, x, y + 0.27, -1.6);
+      Cz(0.22, 0.5, DARK, x, y + 0.62, -1.6, 12);
+    }
+    /* life nets and floater nets on the sides */
+    for (const s of [-1, 1]) B(3.6, 0.35, 0.3, CANVAS, (XF(40.6) + XF(46.5)) / 2, yd(43.5) + 0.5, s * 4.8) /* plate 5: frames 40.6 to 46.5 (they were 43 to 48) */;
+    /* the starboard 20 mm tub (frame 44.7) */
+    tub(XF(44.7), yd(44.7), 3.3, 1.35, 1.05);
+    /* the 40 mm Mk 51 directors, port and starboard (frame 56.5: plate 4 puts them at 56.8, plate 5 at 56.2; they were at 55.7) */
+    for (const s of [-1, 1]) {
+      tub(XF(56.5), yd(56.5), s * 1.25, 0.95, 1.0);
+      C(0.1, 0.13, 1.05, STEEL, XF(56.5), yd(56.5) + 0.52, s * 1.25, 0, 0, 0, 8);
+      B(0.45, 0.35, 0.32, GUNC, XF(56.5), yd(56.5) + 1.2, s * 1.25);
+      for (const d of [-1, 1]) B(0.08, 0.05, 0.42, STEEL, XF(56.5) - 0.24, yd(56.5) + 1.12, s * 1.25 + d * 0.2);
+      /* the director's operator, behind the sight, looking outboard; he is a talker to his mount */
+      man(XF(56.5), yd(56.5) + 0.04, s * 1.25 - s * 0.62, -s * HP, 'stand', 'glass', true);
+    }
+    /* RS boxes and the 40 mm barrel stowage */
+    for (const s of [-1, 1]) B(1.2, 0.65, 0.55, KEY, XF(58.5), yd(58) + 0.33, s * 4.1);
+    B(3.0, 0.4, 0.8, KEY, (XF(52) + XF(57)) / 2, yd(55) + 0.2, 2.8);
+  }
+  emit();
+
+  /* a twin 40 mm Bofors Mk 1 mount, trained toward +x, built at its own origin (the base on the platform): the fixed stand, the
+     training carriage (with the crew), the elevating guns (level, about the trunnions at 0.05, 1.1, 0) and the pointer.
+     own = the player's mount: its pointer's ring sight is a separate part on a linkage (so it is left off the carriage) */
+  const T40_PIV = [0.05, 1.1, 0];
+  const twin40parts = (own, one) => {
+    const pz = one ? 0.36 : 0.62 /* the carriage side plates: a single mount's carriage is narrower */,
+      bz = one ? [0] : [-0.29, 0.29] /* the barrels */;
+    const base = grab(() => C(1.0, 1.05, 0.28, GUNC, 0, 0.14, 0, 0, 0, 0, 20));
+    const train = grab(() => {
+      B(1.3, 0.7, 1.4, GUNC, -0.1, 0.62, 0);
+      for (const s of [-1, 1]) {
+        B(1.2, 0.95, 0.1, GUNC, 0, 1.0, s * pz);
+        /* the pointer's (left) and trainer's (right) seats with their hand cranks and ring sights */
+        B(0.36, 0.06, 0.34, STEEL, -0.55, 0.95, s * 1.05);
+        C(0.03, 0.03, 0.6, STEEL, -0.55, 0.65, s * 1.05, 0, 0, 0, 5);
+        add(new THREE.TorusGeometry(0.13, 0.015, 4, 12), BRASS, -0.15, 1.15, s * 0.98, 0, 0, 0);
+        B(0.3, 0.04, 0.5, STEEL, -0.75, 0.45, s * 1.05);
+        if (own && s < 0) continue;
+        add(new THREE.TorusGeometry(0.12, 0.012, 4, 16), DARK, 0.05, 1.62, s * 1.0, 0, HP, 0);
+        C(0.012, 0.012, 0.4, DARK, 0.05, 1.42, s * 1.0, 0, 0, 0, 3);
+      }
+      /* the crew: the trainer (right) on his seat, two loaders standing behind the breeches with clips */
+      man(-0.78, 0.36, 1.05, 0, 'sit', 'wheel', true);
+      if (one) man(-1.05, 0.28, 0, 0, 'stand', 'clip');
+      else {
+        man(-1.05, 0.28, -0.32, 0, 'stand', 'clip');
+        man(-1.05, 0.28, 0.32, 0, 'stand', 'clip');
+      }
+    });
+    const elev = grab(() => {
+      for (const z of bz) {
+        Cx(0.05, 2.15, BARREL, 1.35, 0.0, z, 10);
+        add(cyl(0.085, 0.055, 0.35, 10), DARK, 2.55, 0.0, z, 0, 0, -HP);
+        Cx(0.095, 1.05, 0x5b6268, 0.55, 0.0, z, 12);
+        B(0.85, 0.32, 0.22, GUNC, -0.25, 0.02, z);
+        /* the loading guide and a clip of four rounds on top */
+        B(0.32, 0.42, 0.16, STEEL, -0.2, 0.38, z);
+        for (let k = 0; k < 4; k++) C(0.022, 0.022, 0.38, BRASS, -0.33 + k * 0.08, 0.66, z, 0, 0, 0, 5);
+      }
+      B(0.5, 0.22, one ? 0.26 : 0.4, GUNC, -0.15, -0.12, 0);
+    });
+    /* the pointer (left seat) */
+    const pm = grab(() => man(-0.78, 0.36, -1.05, 0, 'sit', 'wheel'));
+    return { base, train, elev, pm };
+  };
+  /* the single 40 mm (Army M1 / Navy Mk 3 type, from the References 3-D drawings): a square pedestal with round lightening holes, the
+     carriage on a toothed training ring, the pointer's and trainer's seats on outrigger arms with foot rests, the loader's platform
+     with its railing behind, the clip guide on the breech, the recoil cylinder under the barrel, the flared flash hider, and the
+     cross-bar ring sights out at the two layers' eyes. Built along +x about the trunnions at T40_PIV */
+  const single40parts = () => {
+    const base = grab(() => {
+      B(1.6, 0.03, 1.6, STEEL, 0, 0.015, 0);
+      C(0.52, 0.78, 0.34, GUNC, 0, 0.2, 0, 0, PI / 4, 0, 4);
+      for (const [x, z, ry] of [
+        [0.33, 0, 0],
+        [-0.33, 0, 0],
+        [0, 0.33, HP],
+        [0, -0.33, HP],
+      ])
+        C(0.11, 0.11, 0.02, DARK, x * 1.02, 0.2, z * 1.02, HP, ry, 0, 14) /* the lightening holes */;
+    });
+    const train = grab(() => {
+      /* the loader's platform and its railing */
+      B(1.15, 0.04, 1.35, STEEL, -0.55, 0.39, 0);
+      for (const z of [-0.66, 0.66]) for (const x of [-1.1, -0.6, -0.1]) C(0.02, 0.02, 0.75, STEEL, x, 0.78, z, 0, 0, 0, 6);
+      for (const x of [-1.1]) for (const z of [-0.3, 0.3]) C(0.02, 0.02, 0.75, STEEL, x, 0.78, z, 0, 0, 0, 6);
+      for (const y of [0.62, 0.9, 1.15]) {
+        for (const z of [-0.66, 0.66]) B(1.0, 0.03, 0.03, STEEL, -0.6, y, z);
+        B(0.03, 0.03, 1.32, STEEL, -1.1, y, 0);
+      }
+      /* the training ring with its teeth, the carriage and its cheeks */
+      C(0.42, 0.42, 0.1, GUNC, 0, 0.47, 0, 0, 0, 0, 24);
+      for (let i = 0; i < 28; i++) {
+        const a = (i / 28) * 2 * PI;
+        B(0.05, 0.08, 0.04, STEEL, Math.cos(a) * 0.43, 0.47, Math.sin(a) * 0.43, -a);
+      }
+      C(0.3, 0.34, 0.42, GUNC, 0, 0.72, 0, 0, 0, 0, 16);
+      for (const z of [-0.24, 0.24]) B(0.62, 0.5, 0.06, GUNC, 0.02, 1.0, z);
+      /* the seats on their outriggers, foot rests forward, the elevating and training hand cranks */
+      for (const k of [-1, 1]) {
+        bone([0, 0.55, k * 0.3], [-0.55, 0.9, k * 1.02], 0.05, 0.05, STEEL);
+        C(0.17, 0.17, 0.035, STEEL, -0.55, 0.95, k * 1.05, 0, 0, 0, 14);
+        for (let j = 0; j < 6; j++) C(0.018, 0.018, 0.04, DARK, -0.55 + 0.09 * Math.cos(j), 0.96, k * 1.05 + 0.09 * Math.sin(j), 0, 0, 0, 5);
+        bone([0.05, 0.5, k * 0.3], [0.45, 0.42, k * 0.95], 0.04, 0.04, STEEL);
+        B(0.36, 0.03, 0.15, GUNC, 0.55, 0.45, k * 0.98, k * 0.35, 0, -0.35);
+        add(new THREE.TorusGeometry(0.11, 0.015, 4, 12), STEEL, -0.12, 1.02, k * 0.72, 0, 0, 0);
+        C(0.015, 0.015, 0.12, DARK, -0.12, 1.02, k * 0.79, HP, 0, 0, 5);
+      }
+      /* the crew: the trainer (right), the loader on his platform with a clip */
+      man(-0.78, 0.36, 1.05, 0, 'sit', 'wheel', true);
+      man(-1.0, 0.41, 0, 0, 'stand', 'clip');
+    });
+    const elev = grab(() => {
+      B(0.95, 0.4, 0.34, GUNC, -0.12, 0.02, 0) /* the breech casing */;
+      B(0.3, 0.12, 0.38, GUNC, -0.45, 0.1, 0) /* the loader's tray */;
+      /* the clip guide on top with a clip of four rounds */
+      for (const z of [-0.09, 0.09]) B(0.36, 0.42, 0.04, STEEL, -0.28, 0.42, z);
+      for (let k = 0; k < 4; k++) C(0.022, 0.022, 0.4, BRASS, -0.4 + k * 0.08, 0.48, 0, 0, 0, 0, 6);
+      Cz(0.07, 0.6, STEEL, 0, 0, 0, 10) /* the trunnions */;
+      Cx(0.075, 1.0, 0x5b6268, 0.6, -0.13, 0, 12) /* the recoil cylinder */;
+      Cx(0.085, 0.4, GUNC, 0.5, 0.06, 0, 12);
+      Cx(0.05, 2.15, BARREL, 1.55, 0.06, 0, 10);
+      C(0.06, 0.06, 0.06, STEEL, 1.95, 0.06, 0, 0, 0, -HP, 10);
+      add(cyl(0.1, 0.05, 0.38, 12), DARK, 2.8, 0.06, 0, 0, 0, -HP) /* the flash hider */;
+      /* the cross-bar sights: a bar over the breech out to each layer, an eye ring aft and the cartwheel forward */
+      Cz(0.02, 1.5, STEEL, 0.05, 0.36, 0, 6);
+      for (const k of [-1, 1]) {
+        Cx(0.018, 0.75, STEEL, 0.1, 0.36, k * 0.75, 6);
+        add(new THREE.TorusGeometry(0.06, 0.012, 4, 14), DARK, -0.25, 0.42, k * 0.75, 0, HP, 0);
+        add(new THREE.TorusGeometry(0.11, 0.012, 4, 18), DARK, 0.46, 0.42, k * 0.75, 0, HP, 0);
+        for (let j = 0; j < 4; j++) B(0.008, 0.22, 0.008, DARK, 0.46, 0.42, k * 0.75, HP, (j * PI) / 4, 0);
+      }
+    });
+    const pm = grab(() => man(-0.78, 0.36, -1.05, 0, 'sit', 'wheel'));
+    return { base, train, elev, pm };
+  };
+  const single40 = (elev) => {
+    const g = single40parts(),
+      T = new M4().compose(new THREE.Vector3(...T40_PIV), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, elev)), new THREE.Vector3(1, 1, 1));
+    for (const e of g.elev) e.m = new M4().multiplyMatrices(T, e.m);
+    return [...g.base, ...g.train, ...g.pm, ...g.elev];
+  };
+  const twin40 = (elev, one) => {
+    const g = twin40parts(false, one),
+      T = new M4().compose(new THREE.Vector3(...T40_PIV), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, elev)), new THREE.Vector3(1, 1, 1));
+    for (const e of g.elev) e.m = new M4().multiplyMatrices(T, e.m);
+    return [...g.base, ...g.train, ...g.pm, ...g.elev];
+  };
+  /* a ring-and-bead sight (the "cartwheel"): seen from the eye at the origin looking along +x, a small eye ring of radius er at de (none if 0), and the front
+     sight at d with its bead and rings whose radii are the lead angles for crossing targets at 100, 200 and 300 knots (lead =
+     target speed x time of flight / range = target speed / the shell's mean velocity over the gun's useful range; the game's GUNS
+     table works them out from the same ballistics, see gunLead) */
+  const ringSight = (d, de, leads, post, er) => {
+    const t = 0.0032;
+    for (const a of leads) add(new THREE.TorusGeometry(d * Math.tan(a), t, 4, 40), DARK, d, 0, 0, 0, HP, 0);
+    const R = d * Math.tan(leads[leads.length - 1]);
+    for (let i = 0; i < 8; i++) B(0.004, R, 0.004, DARK, d, (R / 2) * Math.cos((i * PI) / 4), (R / 2) * Math.sin((i * PI) / 4), 0, (i * PI) / 4, 0);
+    S(0.006, DARK, d, 0, 0);
+    if (er) add(new THREE.TorusGeometry(er, 0.0016, 4, 20), DARK, de, 0, 0, 0, HP, 0);
+    /* the post that carries the front sight, and the sight bar under both */
+    C(0.007, 0.007, post, DARK, d, -R - post / 2, 0, 0, 0, 0, 5);
+    Cx(0.012, d - de + 0.06, DARK, (d + de) / 2, -R - post, 0, 6);
+  };
+  /* the two twin 40 mm amidships (frame 62.1 on plates 4 and 5; it was 61.6, in tubs at the after end of the forecastle deck) */
+  for (const s of [-1, 1]) {
+    begin();
+    tub(XF(62.1), hd(62.1) + 0.12, s * 2.85, 2.3, 1.08);
+    emit();
+    begin();
+    P.push(...twin40(0.22));
+    emit(GX.xf(XF(62.1), hd(62.1) + 0.16, s * 2.85, PI + s * 0.6)) /* at rest trained aft and a little outboard, like the after mount */;
+  }
+
+  /* ================= THE MAIN DECK AFT: K-guns, the aft twin 40 mm on its platform, its director, the depth-charge racks ================= */
+  const Y_PLAT = 2.75 + 0.56;
+  begin();
+  {
+    const ym = (f) => hm(f) + 0.12;
+    /* the after twin 40 mm platform, 22 in above the deck (frame 76.3 on plates 4 and 6; it was 74.8), with its splinter shield */
+    {
+      const x = XF(76.3);
+      C(2.55, 2.55, Y_PLAT - ym(76.3), KEY, x, (Y_PLAT + ym(76.3)) / 2, 0, 0, 0, 0, 30);
+      C(2.52, 2.52, 0.04, DECK, x, Y_PLAT + 0.02, 0, 0, 0, 0, 30);
+      tub(x, Y_PLAT, 0, 2.55, 1.05, DECK);
+      for (let i = 0; i < 3; i++) B(0.2, 0.03, 0.7, STEEL, x + 2.75 + i * 0.22, ym(71) + 0.18 + i * 0.18, 0);
+    }
+    /* its Mk 51 director on a pedestal platform to port (frame 69.5 on plates 4 and 6; it was 66.4) */
+    {
+      const x = XF(69.5),
+        z = -1.45,
+        yp = ym(69.5) + 1.15;
+      for (const d of [
+        [-0.6, -0.6],
+        [0.6, -0.6],
+        [-0.6, 0.6],
+        [0.6, 0.6],
+      ])
+        C(0.04, 0.04, 1.15, STEEL, x + d[0], ym(69.5) + 0.57, z + d[1], 0, 0, 0, 6);
+      B(1.5, 0.06, 1.5, DECK, x, yp, z);
+      rails(
+        [
+          [x - 0.75, yp, z - 0.75],
+          [x + 0.75, yp, z - 0.75],
+          [x + 0.75, yp, z + 0.75],
+          [x - 0.75, yp, z + 0.75],
+          [x - 0.75, yp, z - 0.75],
+        ],
+        0.95,
+      );
+      C(0.09, 0.12, 0.95, STEEL, x, yp + 0.48, z, 0, 0, 0, 8);
+      B(0.45, 0.35, 0.32, GUNC, x, yp + 1.1, z);
+      man(x + 0.6, yp + 0.03, z, PI, 'stand', 'glass', true);
+    }
+    /* depth-charge projectors (K-guns Mk 6), two each side (frames 64.6 and 73.7). Each: a deck foundation, the expansion chamber and
+       breech (the firing lock and lanyard), the barrel laid 45 deg OUTBOARD over the rail; the arbor and its Mk 6 charge in the
+       muzzle are drawn by the game (they leave when she fires and come back when the crew reloads; KG gives their pose). Inboard
+       of each gun, the roller loader: an inclined frame of two rails with three ready charges rolling down toward the gun, and a
+       small loading davit forward of it. A Mk 6 charge: 17.6 in (0.447 m) across, 27.6 in (0.70 m) long */
+    for (const s of [-1, 1])
+      for (const f of [64.6, 73.7]) {
+        const x = XF(f),
+          z = s * (hb(f, hm(f)) - 0.75),
+          y = ym(f),
+          r45 = s * (PI / 4),
+          c45 = Math.SQRT1_2,
+          py = y + 0.32 /* the barrel's root */;
+        B(0.75, 0.1, 0.75, STEEL, x, y + 0.05, z);
+        C(0.3, 0.34, 0.16, GUNC, x, y + 0.18, z, 0, 0, 0, 14) /* the foundation ring */;
+        C(0.2, 0.2, 0.36, GUNC, x, py + 0.06, z + s * 0.02, r45, 0, 0, 14) /* the expansion chamber */;
+        Cx(0.07, 0.2, 0x2c2e2c, x, py - 0.02, z - s * 0.13, 8) /* the breech and firing lock */;
+        B(0.06, 0.06, 0.3, 0x2c2e2c, x, py - 0.02, z - s * 0.32);
+        C(0.135, 0.135, 0.85, GUNC, x, py + c45 * 0.55, z + s * c45 * 0.55, r45, 0, 0, 14) /* the barrel */;
+        C(0.155, 0.155, 0.05, STEEL, x, py + c45 * 0.96, z + s * c45 * 0.96, r45, 0, 0, 14) /* the muzzle band */;
+        for (const k of [-1, 1]) B(0.04, 0.5, 0.1, GUNC, x + k * 0.2, py + 0.08, z + s * 0.12, 0, r45, 0) /* side brackets */;
+        /* the roller loader: alongside the deck edge just forward of the gun (not inboard, where the 40 mm tubs overhang the deck), two
+           rails sloping down aft toward the gun, three ready charges on them, the end stop by the gun */
+        const dx = f < 70 ? -1 : 1 /* both loaders lie in the clear stretch of deck edge between the two guns */,
+          xi = x + dx * 0.62,
+          xo = x + dx * 2.3,
+          zl = z - s * 0.12,
+          yl = y + 0.5,
+          yh = y + 0.68,
+          Ll = Math.hypot(xo - xi, yh - yl),
+          ang = Math.atan2(yh - yl, xo - xi) + (dx < 0 ? Math.PI : 0);
+        for (const k of [-0.22, 0.22]) {
+          B(Ll, 0.05, 0.05, STEEL, (xi + xo) / 2, (yl + yh) / 2, zl + k, 0, 0, ang);
+          C(0.025, 0.025, yl - y, STEEL, xi, (yl + y) / 2, zl + k, 0, 0, 0, 5);
+          C(0.025, 0.025, yh - y, STEEL, xo, (yh + y) / 2, zl + k, 0, 0, 0, 5);
+        }
+        B(0.04, 0.18, 0.55, STEEL, xi - dx * 0.02, yl + 0.1, zl) /* the stop */;
+        for (let k = 0; k < 3; k++) {
+          const t = (k + 0.5) / 3.1,
+            cx = xi + (xo - xi) * t,
+            cy = yl + (yh - yl) * t + 0.24;
+          Cz(0.224, 0.7, 0x3f4a3a, cx, cy, zl, 14) /* lying athwartships, to roll fore and aft */;
+          for (const e of [-0.33, 0.33]) Cz(0.228, 0.03, 0x2e352b, cx, cy, zl + e, 14);
+        }
+        /* the loading davit: a post, a jib out over the gun, the fall and hook */
+        const xd = x - dx * 0.3;
+        C(0.04, 0.05, 1.9, STEEL, xd, y + 0.95, z - s * 0.55, 0, 0, 0, 8);
+        B(0.05, 0.05, 0.62, STEEL, xd, y + 1.86, z - s * 0.27);
+        C(0.008, 0.008, 0.55, 0x30302a, xd, y + 1.58, z + s * 0.02, 0, 0, 0, 4);
+        B(0.04, 0.08, 0.04, 0x30302a, xd, y + 1.28, z + s * 0.02);
+      }
+    /* the stern depth-charge racks (Mk 3), port and starboard, sloping to the transom, each loaded with eight Mk 6 charges */
+    for (const s of [-1, 1]) {
+      const fa = 80.2,
+        fb = 89.6,
+        za = s * 1.95,
+        xa = XF(fa),
+        xb = XF(fb),
+        ya = ym(fa) + 0.75,
+        yb = ym(fb) + 0.45,
+        L = Math.hypot(xa - xb, ya - yb),
+        ang = Math.atan2(ya - yb, xa - xb);
+      for (const d of [-0.42, 0.42]) {
+        B(L, 0.08, 0.08, STEEL, (xa + xb) / 2, (ya + yb) / 2, za + d, 0, 0, ang);
+        for (let k = 0; k <= 4; k++) {
+          const u = k / 4,
+            x = xa + (xb - xa) * u,
+            y = ya + (yb - ya) * u;
+          C(0.035, 0.035, y - ym(fa + (fb - fa) * u), STEEL, x, (y + ym(fa + (fb - fa) * u)) / 2, za + d, 0, 0, 0, 5);
+        }
+      }
+      for (let k = 0; k < 8; k++) {
+        const u = (k + 0.5) / 8.4,
+          x = xa + (xb - xa) * u,
+          y = ya + (yb - ya) * u + 0.3;
+        Cz(0.26, 0.7, 0x3f4a3a, x, y, za, 14);
+        Cz(0.18, 0.72, 0x34402f, x, y, za, 10);
+      }
+      /* the release gear at the stern end */
+      B(0.25, 0.45, 1.0, STEEL, xb + 0.2, yb + 0.25, za);
+    }
+    /* the depth-charge control board on its stand between the racks, facing forward to the torpedoman: depth setting and charges left */
+    {
+      const x = XF(84.6),
+        y = ym(84.6);
+      C(0.04, 0.05, 1.25, STEEL, x - 0.05, y + 0.62, 0, 0, 0, 0, 6);
+      B(0.08, 0.6, 0.8, DARK, x, y + 1.35, 0);
+      face('dcBoard', [x + 0.05, y + 1.35, 0], 0.74, 0.54, [1, 0, 0]);
+    }
+    /* the stern: ensign staff, stern light, a davit and the hand winch, lockers */
+    C(0.035, 0.045, 3.4, WOOD, XF(89.7), ym(89.7) + 1.7, 0, 0, 0, 0, 6);
+    for (const [f, z] of [
+      [84, -3.4],
+      [84, 3.4],
+      [69.5, 2.9],
+    ])
+      B(0.9, 0.95, 0.6, KEY, XF(f), ym(f) + 0.47, z);
+    {
+      const x = XF(87),
+        z = -3.0;
+      C(0.08, 0.09, 2.6, STEEL, x, ym(87) + 1.3, z, 0, 0, 0, 8);
+      B(1.5, 0.08, 0.08, STEEL, x + 0.7, ym(87) + 2.55, z, 0, 0, -0.2);
+    }
+    /* deck hatches and a couple of ventilators aft */
+    for (const f of [68.2, 79.2]) B(1.1, 0.25, 1.1, STEEL, XF(f), ym(f) + 0.12, 0);
+  }
+  emit();
+  {
+    /* the after twin 40 mm: the player's (station 5) */
+    const g = twin40parts(true);
+    mount({
+      id: '40',
+      T: GX.xf(XF(76.3), Y_PLAT + 0.02, 0, PI),
+      ry0: PI,
+      ...g,
+      pivot: T40_PIV,
+      eye: [-0.6, 1.79, -1.0] /* the pointer's eye */,
+      sight: grab(() => ringSight(0.5, 0.12, LEAD40, 0.12, 0)) /* built about the eye; a linkage keeps it on the line of the bores */,
+      muzzles: [
+        [2.74, 0, -0.29],
+        [2.74, 0, 0.29],
+      ],
+    });
+  }
+
+  /* the 20 mm Oerlikons on Mk 4 mounts in their tubs: the pedestal, the training head, the cradle with the gun, its 60-round drum,
+     the shield, the shoulder rests and the cartwheel ring sight (elevating about 0, 1.3, 0); the gunner stands strapped into the
+     shoulder rests and rides the gun, his loader stands by with a spare drum */
+  const O20_PIV = [0, 1.2, 0];
+  const oer20parts = (legs) => {
+    const base = grab(() => {
+      if (legs) {
+        /* the Mk 10 pedestal: four splayed legs on foot pads to a cap plate, the column from it */
+        for (const [a, b] of [
+          [1, 1],
+          [1, -1],
+          [-1, 1],
+          [-1, -1],
+        ]) {
+          bone([a * 0.42, 0.02, b * 0.42], [a * 0.1, 0.8, b * 0.1], 0.07, 0.035, GUNC);
+          B(0.16, 0.03, 0.16, STEEL, a * 0.43, 0.015, b * 0.43);
+        }
+        for (const [a, b] of [[1, 0], [0, 1]]) B(a ? 0.62 : 0.04, 0.04, b ? 0.62 : 0.04, GUNC, 0, 0.32, 0) /* the cross braces */;
+        C(0.2, 0.2, 0.06, GUNC, 0, 0.8, 0, 0, 0, 0, 14);
+        C(0.11, 0.13, 0.1, GUNC, 0, 0.86, 0, 0, 0, 0, 12);
+        return;
+      }
+      C(0.2, 0.28, 0.9, GUNC, 0, 0.45, 0, 0, 0, 0, 12);
+      C(0.34, 0.34, 0.05, GUNC, 0, 0.03, 0, 0, 0, 0, 14);
+    });
+    const train = grab(() => {
+      C(0.13, 0.15, 0.4, GUNC, 0, 1.05, 0, 0, 0, 0, 10) /* the height-adjusting column */;
+      B(0.3, 0.2, 0.32, GUNC, 0, 1.22, 0);
+      man(-0.7, 0, 0.75, 0.5, 'stand', 'round', true);
+    });
+    const elev = grab(() => {
+      Cx(0.035, 1.9, BARREL, 0.95, 0, 0, 8);
+      Cx(0.05, 0.25, DARK, 1.75, 0, 0, 8) /* the flash hider */;
+      Cx(0.06, 0.55, GUNC, 0.15, 0, 0, 10) /* the recoil spring casing */;
+      B(0.75, 0.13, 0.12, GUNC, -0.1, 0, 0) /* the receiver */;
+      /* the drum on top of the receiver */
+      Cz(0.17, 0.12, 0x353a3f, 0.05, 0.19, 0, 18);
+      Cz(0.07, 0.125, DARK, 0.05, 0.19, 0, 10);
+      /* the cradle, its trunnions, the shoulder rests and the hand grips with the trigger */
+      B(0.55, 0.06, 0.3, GUNC, -0.05, -0.1, 0);
+      Cz(0.04, 0.38, STEEL, 0, 0, 0, 8);
+      for (const s of [-1, 1]) {
+        bone([-0.25, -0.05, s * 0.16], [-0.52, 0.2, s * 0.2], 0.035, 0.035, STEEL);
+        add(new THREE.TorusGeometry(0.09, 0.03, 5, 10, PI), RUBBER, -0.55, 0.2, s * 0.2, 0, HP, -HP) /* the curved shoulder rest */;
+        C(0.018, 0.018, 0.16, DARK, -0.42, -0.14, s * 0.13, 0, 0, 0.3, 5) /* hand grips */;
+      }
+      /* the shield: two plates forward of the gunner, low enough for him to see over them through the sight */
+      B(0.04, 0.62, 0.42, GUNC, 0.45, -0.1, -0.24);
+      B(0.04, 0.62, 0.42, GUNC, 0.45, -0.1, 0.24);
+      /* the ring sight on its bracket above the drum: the eye ring 0.3 m ahead of the eye, the cartwheel 0.78 m ahead (eye at -0.4, 0.45, -0.1: left of the drum) */
+      const Q = grab(() => ringSight(0.78, 0.3, LEAD20, 0.06, 0.011)),
+        T = GX.xf(-0.4, 0.45, -0.1, 0);
+      for (const q of Q) q.m = new M4().multiplyMatrices(T, q.m);
+      P.push(...Q);
+    });
+    const pm = grab(() => man(-0.62, 0, 0, 0, 'lean', 'rests'));
+    return { base, train, elev, pm };
+  };
+  const oer20 = (legs) => {
+    const g = oer20parts(legs),
+      T = new M4().compose(new THREE.Vector3(...O20_PIV), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0.3)), new THREE.Vector3(1, 1, 1));
+    for (const e of g.elev) e.m = new M4().multiplyMatrices(T, e.m);
+    return [...g.base, ...g.train, ...g.pm, ...g.elev];
+  };
+  for (const [x, y, z, ry] of [
+    [XF(24.0), Y2 - 0.2, 3.2, -0.5],
+    [XF(24.0), Y2 - 0.2, -3.2, 0.5],
+    [XF(35.3), Y2, 4.35, -1.2],
+    [XF(35.3), Y2, -4.35, 1.2],
+  ]) {
+    begin();
+    P.push(...oer20());
+    emit(GX.xf(x, y, z, ry));
+  }
+  {
+    /* the starboard 20 mm amidships, abaft the bridge: the player's (station 5) */
+    const g = oer20parts();
+    mount({
+      id: '20',
+      T: GX.xf(XF(44.7), hd(44.7) + 0.12, 3.3, -1.4),
+      ry0: -1.4,
+      ...g,
+      pivot: O20_PIV,
+      eye: [-0.4, 0.45, -0.1] /* in the elevating frame: he rides the gun */,
+      eyeEl: true,
+      muzzles: [[1.9, 0, 0]],
+    });
+  }
+
+  /* ================= THE STATIONS' INTERIORS (faces turned inward) ================= */
+  /* a room: floor, ceiling and four walls facing inward; holes = windows cut in a wall ['x0'|'x1'|'z0'|'z1', u0, u1, v0, v1] */
+  const room = (x0, x1, y0, y1, z0, z1, cw, cf, cc, holes) => {
+    holes = holes || [];
+    const plane = (w, h, hex, x, y, z, rx, ry) => {
+      if (w > 0.005 && h > 0.005) add(new THREE.PlaneGeometry(w, h), hex, x, y, z, rx, ry, 0);
+    };
+    plane(x1 - x0, z1 - z0, cf, (x0 + x1) / 2, y0, (z0 + z1) / 2, -HP, 0);
+    plane(x1 - x0, z1 - z0, cc, (x0 + x1) / 2, y1, (z0 + z1) / 2, HP, 0);
+    /* a wall with rectangular holes: split into vertical strips */
+    const wall = (key, len, put) => {
+      const hs = holes.filter((h) => h[0] === key).sort((a, b) => a[1] - b[1]);
+      let u = 0;
+      for (const h of hs) {
+        put(u, h[1], 0, y1 - y0);
+        put(h[1], h[2], 0, h[3] - y0);
+        put(h[1], h[2], h[4] - y0, y1 - y0);
+        u = h[2];
+      }
+      put(u, len, 0, y1 - y0);
+    };
+    /* x1 wall (forward) faces -x: u runs along z from z0 */
+    wall('x1', z1 - z0, (a, b, c, d) => plane(b - a, d - c, cw, x1, y0 + (c + d) / 2, z0 + (a + b) / 2, 0, -HP));
+    wall('x0', z1 - z0, (a, b, c, d) => plane(b - a, d - c, cw, x0, y0 + (c + d) / 2, z0 + (a + b) / 2, 0, HP));
+    wall('z0', x1 - x0, (a, b, c, d) => plane(b - a, d - c, cw, x0 + (a + b) / 2, y0 + (c + d) / 2, z0, 0, 0));
+    wall('z1', x1 - x0, (a, b, c, d) => plane(b - a, d - c, cw, x0 + (a + b) / 2, y0 + (c + d) / 2, z1, 0, PI));
+    /* the runs under the deckhead along both side bulkheads: a cable bundle on its hangers and a painted pipe, a junction box here
+       and there (what makes a compartment read as the inside of a ship) */
+    const L = x1 - x0;
+    if (L > 0.8)
+      for (const sd of [-1, 1]) {
+        const zw = sd < 0 ? z0 : z1;
+        for (let i = 0; i < 3; i++) Cx(0.017, L - 0.04, 0x262626, (x0 + x1) / 2, y1 - 0.075 - (i % 2) * 0.03, zw - sd * (0.05 + i * 0.032), 6);
+        Cx(0.032, L - 0.04, 0xb4b4aa, (x0 + x1) / 2, y1 - 0.2, zw - sd * 0.09, 8);
+        for (let x = x0 + 0.25; x < x1 - 0.1; x += 0.6096) {
+          B(0.025, 0.24, 0.02, STEEL, x, y1 - 0.12, zw - sd * 0.06);
+          B(0.025, 0.02, 0.17, STEEL, x, y1 - 0.105, zw - sd * 0.09);
+        }
+        for (let x = x0 + 0.9; x < x1 - 0.5; x += 2.6) B(0.2, 0.26, 0.09, 0x8e938c, x, y1 - 0.48, zw - sd * 0.05);
+      }
+  };
+  const lamp = (x, y, z) => {
+    C(0.12, 0.08, 0.1, STEEL, x, y - 0.05, z, 0, 0, 0, 10);
+    S(0.08, 0xfff4d2, x, y - 0.12, z);
+  };
+
+  INTR = true;
+  /* --- 4: the pilothouse (steering station): wheel, two engine-order telegraphs, compass, rudder-angle indicator, voice tubes --- */
+  begin();
+  {
+    const x0 = X_PH1,
+      x1 = X_PH0 - 0.8,
+      y0 = Y2 + 0.01,
+      y1 = Y3 - 0.14,
+      w = W_PH - 0.06,
+      wy0 = Y2 + 1.34,
+      wy1 = Y2 + 1.76;
+    /* the rounded front is drawn as a flat inner wall with the three windows; the corner windows in the side walls */
+    room(x0, x1, y0, y1, -w, w, INT_W, INT_F, INT_C, [
+      ['x1', w - 1.09, w - 0.47, wy0, wy1],
+      ['x1', w - 0.31, w + 0.31, wy0, wy1],
+      ['x1', w + 0.47, w + 1.09, wy0, wy1],
+      ['z0', x1 - x0 - 2.7, x1 - x0 - 2.2, wy0, wy1],
+      ['z1', x1 - x0 - 2.7, x1 - x0 - 2.2, wy0, wy1],
+      ['z0', x1 - x0 - 1.9, x1 - x0 - 1.4, wy0, wy1],
+      ['z1', x1 - x0 - 1.9, x1 - x0 - 1.4, wy0, wy1],
+    ]);
+    /* window frames (seen from inside) */
+    for (let i = -1; i <= 1; i++) {
+      B(0.04, 0.05, 0.66, STEEL, x1 - 0.02, wy0 - 0.02, i * 0.78);
+      B(0.04, 0.05, 0.66, STEEL, x1 - 0.02, wy1 + 0.02, i * 0.78);
+    }
+    /* steering stand and wheel (brass hub, eight spokes with handles): the wheel turns with the helm (WHEEL, a moving part) */
+    const xs = x1 - 0.75;
+    B(0.42, 1.05, 0.36, 0x4d5257, xs, y0 + 0.52, 0);
+    Cx(0.05, 0.3, BRASS, xs - 0.32, y0 + 1.12, 0, 10);
+    WHEEL.pivot = [xs - 0.46, y0 + 1.12, 0];
+    WHEEL.parts = grab(() => {
+      add(new THREE.TorusGeometry(0.42, 0.025, 6, 28), WOOD, 0, 0, 0, 0, HP, 0);
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * PI * 2;
+        B(0.03, 0.56, 0.03, BRASS, 0, 0, 0, 0, a, 0);
+        P[P.length - 1].m = new M4().compose(new THREE.Vector3(0, Math.cos(a) * 0.28, Math.sin(a) * 0.28), new THREE.Quaternion().setFromEuler(new THREE.Euler(a, 0, 0)), new THREE.Vector3(1, 1, 1));
+        C(0.022, 0.022, 0.14, WOOD, 0, Math.cos(a) * 0.52, Math.sin(a) * 0.52, a, 0, 0, 6);
+      }
+      Cx(0.07, 0.08, BRASS, 0, 0, 0, 12);
+    });
+    /* the magnetic compass binnacle ahead of the wheel and the gyro repeater above the windows' sill */
+    C(0.18, 0.24, 0.95, BRASS, x1 - 0.3, y0 + 0.48, 0, 0, 0, 0, 14);
+    S(0.2, BRASS, x1 - 0.3, y0 + 1.0, 0, 1, 0.5, 1);
+    C(0.15, 0.15, 0.03, DIAL, x1 - 0.3, y0 + 1.04, 0, 0, 0, 0, 16);
+    face('qmCompass', [x1 - 0.3, y0 + 1.06, 0], 0.27, 0.27, [0, 1, 0], [1, 0, 0]);
+    /* the rudder-angle indicator, overhead forward */
+    B(0.08, 0.28, 0.62, DARK, x1 - 0.05, y1 - 0.22, 0);
+    dial(x1 - 0.1, y1 - 0.22, 0, 0.12, 'x');
+    face('qmRudder', [x1 - 0.13, y1 - 0.22, 0], 0.22, 0.22, [-1, 0, 0]);
+    /* two engine-order telegraphs (port engine and starboard engine) */
+    for (const s of [-1, 1]) {
+      const z = s * 0.95,
+        xt = x1 - 0.5;
+      C(0.1, 0.14, 0.95, BRASS, xt, y0 + 0.48, z, 0, 0, 0, 10);
+      C(0.26, 0.26, 0.14, BRASS, xt, y0 + 1.1, z, 0, 0, HP, 18);
+      C(0.22, 0.22, 0.15, DIAL, xt, y0 + 1.1, z, 0, 0, HP, 18);
+      face(s < 0 ? 'qmTelP' : 'qmTelS', [xt - 0.08, y0 + 1.1, z], 0.42, 0.42, [-1, 0, 0]);
+      B(0.04, 0.4, 0.05, DARK, xt - 0.1, y0 + 1.25, z, 0, 0, 0.4);
+      S(0.05, 0x8c2020, xt - 0.12, y0 + 1.43, z);
+    }
+    /* engine RPM indicators and a clock on the forward bulkhead, voice tubes, sound-powered phone */
+    dial(x1 - 0.03, Y2 + 2.2, -1.25, 0.11, 'x');
+    dial(x1 - 0.03, Y2 + 2.2, 1.25, 0.11, 'x');
+    dial(x1 - 0.03, Y2 + 2.25, 0, 0.09, 'x');
+    face('qmRpmP', [x1 - 0.06, Y2 + 2.2, -1.25], 0.19, 0.19, [-1, 0, 0]);
+    face('qmRpmS', [x1 - 0.06, Y2 + 2.2, 1.25], 0.19, 0.19, [-1, 0, 0]);
+    face('qmClock', [x1 - 0.06, Y2 + 2.25, 0], 0.155, 0.155, [-1, 0, 0]);
+    for (const z of [-1.6, -1.45, 1.45, 1.6]) {
+      C(0.03, 0.03, 1.2, BRASS, x1 - 0.12, y0 + 0.6, z, 0, 0, 0, 6);
+      C(0.07, 0.04, 0.1, BRASS, x1 - 0.18, y0 + 1.25, z, 0, 0, HP * 0.6, 8);
+    }
+    B(0.15, 0.24, 0.16, DARK, x0 + 0.1, y0 + 1.5, -1.6);
+    /* the chart table aft and a stool */
+    B(0.9, 0.06, 1.1, WOOD, x0 + 0.6, y0 + 0.95, 1.4);
+    B(0.85, 0.9, 1.05, 0x4d5257, x0 + 0.6, y0 + 0.47, 1.4);
+    lamp(x1 - 1.2, y1, 0);
+    lamp(x0 + 0.8, y1, 0);
+  }
+  emit();
+
+  /* --- 3: the radar plot / radio room (aft part of the 02 enclosure) and the sonar in the A/S hut --- */
+  begin();
+  {
+    const x0 = X_RR1 + 0.06,
+      x1 = X_PH1 - 0.06,
+      y0 = Y2 + 0.01,
+      y1 = Y3 - 0.14,
+      w = W_PH - 0.06;
+    room(x0, x1, y0, y1, -w, w, INT_W, INT_F, INT_C);
+    /* the bulkhead between the radar room and the pilothouse, with a door (as seen from both sides) */
+    B(0.06, y1 - y0, 2 * w, INT_W, x1 + 0.03, (y0 + y1) / 2, 0);
+    B(0.07, 1.85, 0.75, STEEL, x1 + 0.03, y0 + 0.93, 1.1);
+    /* the operator's seat (the station's eye): the radar console and the radio receiver are angled in toward it, \__/ with the
+       sonar console in the middle, so each face is seen square on from the chair */
+    const EYE = [X_RR1 + 2.21, -0.45],
+      /* build fn facing +x with the front face's foot at the origin, then stand it at (x, z) facing the operator */
+      toward = (x, z, fn) => {
+        const yaw = Math.atan2(-(EYE[1] - z), EYE[0] - x),
+          T = GX.xf(x, y0, z, yaw),
+          f0 = FACES.length,
+          Q = grab(fn);
+        for (const q of Q) (q.m = q.m ? new M4().multiplyMatrices(T, q.m) : T.clone()), P.push(q);
+        /* the faces it added: into the room's frame */
+        const Rm = new THREE.Matrix4().extractRotation(T);
+        for (let i = f0; i < FACES.length; i++) {
+          const F = FACES[i];
+          F.p = new THREE.Vector3(...F.p).add(new THREE.Vector3(0, -y0, 0)).applyMatrix4(T).toArray();
+          F.n = new THREE.Vector3(...F.n).applyMatrix4(Rm).toArray();
+        }
+      };
+    /* the surface-search radar console with its PPI scope (glowing green), in the port forward corner */
+    toward(x0 + 3.28, -1.22, () => {
+      /* the same cabinet as the radio receiver opposite (mirror image about the chair): the scope sits flush in a bezel the size of
+         the radio's paper window, at the same height, so the two displays line up */
+      const SY = 1.35;
+      B(0.5, 1.85, 0.85, 0x4b5257, -0.25, 0.93, 0);
+      B(0.04, 0.62, 0.72, DARK, 0.01, SY, 0);
+      C(0.27, 0.27, 0.012, GLOW, 0.034, SY, 0, 0, 0, HP, 28);
+      face('radar', [0.045, y0 + SY, 0], 0.54, 0.54, [1, 0, 0]);
+      for (let i = 0; i < 4; i++) dial(0.01, 0.85, -0.27 + i * 0.18, 0.05, 'x');
+    });
+    /* the radio transmitter and receiver racks along the port bulkhead, with dials */
+    {
+      const xr = x0 + 1.48;
+      B(0.38, 1.85, 0.5, 0x51585e, xr, y0 + 0.93, -w + 0.27);
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) dial(xr - 0.085 + c * 0.17, y0 + 1.0 + r * 0.32, -w + 0.53, 0.05, 'z');
+    }
+    /* the receiver that prints the radio traffic (its paper window and tuning dial), in the port after corner, angled in */
+    toward(x0 + 1.02, -1.22, () => {
+      B(0.5, 1.85, 0.85, 0x51585e, -0.25, 0.93, 0);
+      B(0.04, 0.62, 0.72, DARK, 0.01, 1.35, 0);
+      face('radio', [0.035, y0 + 1.35, 0], 0.66, 0.56, [1, 0, 0]);
+      dial(0.01, 0.85, 0, 0.09, 'x');
+    });
+    /* the sonar repeater console between the radio racks and the radar (the stack itself is in the A/S hut on the open bridge, its
+       range recorder and bearing repeater are brought down here so one operator works all three): range recorder, bearing indicator,
+       the ping key and the training hand wheel */
+    {
+      const xc = x0 + 2.215,
+        zc = -w + 0.3;
+      B(1.05, 1.0, 0.55, 0x4b5257, xc, y0 + 0.5, zc);
+      B(1.05, 0.8, 0.4, 0x3f454b, xc, y0 + 1.4, zc - 0.07);
+      face('sonarRec', [xc + 0.2, y0 + 1.42, zc + 0.14], 0.5, 0.42, [0, 0, 1]);
+      dial(xc - 0.33, y0 + 1.45, zc + 0.12, 0.17, 'z');
+      face('sonarBrg', [xc - 0.33, y0 + 1.45, zc + 0.15], 0.29, 0.29, [0, 0, 1]);
+      add(new THREE.TorusGeometry(0.16, 0.02, 6, 18), BRASS, xc - 0.1, y0 + 1.0, zc + 0.3, 0, 0, 0);
+      S(0.035, 0x8c2020, xc + 0.35, y0 + 1.02, zc + 0.27);
+    }
+    /* receivers and a typewriter (the "mill") on the desk on the starboard side, headphones */
+    B(x1 - x0 - 0.08, 0.05, 0.65, WOOD, (x0 + x1) / 2, y0 + 0.75, w - 0.33);
+    for (const xl of [x0 + 0.08, (x0 + x1) / 2, x1 - 0.08]) B(0.05, 0.73, 0.05, STEEL, xl, y0 + 0.365, w - 0.62);
+    B(0.55, 0.32, 0.45, 0x51585e, x0 + 0.6, y0 + 0.95, w - 0.3);
+    B(0.55, 0.32, 0.45, 0x51585e, x0 + 1.2, y0 + 0.95, w - 0.3);
+    for (let c = 0; c < 4; c++) dial(x0 + 0.42 + c * 0.13, y0 + 0.98, w - 0.53, 0.035, 'z');
+    B(0.42, 0.14, 0.32, DARK, x1 - 0.6, y0 + 0.85, w - 0.35);
+    /* the plotting table (dead-reckoning tracer) on the centreline */
+    B(1.1, 0.95, 0.8, 0x4d5257, (x0 + x1) / 2 + 0.2, y0 + 0.48, 0.2);
+    B(1.15, 0.04, 0.85, 0xe8e4d2, (x0 + x1) / 2 + 0.2, y0 + 0.97, 0.2);
+    /* chairs */
+    for (const [x, z] of [
+      [x0 + 2.15, -0.5],
+      [x0 + 0.9, w - 0.9],
+    ]) {
+      C(0.2, 0.2, 0.06, RUBBER, x, y0 + 0.5, z, 0, 0, 0, 12);
+      C(0.03, 0.03, 0.48, STEEL, x, y0 + 0.24, z, 0, 0, 0, 6);
+    }
+    lamp((x0 + x1) / 2, y1, 0);
+    /* the sonar (A/S hut on the open bridge): the hut's inside, and the sound stack with its range recorder and training wheel */
+    const hx1 = XF(24.1) - 0.4,
+      hx0 = XF(24.1) - 2.2,
+      hw = 1.78;
+    room(hx0, hx1, Y3 + 0.01, YHUT - 0.08, -hw, hw, INT_W, INT_F, INT_C, [
+      ['x1', hw - 1.13, hw - 0.57, Y3 + 1.24, Y3 + 1.6],
+      ['x1', hw - 0.28, hw + 0.28, Y3 + 1.24, Y3 + 1.6],
+      ['x1', hw + 0.57, hw + 1.13, Y3 + 1.24, Y3 + 1.6],
+      ['x0', 2 * hw - 1.3, 2 * hw - 0.6, Y3 + 0.02, Y3 + 1.8],
+    ]);
+    B(0.6, 1.35, 0.85, 0x4b5257, hx1 - 0.35, Y3 + 0.68, 0.75);
+    B(0.04, 0.32, 0.5, 0xe8e4d2, hx1 - 0.66, Y3 + 1.15, 0.75);
+    dial(hx1 - 0.66, Y3 + 0.75, 0.6, 0.12, 'x');
+    dial(hx1 - 0.66, Y3 + 0.75, 0.92, 0.07, 'x');
+    add(new THREE.TorusGeometry(0.2, 0.025, 6, 20), BRASS, hx1 - 0.72, Y3 + 0.45, 0.75, 0, HP, 0);
+    C(0.18, 0.12, 0.2, DARK, hx1 - 0.2, YHUT - 0.35, 0.2, 0, 0, HP, 12);
+    C(0.2, 0.2, 0.06, RUBBER, hx1 - 1.2, Y3 + 0.5, 0.75, 0, 0, 0, 12);
+    C(0.03, 0.03, 0.48, STEEL, hx1 - 1.2, Y3 + 0.25, 0.75, 0, 0, 0, 6);
+    lamp((hx0 + hx1) / 2, YHUT - 0.08, 0);
+  }
+  emit();
+
+  /* --- 2: the forward engine room (frames 33.5 to 46): the starboard main diesel, a 60 kW generator, the switchboard,
+         the throttle and gauge board at the engine's after end, ladders and piping --- */
+  const ER = { x0: XF(46) + 0.1, x1: XF(33.5) - 0.1, y0: -1.55, y1: 2.65, w: 4.25 };
+  begin();
+  {
+    const { x0, x1, y0, y1, w } = ER;
+    room(x0, x1, y0, y1, -w, w, ENG_W, ENG_F, ENG_W);
+    /* floor plates' pattern (a few seams), the hull frames on the side walls */
+    for (let x = x0 + 0.6; x < x1; x += 0.6096) for (const s of [-1, 1]) B(0.08, y1 - y0 - 0.2, 0.12, ENG_W - 0x0b0b0b, x, (y0 + y1) / 2, s * (w - 0.06));
+    for (let x = x0 + 1.0; x < x1; x += 1.0) B(0.02, 0.012, 2 * w - 0.2, 0x45484a, x, y0 + 0.006, 0);
+    /* the main diesel (V-12, about 4.6 m long), starboard; the reduction gear and shaft at its after end */
+    {
+      const ze = 1.75,
+        xa = x0 + 2.3,
+        xb = x1 - 0.85,
+        xc = (xa + xb) / 2,
+        L = xb - xa;
+      B(L, 0.35, 1.7, 0x3d4243, xc, y0 + 0.18, ze);
+      B(L, 0.95, 1.35, ENG_M, xc, y0 + 0.82, ze);
+      for (const s of [-1, 1]) {
+        /* the two cylinder banks in a V, six heads each, with rocker covers */
+        B(L * 0.94, 0.55, 0.55, ENG_M, xc, y0 + 1.55, ze + s * 0.42, 0, s * 0.5, 0);
+        for (let i = 0; i < 6; i++) B(0.55, 0.16, 0.42, 0x8b958c, xa + 0.35 + (i + 0.5) * ((L - 0.7) / 6), y0 + 1.86, ze + s * 0.62, 0, s * 0.5, 0);
+      }
+      /* exhaust manifold (lagged, silver) rising to the uptake, and the blower at the forward end */
+      Cx(0.17, L * 0.9, 0xb9bcb5, xc, y0 + 2.1, ze, 12);
+      C(0.17, 0.17, y1 - (y0 + 2.1), 0xb9bcb5, xb - 0.2, (y1 + y0 + 2.1) / 2, ze, 0, 0, 0, 12);
+      B(0.6, 1.1, 1.2, ENG_M, xb + 0.32, y0 + 1.15, ze);
+      B(0.85, 1.3, 1.5, 0x55605a, xa - 0.45, y0 + 0.75, ze);
+      Cx(0.14, xa - 0.85 - x0, STEEL, (x0 + xa - 0.85) / 2, y0 + 0.65, ze, 10);
+      /* the control station on the engine's inboard side at its after end: gauge board (eight dials), throttle wheel,
+         and the engine-order telegraph repeater beside it */
+      const zb = ze - 0.82;
+      B(1.5, 0.95, 0.1, 0x2f3437, xa + 0.85, y0 + 1.5, zb);
+      for (let r = 0; r < 2; r++)
+        for (let c = 0; c < 4; c++) {
+          dial(xa + 0.32 + c * 0.35, y0 + 1.33 + r * 0.33, zb - 0.07, 0.11, 'z');
+          face('eg' + (r * 4 + c), [xa + 0.32 + c * 0.35, y0 + 1.33 + r * 0.33, zb - 0.1], 0.19, 0.19, [0, 0, -1]);
+        }
+      add(new THREE.TorusGeometry(0.22, 0.025, 6, 20), 0x8c2020, xa + 0.5, y0 + 0.92, zb - 0.12, 0, 0, 0);
+      Cz(0.04, 0.2, STEEL, xa + 0.5, y0 + 0.92, zb - 0.05, 6);
+      C(0.1, 0.13, 1.0, BRASS, xa - 0.15, y0 + 0.5, zb - 0.55, 0, 0, 0, 10);
+      C(0.22, 0.22, 0.12, BRASS, xa - 0.15, y0 + 1.1, zb - 0.55, HP, 0, 0, 16);
+      C(0.18, 0.18, 0.13, DIAL, xa - 0.15, y0 + 1.1, zb - 0.55, HP, 0, 0, 16);
+      face('eTel', [xa - 0.15, y0 + 1.1, zb - 0.62], 0.34, 0.34, [0, 0, -1]);
+    }
+    /* the 60 kW diesel generator, port */
+    {
+      const zg = -2.45,
+        xa = x0 + 2.4,
+        xb = x1 - 1.3;
+      B(xb - xa, 0.3, 1.1, 0x3d4243, (xa + xb) / 2, y0 + 0.15, zg);
+      B((xb - xa) * 0.6, 0.85, 0.85, ENG_M, xa + (xb - xa) * 0.65, y0 + 0.72, zg);
+      Cx(0.42, (xb - xa) * 0.38, 0x5c6a62, xa + (xb - xa) * 0.18, y0 + 0.72, zg, 16);
+    }
+    /* the switchboard on the forward bulkhead, port side: black panels with meters and breakers */
+    B(0.35, 1.9, 2.0, 0x23272a, x1 - 0.18, y0 + 1.15, -2.6);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) dial(x1 - 0.37, y0 + 1.25 + r * 0.38, -3.35 + c * 0.5, 0.08, 'x');
+    /* the ladder to the hatch, the log desk, piping along the overhead and the walls, lamps */
+    for (const s of [-1, 1]) B(0.06, 4.5, 0.06, STEEL, x1 - 2.0, (y0 + y1) / 2 + 0.2, -0.9 + s * 0.3, 0, 0, -0.35);
+    for (let i = 0; i < 11; i++) B(0.05, 0.04, 0.6, STEEL, x1 - 2.65 + i * 0.14, y0 + 0.3 + i * 0.38, -0.9);
+    B(0.6, 0.05, 0.5, WOOD, x0 + 0.4, y0 + 1.0, -3.6);
+    B(0.55, 0.95, 0.45, 0x4d5257, x0 + 0.4, y0 + 0.48, -3.6);
+    for (const [y, z, c] of [
+      [y1 - 0.25, -3.5, 0x8c2020],
+      [y1 - 0.4, -3.2, 0x2c5c8c],
+      [y1 - 0.25, 3.5, 0xb9bcb5],
+      [y1 - 0.45, 0.6, 0x5a7d4b],
+    ])
+      Cx(0.07, x1 - x0, c, (x0 + x1) / 2, y, z, 8);
+    for (let x = x0 + 1.2; x < x1; x += 2.2) lamp(x, y1, 0);
+  }
+  emit();
+
+  INTR = false;
+  /* ================= the shape the ocean must keep out of (half-breadth at the waterline, bow to stern) ================= */
+  const WL = [];
+  for (let i = 0; i < 32; i++) {
+    const f = F_STEM + ((F_END - F_STEM) * i) / 31;
+    WL.push(yc(f) > 0.05 ? 0 : hb(f, 0.0));
+  }
+
+  /* ---------- the stations: eye in the model frame, the way the eye looks (yaw: + to starboard), and a name ---------- */
+  const STN = {
+    1: [{ e: [XF(31.7), YG + 1.68, 0], yaw: 0, pitch: -0.06, name: 'OOD - OPEN BRIDGE' }],
+    2: [{ e: [ER.x0 + 1.4, ER.y0 + 1.65, -0.35], yaw: 0.62, pitch: -0.12, fov: 52, name: 'ENGINEERING - FORWARD ENGINE ROOM' }],
+    3: [
+      { e: [X_RR1 + 2.21, Y2 + 1.22, -0.45], yaw: -0.61, pitch: 0.075, fov: 38, name: 'COMMUNICATIONS - RADAR', dev: 'radar' },
+      { e: [X_RR1 + 2.21, Y2 + 1.22, -0.45], yaw: -1.61, pitch: 0.08, fov: 38, name: 'COMMUNICATIONS - SONAR', dev: 'sonar' },
+      { e: [X_RR1 + 2.21, Y2 + 1.22, -0.45], yaw: -2.53, pitch: 0.075, fov: 38, name: 'COMMUNICATIONS - RADIO', dev: 'radio' },
+    ],
+    4: [{ e: [X_PH0 - 2.35, Y2 + 1.66, 0], yaw: 0, pitch: -0.04, name: 'QUARTERMASTER - PILOTHOUSE' }],
+    /* the gunner mans a gun (gun: the mount's id): his eye and the way he looks come from the gun itself (see GUN in the game) */
+    5: [
+      { gun: '3in', e: [XF(16.0) - 0.63, hd(16.0) + 0.12 + 1.82, -0.6], yaw: 0, pitch: 0, name: 'GUNNER - 3"/50 FORWARD (POINTER)' },
+      { gun: '20', e: [XF(44.7), hd(44.7) + 0.12 + 1.63, 3.3], yaw: 1.4, pitch: 0, name: 'GUNNER - 20 MM STARBOARD AMIDSHIPS' },
+      { gun: '40', e: [XF(76.3) + 0.6, Y_PLAT + 1.8, 1.0], yaw: PI, pitch: 0, name: 'GUNNER - TWIN 40 MM AFT (POINTER)' },
+    ],
+    6: [
+      /* the torpedoman's four positions, bow to stern: the Hedgehog, the K-guns each side, the stern racks and their control board */
+      { tp: 'hh', e: [XF(24.1), hd(24.1) + 0.12 + 1.65, -1.6], yaw: 0.3, pitch: -0.32, name: 'TORPEDOMAN - HEDGEHOG' },
+      { tp: 'port', e: [XF(69.0), hm(69.0) + 0.12 + 1.65, -2.7], yaw: -1.0, pitch: -0.33, name: 'TORPEDOMAN - PORT K-GUNS' },
+      { tp: 'stbd', e: [XF(67.4), hm(67.4) + 0.12 + 1.65, 2.6], yaw: 1.05, pitch: -0.33, name: 'TORPEDOMAN - STARBOARD K-GUNS' },
+      { tp: 'rack', e: [XF(81.2), hm(81.2) + 0.12 + 1.65, 0], yaw: PI, pitch: -0.32, name: 'TORPEDOMAN - DEPTH-CHARGE RACKS' },
+    ],
+  };
+
+  /* ---------- the Measure 32 dazzle (PCE-842, port side as photographed; mirrored to starboard) ---------- */
+  /* convex quads in the side view (x, y), each with a colour: 1 = 5-O ocean gray, 2 = BK dull black; elsewhere 5-L light gray */
+  const DZ = [
+    [1, [28.9, 1.2], [18.5, 5.6], [18.5, 30], [28.9, 30]],
+    [2, [27.9, -1], [20.6, -1], [4.8, 6.3], [12.2, 6.3]],
+    [2, [6.4, 5.2], [3.4, 5.2], [-0.6, -1], [2.4, -1]],
+    [2, [2.4, -1], [-0.6, -1], [-5.6, 5.2], [-2.6, 5.2]],
+    [2, [-11.0, 4.7], [-13.6, 4.7], [-18.4, 1.6], [-16.9, 1.15]],
+    [2, [-16.9, 1.95], [-18.4, 1.6], [-14.6, -1], [-12.0, -1]],
+    [1, [-19.3, -1], [-28.9, -1], [-28.9, 30], [-22.2, 30]],
+    [2, [-23.4, -1], [-28.9, -1], [-28.9, 0.95], [-24.8, 0.95]],
+    [1, [14.5, 6.9], [4.0, 6.9], [4.0, 30], [10.2, 30]],
+    [2, [12.0, 9.5], [9.0, 9.5], [6.2, 12.5], [9.2, 12.5]],
+  ];
+  const glQuad = (q) => {
+    const p = q.slice(1);
+    let s = '';
+    for (let i = 0; i < 4; i++) {
+      const a = p[i],
+        b = p[(i + 1) % 4];
+      s += `(${(b[0] - a[0]).toFixed(3)})*(v.y-(${a[1].toFixed(3)}))-(${(b[1] - a[1]).toFixed(3)})*(v.x-(${a[0].toFixed(3)}))${i < 3 ? '>=0.0&&' : '>=0.0'}`;
+    }
+    /* the quads are listed clockwise or anticlockwise; accept either winding */
+    const s2 = s.replace(/>=0\.0/g, '<=0.0');
+    return `if((${s})||(${s2}))k=${q[0]}.0;`;
+  };
+  const GL_DZ = 'float dazzle(vec2 v){float k=0.0;' + DZ.map(glQuad).join('') + 'return k;}';
+  /* the weather decks and the outside of her: steel deck plates painted 20-B Deck Blue, the superstructure and fittings weathered.
+     Painted in the shader (no textures to load), the deck told apart by its colour and by facing up */
+  const XGLSL = (() => {
+    const v = (n) => [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255].map((x) => x.toFixed(5)).join(', ');
+    return {
+      head: `
+float xH(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float xN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(xH(i), xH(i + vec2(1.0, 0.0)), f.x), mix(xH(i + vec2(0.0, 1.0)), xH(i + vec2(1.0, 1.0)), f.x), f.y); }
+float xF(vec2 p){ return 0.5 * xN(p) + 0.25 * xN(p * 2.03 + 7.1) + 0.125 * xN(p * 4.1 + 3.3) + 0.0625 * xN(p * 8.3 + 1.7); }
+float xL(float u, float s){ float f = fract(u / s); return min(f, 1.0 - f) * s; }
+`,
+      body: `
+{
+  vec3 N = normalize(vMN);
+  float m = 1.0;
+  if (distance(vColor, vec3(XDECK)) < 0.012 && N.y > 0.6) {
+    /* the deck: plates in strakes running fore and aft, 1.5 m wide, each strake's butt welds every 6 m staggered from its
+       neighbours'; a dark seam with a raised bead either side */
+    float sk = floor((vMP.z + 0.2) / 1.524);
+    float dz = xL(vMP.z + 0.2, 1.524), dx = xL(vMP.x + 3.0 * mod(sk, 2.0) + 1.1 * sk, 6.1);
+    float d = min(dz, dx);
+    m *= 1.0 - 0.22 * (1.0 - smoothstep(0.004, 0.011, d)) + 0.05 * (smoothstep(0.011, 0.016, d) - smoothstep(0.016, 0.028, d));
+    /* each plate a slightly different age of paint; touch-up patches of fresher, darker paint */
+    vec2 pid = vec2(floor((vMP.x + 3.0 * mod(sk, 2.0) + 1.1 * sk) / 6.1), sk);
+    m *= 0.95 + 0.08 * xH(pid);
+    float tp = step(0.82, xH(floor(vMP.xz / vec2(1.3, 0.9)) + 3.7)) * step(0.4, xN(vMP.xz * 0.8));
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.86, 0.9, 1.0), tp * 0.6);
+    /* the non-skid: a fine grit, and a slow mottle */
+    m *= 0.92 + 0.12 * xH(floor(vMP.xz * 140.0));
+    m *= 0.9 + 0.14 * xF(vMP.xz * 0.7);
+    /* worn walkways: the paint scuffed lighter along the side decks and down the centre */
+    float walk = smoothstep(0.55, 0.85, xN(vec2(vMP.x * 0.35, vMP.z * 1.6)));
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.42, 0.45, 0.48), walk * 0.22 * (0.6 + 0.4 * xN(vMP.xz * 9.0)));
+    /* salt: pale tide marks where spray dried */
+    float salt = smoothstep(0.62, 0.8, xF(vMP.xz * 0.45 + 2.0)) * (1.0 - smoothstep(0.8, 0.95, xF(vMP.xz * 0.45 + 2.0)));
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.7, 0.72, 0.72), salt * 0.28);
+    /* rust: small blooms where the paint is chipped, a few bleeding along the seams */
+    float rs = smoothstep(0.84, 0.95, xN(vMP.xz * 3.3 + 11.0)) * smoothstep(0.55, 0.85, xN(vMP.xz * 17.0));
+    rs = max(rs, (1.0 - smoothstep(0.0, 0.04, d)) * smoothstep(0.78, 0.93, xN(vMP.xz * 2.1 + 5.0)) * 0.6);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.3, 0.21, 0.15) * (0.8 + 0.4 * xN(vMP.xz * 40.0)), rs * 0.5);
+  } else {
+    /* the superstructure, the hull above the boot top and the fittings: a slow mottle in the paint, rust runs from fittings and
+       seams streaking down the vertical faces, salt haze low on them */
+    float vert = (1.0 - abs(N.y)) * (1.0 - smoothstep(0.06, 0.12, max(max(vColor.r, vColor.g), vColor.b) - min(min(vColor.r, vColor.g), vColor.b))) /* paintwork only (greys), not the crew or the coloured fittings */;
+    vec2 uv = vec2(vMP.x + vMP.z, vMP.y);
+    m *= 0.94 + 0.1 * xF(uv * 1.6 + N.xz);
+    float run = smoothstep(0.7, 0.9, xN(vec2(uv.x * 7.0, 0.0))) * smoothstep(0.35, 0.8, xN(vec2(uv.x * 2.0, uv.y * 0.9 + 3.0))) * vert;
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.36, 0.24, 0.16), run * 0.32);
+    float hz = smoothstep(0.55, 0.85, xF(uv * 0.8 + 4.0)) * vert;
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.75, 0.77, 0.77), hz * 0.08);
+  }
+  diffuseColor.rgb *= m;
+}
+`.replace(/vec3\(XDECK\)/g, 'vec3(' + v(DECK) + ')'),
+    };
+  })();
+  const material = new THREE.MeshLambertMaterial({ vertexColors: true });
+  material.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vMP;varying vec3 vMN;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvMP=position;vMN=normal;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vMP;varying vec3 vMN;\n' + GL_DZ + '\n' + XGLSL.head)
+      .replace(
+        '#include <color_fragment>',
+        '#include <color_fragment>\nif(vColor.r>0.99&&vColor.b>0.99&&vColor.g<0.02){' +
+          'if(vMP.y<-0.32)diffuseColor.rgb=vec3(0.36,0.14,0.12);else if(vMP.y<0.28)diffuseColor.rgb=vec3(0.075,0.08,0.085);' +
+          'else{float k=dazzle(vMP.xy);diffuseColor.rgb=k>1.5?vec3(0.11,0.115,0.125):k>0.5?vec3(0.36,0.4,0.43):vec3(0.62,0.645,0.65);}}\n' +
+          XGLSL.body,
+      );
+  };
+  material.userData.key = 'pce842dazzle';
+  material.userData.cs = 1; /* keep the world's cloud-shadow / hull-mask hook (csApply) off the ship itself */
+
+  /* build: everything into one geometry (the rooms included: they face inward and cannot be seen from outside) */
+  /* the hull number on each bow, white, as photographed (about 18 m forward of amidships, high on the bow); the number is a parameter so the other escorts wear their own */
+  const DIGS = { 0: 'abcdef', 1: 'bc', 2: 'abged', 3: 'abgcd', 4: 'bcfg', 5: 'afgcd', 6: 'afgedc', 7: 'abc', 8: 'abcdefg', 9: 'abcdfg' };
+  function hullNumber(txt) {
+    const SEG = { a: [0.5, 0.94, 0.86, 0.12], b: [0.94, 0.72, 0.12, 0.44], c: [0.94, 0.28, 0.12, 0.44], d: [0.5, 0.06, 0.86, 0.12], e: [0.06, 0.28, 0.12, 0.44], f: [0.06, 0.72, 0.12, 0.44], g: [0.5, 0.5, 0.86, 0.12] },
+      HN = 1.0,
+      WN = 0.62,
+      out = [];
+    for (const s of [-1, 1])
+      String(txt).split('').forEach((ch, di) => {
+        const xl = s < 0 ? 19.2 - di * 0.82 : 16.94 + di * 0.82;
+        for (const k of DIGS[ch] || '') {
+          const q = SEG[k],
+            x = s < 0 ? xl - q[0] * WN : xl + q[0] * WN,
+            y = 3.5 + q[1] * HN,
+            f = (27.75 - x) / FR;
+          out.push(part(bx(q[2] * WN, q[3] * HN, 0.03), WHITE, x, y, s * (hb(f, y) + 0.025), 0, s * Math.atan2(hb(f + 0.5, y) - hb(f - 0.5, y), FR), 0));
+        }
+      });
+    return out;
+  }
+  function build(num) {
+    const acc = new GX.Acc();
+    for (const [parts, T, intr] of groups) if (!intr) acc.add(parts, T);
+    acc.add(hullNumber(num || '842'), null);
+    return acc.geometry();
+  }
+  /* the station interiors: one mesh, lit evenly (deckhead lights) so the rooms read the same by day and by night */
+  const intMaterial = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: new THREE.Color(0.42, 0.42, 0.4) });
+  intMaterial.userData.cs = 1;
+  /* the rooms' surfaces are painted in the shader (no textures to load), told apart by their colours */
+  const IGLSL = (() => {
+    const v = (n) => [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255].map((x) => x.toFixed(5)).join(', ');
+    return { head: `
+varying vec3 vMp;
+varying vec3 vMn;
+float iH(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float iN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(iH(i), iH(i + vec2(1.0, 0.0)), f.x), mix(iH(i + vec2(0.0, 1.0)), iH(i + vec2(1.0, 1.0)), f.x), f.y); }
+float iF(vec2 p){ return 0.5 * iN(p) + 0.25 * iN(p * 2.03 + 7.1) + 0.125 * iN(p * 4.1 + 3.3) + 0.0625 * iN(p * 8.3 + 1.7); }
+/* distance to the nearest line of a grid of spacing s (in metres) */
+float iL(float u, float s){ float f = fract(u / s); return min(f, 1.0 - f) * s; }
+bool iIs(vec3 c, vec3 k){ return distance(c, k) < 0.012; }
+`, body: `
+{
+  /* the rooms' own surfaces, told apart by their paint: painted steel bulkheads (seams, welds, frames, scuffs), linoleum tiles or
+     diamond tread plate underfoot, and the deckhead's beams over cork insulation. Fittings keep their colours, with a little wear */
+  vec3 col = vColor;
+  vec3 N = normalize(vMn);
+  float fl = (vMp.x > IERX0 && vMp.x < IERX1 && vMp.y < 2.6) ? -1.55 : vMp.y < IY3 - 0.2 ? IY2 : IY3; /* the deck of the room the point is in (the engine room by its length along the ship, not its height: by height, the engine room's walls above -0.5 m were taken for the pilothouse's and darkened, which drew a false waterline round them) */
+  float h = vMp.y - fl;
+  float m = 1.0;
+  if (iIs(col, vec3(IW)) || iIs(col, vec3(IEW))) {
+    bool side = abs(N.z) > 0.5;
+    float u = side ? vMp.x : vMp.z, v = vMp.y;
+    /* plates about 1.8 x 1.2 m, butt-welded: a dark seam with a bright bead either side */
+    float dv = iL(u - 0.3, 1.83), dh = iL(v - fl - 0.05, 1.22);
+    float d = min(dv, dh);
+    m *= 1.0 - 0.32 * (1.0 - smoothstep(0.003, 0.009, d)) + 0.07 * (smoothstep(0.009, 0.013, d) - smoothstep(0.013, 0.022, d));
+    /* the frames (every 24 in) behind the side bulkheads: a soft shadow and a lit edge on each */
+    if (side) { float f = fract((vMp.x - 27.75) / 0.6096); m *= 1.0 - 0.07 * smoothstep(0.0, 0.05, f) * (1.0 - smoothstep(0.05, 0.11, f)) + 0.04 * smoothstep(0.88, 0.97, f) * (1.0 - smoothstep(0.97, 1.0, f)); }
+    /* a row of rivet heads along each vertical seam */
+    { float r = length(vec2(dv - 0.045, iL(v, 0.085))); m *= 1.0 - 0.22 * (1.0 - smoothstep(0.006, 0.011, r)) + 0.12 * (1.0 - smoothstep(0.0, 0.006, r)); }
+    /* paint: a slow mottle, runs, and grime and scuffing near the deck */
+    m *= 0.95 + 0.08 * iF(vec2(u, v) * 2.2);
+    m *= 1.0 - 0.05 * smoothstep(0.55, 0.9, iN(vec2(u * 9.0, v * 0.6)));
+    m *= mix(0.62, 1.0, smoothstep(0.02, 0.38, h)) * (1.0 - 0.18 * (1.0 - smoothstep(0.0, 0.1, h)) * iN(vec2(u * 14.0, 3.0)));
+    /* a dark kick strip at the foot of the bulkhead */
+    if (h < 0.1) m *= 0.55;
+  } else if (iIs(col, vec3(IF))) {
+    /* 9 in linoleum tiles, each a slightly different shade, with worn paths */
+    vec2 t = vMp.xz / 0.2286;
+    vec2 id = floor(t);
+    float d = min(iL(vMp.x, 0.2286), iL(vMp.z, 0.2286));
+    m *= 0.9 + 0.2 * iH(id);
+    m *= 1.0 - 0.3 * (1.0 - smoothstep(0.002, 0.006, d));
+    m *= 1.0 + 0.16 * (iF(vMp.xz * 0.9) - 0.5);
+    m *= 1.0 - 0.1 * smoothstep(0.6, 0.85, iN(vMp.xz * 11.0));
+  } else if (iIs(col, vec3(IEF))) {
+    /* steel floor plates with a diamond tread, bolted down at the edges */
+    vec2 r = mat2(0.7071, 0.7071, -0.7071, 0.7071) * vMp.xz;
+    vec2 g = fract(r / 0.035) - 0.5;
+    float k = 1.0 - smoothstep(0.08, 0.2, abs(g.x * 0.35 + g.y * 1.0) * abs(g.x - g.y * 0.35));
+    float br = step(0.5, fract(floor(r.x / 0.035) * 0.5 + floor(r.y / 0.035) * 0.5));
+    m *= 0.88 + 0.22 * k * (br > 0.5 ? 1.0 : 0.6);
+    float d = min(iL(vMp.x, 1.2), iL(vMp.z, 0.9));
+    m *= 1.0 - 0.45 * (1.0 - smoothstep(0.004, 0.012, d));
+    float b = length(vec2(iL(vMp.x, 1.2) - 0.04, iL(vMp.z, 0.3) )); m *= 1.0 - 0.3 * (1.0 - smoothstep(0.006, 0.012, b));
+    m *= 0.88 + 0.22 * iF(vMp.xz * 1.6);
+    m *= 1.0 - 0.18 * smoothstep(0.55, 0.85, iN(vMp.xz * 3.0 + 5.0)); /* oil */
+  } else if (iIs(col, vec3(IC))) {
+    /* the deckhead: a beam under every frame, cork insulation between */
+    float f = fract((vMp.x - 27.75) / 0.6096);
+    float beam = 1.0 - smoothstep(0.0, 0.03, min(f, 1.0 - f) * 0.6096 - 0.035);
+    m *= mix(0.86 + 0.12 * iN(vMp.xz * 38.0) + 0.06 * iN(vMp.xz * 7.0), 0.94, beam);
+    m *= 1.0 - 0.25 * (smoothstep(0.035, 0.045, min(f, 1.0 - f) * 0.6096) - smoothstep(0.045, 0.09, min(f, 1.0 - f) * 0.6096));
+  } else if (vMp.y < 2.6 && vMp.x > IERX0 && vMp.x < IERX1) {
+    /* the engine room's machinery: soot and oil. Dirtier toward the bilge, oil runs down the sides, black blotches round the joints and
+       a brown film over everything */
+    float u = vMp.x + vMp.z * 0.7;
+    float hh = vMp.y + 1.55;
+    float run = smoothstep(0.55, 0.85, iN(vec2(u * 11.0, vMp.y * 0.7))) * smoothstep(0.3, 0.7, iN(vec2(u * 2.5, 4.0)));
+    float blot = smoothstep(0.55, 0.8, iF(vec2(u, vMp.y) * 2.6 + N.xz));
+    float g = clamp(0.32 + 0.5 * (1.0 - smoothstep(0.0, 1.7, hh)) + 0.6 * run + 0.5 * blot, 0.0, 0.92);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.16, 0.13, 0.09) * (0.7 + 0.6 * iN(vec2(u, vMp.y) * 30.0)), g * 0.85);
+    m *= 0.9 + 0.12 * iF(vec2(u, vMp.y) * 6.0);
+  } else {
+    /* fittings: a little handling wear */
+    m *= 0.95 + 0.08 * iF(vMp.xy * 3.0 + vMp.zz * 2.0);
+  }
+  diffuseColor.rgb *= m;
+}
+`
+      .replace(/vec3\(IW\)/g, 'vec3(' + v(INT_W) + ')').replace(/vec3\(IEW\)/g, 'vec3(' + v(ENG_W) + ')')
+      .replace(/vec3\(IF\)/g, 'vec3(' + v(INT_F) + ')').replace(/vec3\(IEF\)/g, 'vec3(' + v(ENG_F) + ')')
+      .replace(/vec3\(IC\)/g, 'vec3(' + v(INT_C) + ')').replace(/IERX0/g, ER.x0.toFixed(3)).replace(/IERX1/g, ER.x1.toFixed(3)).replace(/IY2/g, Y2.toFixed(3)).replace(/IY3/g, Y3.toFixed(3)) };
+  })();
+  intMaterial.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vMp;\nvarying vec3 vMn;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvMp = position;\nvMn = normal;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\n' + IGLSL.head)
+      .replace('#include <color_fragment>', '#include <color_fragment>\n' + IGLSL.body)
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance*=diffuseColor.rgb;');
+  };
+  function buildInterior() {
+    const acc = new GX.Acc();
+    for (const [parts, T, intr] of groups) if (intr) acc.add(parts, T);
+    const m = new THREE.Mesh(acc.geometry(), intMaterial);
+    m.frustumCulled = false;
+    return m;
+  }
+  /* is a point (model frame) inside the ship's own hull or upperworks? A coarse shape for the guns' firing cutouts: the hull up to its
+     rails, the deckhouse and bridge (frames 23.6 to 43.4), the mast, the ventilation hood (the stack) and the aft 40 mm platform */
+  function solid(x, y, z) {
+    const f = (27.75 - x) / FR;
+    if (f < F_STEM || f > F_END || y < -3) return false;
+    const az = Math.abs(z);
+    if (y < top(f) + 1.0 && az < hb(f, Math.min(y, top(f))) + 0.05) return true;
+    if (f > 23.6 && f < 43.4 && az < 4.6 && y < 10.9) return true;
+    if (Math.abs(x - XF(40)) < 0.45 && az < 0.45 && y < 17) return true;
+    if (f > 44.7 && f < 54.5 && az < 1.3 && y < hd(48) + 4.4) return true;
+    return false;
+  }
+  /* the player's guns as moving parts, children of the ship's mesh (model frame): for each mount an object at its place (o),
+     the training carriage (tr, turned by rotation.y from the rest bearing), the elevating guns (el, at the trunnions, rotation.z),
+     the crewman the player replaces (pm) and, where fitted, the pointer's ring sight on its linkage (sg, at the eye) */
+  function mounts(mesh) {
+    const mk = (parts) => {
+      const a = new GX.Acc();
+      a.add(parts, null);
+      return new THREE.Mesh(a.geometry(), material);
+    };
+    return MNT.map((d) => {
+      const o = new THREE.Object3D();
+      o.matrixAutoUpdate = false;
+      o.matrix.copy(d.T);
+      mesh.add(o);
+      const tr = mk(d.train),
+        el = mk(d.elev),
+        pm = mk(d.pm);
+      o.add(tr);
+      tr.add(pm);
+      el.position.set(...d.pivot);
+      tr.add(el);
+      let sg = null;
+      if (d.sight) {
+        sg = mk(d.sight);
+        sg.position.set(...d.eye);
+        tr.add(sg);
+      }
+      return { id: d.id, d, o, tr, el, pm, sg };
+    });
+  }
+  /* the ensigns: the Stars and Stripes at the gaff (under way) and on the stern staff, as children of the ship */
+  function flags(mesh) {
+    if (typeof FLG === 'undefined') return;
+    mesh.add(FLG.flagOnly('us', 1.6, XF(39.8) - 0.55, 16.25, 0, PI));
+    mesh.add(FLG.flagOnly('us', 1.25, XF(89.7) - 0.04, hm(89.7) + 0.12 + 3.35, 0, PI));
+  }
+  return { XF, hb, top, WL, F_STEM, F_END, STN, ER, build, buildInterior, flags, mounts, solid, material, intMaterial, FACES, WHEEL, OOD, Y2, Y3, hd, hm,
+    /* for other craft (PT-105): a 20 mm Oerlikon on its Mk 4 mount with gunner and loader, a twin 40 mm, and a crewman, as parts at their own origins */
+    oer20: () => oer20(),
+    twin40: (k) => twin40(k),
+    /* the K-guns' loaded arbors: for each gun (port forward, port aft, starboard forward, starboard aft) the muzzle (where the arbor
+       sits) and the charge's centre on the arbor's tray, model frame */
+    KG: [-1, 1].flatMap((s) =>
+      [64.6, 73.7].map((f) => {
+        const x = XF(f),
+          z = s * (hb(f, hm(f)) - 0.75),
+          py = hm(f) + 0.12 + 0.32 /* ym(f) + 0.32, as the model */,
+          c45 = Math.SQRT1_2;
+        return { f, s, mz: [x, py + c45 * 0.96, z + s * c45 * 0.96], ch: [x, py + c45 * 1.32 + 0.12, z + s * c45 * 1.32] };
+      }),
+    ),
+    single40: (k) => single40(k) /* the single 40 mm (Army M1 / Navy Mk 3 type) for small craft */,
+    oer20pt: () => oer20(true) /* the 20 mm on the four-legged Mk 10 pedestal, for small craft */,
+    crew: (x, y, z, yaw, pose, arms) => grab(() => man(x, y, z, yaw, pose, arms)) };
+})();
+
+/* =====================================================================================================================
+   PT-105, THE TOW BOAT, AND HER TARGET SLED
+   PT-105 was an 80 ft Elco (PT-103 class, the same as PT-109). Built from the PT-109 general arrangement in the References folder
+   (plan, profile and lines) and the Elco cutaway: 80 ft (24.38 m) long, 20 ft 8 in (6.30 m) beam, hard-chine planing hull of
+   mahogany planking. Deck at the side 1.45 m above the waterline at the transom rising to 2.4 m at the stem; flat aft bottom,
+   the chine sweeping up forward to meet the stem. Late-war armament (NavSource): one single 40 mm, one 37 mm, one 20 mm, two
+   twin .50s and four torpedoes. From aft: smoke generator and the tow bitt on the transom deck, the single 40 mm Bofors on the
+   stern, the 20 mm Oerlikon on the after end of the day cabin roof, the day cabin and engine-room trunk with its ventilators (four Mk 13 torpedoes on roll-off racks along
+   the deck edges, two aft, two forward), the port twin .50 turret, the cockpit and chart house with the mast, the
+   starboard twin .50 turret, the 37 mm M4 on the forward deck and the crew's hatch. Three Packard V-12s on three screws, three rudders.
+   Paint: green (Measure 31 style) on hull and deck, red anti-fouling below the chine. Five crew shown: the helmsman, both
+   turret gunners, the 20 mm gunner and a man aft tending the tow.
+   Model frame, as for the PCE: bow toward +x, starboard +z, waterline y = 0, origin amidships (s = distance from the transom,
+   x = s - 12.19). PTB.build() makes the boat (one vertex-coloured mesh plus her spray), PTB.sled() the target sled.
+   ===================================================================================================================== */
+const PTB = (() => {
+  const L = 24.38,
+    X = (s) => s - L / 2,
+    sst = (a) => (a <= 0 ? 0 : a >= 1 ? 1 : a * a * (3 - 2 * a)),
+    /* the hull: deck at the side, half-breadth at the deck, the chine (half-breadth, height) and the keel, against s */
+    yd = (s) => 1.45 + 0.95 * Math.pow(s / L, 1.8),
+    hb = (s) => (s < 10 ? 2.78 + 0.39 * sst(s / 10) : 3.17 * Math.sqrt(Math.max(0, 1 - Math.pow((s - 10) / 14.38, 2.2)))),
+    bc = (s) => hb(s) * 0.88 * (1 - sst((s - 13) / 9.6)),
+    yc = (s) => -0.05 + 1.3 * Math.pow(sst((s - 8) / 14.6), 1.3),
+    yk = (s) => -0.85 + 1.5 * Math.pow(sst((s - 12.5) / 11.88), 1.6),
+    dy = (s, z) => yd(s) + 0.12 * (1 - Math.min(1, (z / Math.max(0.01, hb(s))) ** 2)) /* the deck, with its crown */;
+  const GREEN = 0x5c6b4d,
+    DECK = 0x67765a,
+    RED = 0x9a2c24,
+    DARK = 0x2c302a,
+    GUNM = 0x3a3d3a,
+    STEEL = 0x707670,
+    TUBE = 0x5f6a57,
+    DUNG = 0x4a5d7a,
+    SKIN = 0xc79c7a,
+    HELM = 0x515a46,
+    KAPOK = 0xa89660;
+  function hull() {
+    /* lofted from 60 sections; the quads are emitted per colour (deck, topsides, bottom, transom) */
+    const G = { d: [], t: [], b: [], tr: [] },
+      Q = (a, A, B, C, D) => a.push(...A, ...B, ...C, ...A, ...C, ...D),
+      N = 60,
+      sec = (s, k) => [
+        [X(s), dy(s, 0), 0],
+        [X(s), yd(s), k * hb(s)],
+        [X(s), yc(s), k * bc(s)],
+        [X(s), yk(s), 0],
+      ];
+    for (let i = 0; i < N; i++) {
+      const s0 = (L * i) / N,
+        s1 = (L * (i + 1)) / N;
+      for (const k of [1, -1]) {
+        const A = sec(s0, k),
+          B = sec(s1, k);
+        Q(G.d, A[0], A[1], B[1], B[0]);
+        Q(G.t, A[1], A[2], B[2], B[1]);
+        Q(G.b, A[2], A[3], B[3], B[2]);
+      }
+    }
+    for (const k of [1, -1]) {
+      const A = sec(0, k);
+      Q(G.tr, A[0], A[1], A[2], A[3]);
+    }
+    const geo = (a) => {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(a, 3));
+      g.computeVertexNormals();
+      return g;
+    };
+    return [GX.part(geo(G.d), DECK, 0, 0, 0), GX.part(geo(G.t), GREEN, 0, 0, 0), GX.part(geo(G.b), RED, 0, 0, 0), GX.part(geo(G.tr), GREEN, 0, 0, 0)];
+  }
+  function details() {
+    const P = [],
+      { part, bx, cyl, sph } = GX,
+      B = (sx, sy, sz, hex, x, y, z, rx, ry, rz) => P.push(part(bx(sx, sy, sz), hex, x, y, z, rx, ry, rz)),
+      C = (r1, r2, h, hex, x, y, z, rx, ry, rz, n) => P.push(part(cyl(r1, r2, h, n || 12), hex, x, y, z, rx, ry, rz)),
+      S = (r, hex, x, y, z, sx, sy, sz) => P.push(part(sph(10), hex, x, y, z, 0, 0, 0, r * (sx || 1), r * (sy || 1), r * (sz || 1))),
+      T = (r, t, hex, x, y, z, rx, ry, rz) => P.push(part(new THREE.TorusGeometry(r, t, 6, 18), hex, x, y, z, rx, ry, rz));
+    /* a crewman standing at (s, z) on the deck, turned to yaw; low: only head and shoulders show (in a turret) */
+    const man = (s, z, yaw, h0) => {
+      const y = h0 === undefined ? dy(s, z) : h0,
+        x = X(s);
+      if (PCEM.crew) return P.push(...PCEM.crew(x, y, z, yaw, 'stand'));
+      C(0.09, 0.09, 0.8, DUNG, x, y + 0.4, z - 0.1);
+      C(0.09, 0.09, 0.8, DUNG, x, y + 0.4, z + 0.1);
+      C(0.2, 0.18, 0.62, DUNG, x, y + 1.12, z);
+      C(0.23, 0.23, 0.42, KAPOK, x, y + 1.15, z);
+      S(0.11, SKIN, x + Math.cos(yaw) * 0.02, y + 1.58, z - Math.sin(yaw) * 0.02);
+      S(0.135, HELM, x, y + 1.64, z, 1, 0.55, 1);
+      for (const k of [-1, 1]) C(0.06, 0.055, 0.6, DUNG, x + Math.cos(yaw) * 0.15, y + 1.15, z + k * 0.24, 0, 0, 0.4);
+    };
+    /* four Mk 13 torpedoes on Mk 1 roll-off racks along the deck edges (late-war, as on PT-131 in 1944; the References rack drawing
+       and the Mk 13 manual): 22.4 in (0.569 m) diameter, 13 ft 5 in (4.09 m) long, a rounded nose, the parallel body, the tapered
+       afterbody and the box tail round the fins and the two contra-rotating screws. The rack: a long base plate, two stands with posts
+       either side of the body, clamp bands over it, a top bar between the stands, and the tipping arms on the outboard side that roll
+       her off over the side */
+    const torpedo = (sm, z) => {
+      const y = dy(sm, z) + 0.42,
+        sF = sm + 2.045,
+        k = Math.sign(z),
+        r = 0.285;
+      TD.push([X(sF), y, z]) /* for the shark mouth decal (build) */;
+      P.push(part(sph(14), TORP, X(sF - 0.42), y, z, 0, 0, 0, 0.42, r, r)) /* the nose */;
+      C(0.03, 0.03, 0.04, STEEL, X(sF) + 0.01, y, z, 0, 0, Math.PI / 2, 8);
+      C(r, r, 2.33, TORP, X(sF - 1.585), y, z, 0, 0, Math.PI / 2, 18) /* the warhead and air flask */;
+      C(r, 0.12, 0.8, TORP, X(sF - 3.15), y, z, 0, 0, Math.PI / 2, 18) /* the afterbody */;
+      for (const f of [0.62, 1.4, 2.35, 2.75]) C(r + 0.006, r + 0.006, 0.03, 0x4a3f26, X(sF - f), y, z, 0, 0, Math.PI / 2, 18) /* joint bands */;
+      for (const f of [1.75, 2.0, 2.2]) B(0.18, 0.12, 0.02, 0x6a5834, X(sF - f), y + 0.18, z + k * 0.21, 0.9 * k, 0, 0) /* hand-hole plates */;
+      /* the tail: the shaft, four fins, the box shroud round them, the two screws */
+      C(0.05, 0.05, 0.6, TORP, X(sF - 3.82), y, z, 0, 0, Math.PI / 2, 8);
+      for (const q of [0, 1]) B(0.42, 0.5, 0.015, TORP, X(sF - 3.75), y, z, q * Math.PI / 2, 0, 0);
+      for (const [dy2, dz] of [
+        [0.25, 0],
+        [-0.25, 0],
+        [0, 0.25],
+        [0, -0.25],
+      ])
+        B(0.3, dz ? 0.5 : 0.015, dz ? 0.015 : 0.5, TORP, X(sF - 3.82), y + dy2, z + dz);
+      for (const f of [3.98, 4.06]) for (const q of [0.4, 1.97, 3.54]) B(0.03, 0.2, 0.06, 0x8a7a50, X(sF - f), y + Math.sin(q + f * 5) * 0.09, z + Math.cos(q + f * 5) * 0.09, -(q + f * 5), 0, 0);
+      /* the rack */
+      const yb = dy(sm, z);
+      B(1.9, 0.04, 0.62, STEEL, X(sm), yb + 0.02, z);
+      for (const ds of [-0.58, 0.58]) {
+        for (const pz of [-0.34, 0.34]) B(0.12, 0.62, 0.05, GUNM, X(sm + ds), yb + 0.33, z + pz);
+        T(0.31, 0.02, GUNM, X(sm + ds), y, z, 0, Math.PI / 2, 0) /* the clamp band */;
+        B(0.06, 0.06, 0.74, GUNM, X(sm + ds), y + 0.38, z) /* the cross head */;
+        B(0.1, 0.3, 0.06, GUNM, X(sm + ds), yb + 0.18, z + k * 0.42, 0, 0, 0) /* the tipping arm */;
+        B(0.1, 0.06, 0.3, GUNM, X(sm + ds), yb + 0.32, z + k * 0.5, 0, 0, 0);
+      }
+      B(1.2, 0.05, 0.05, GUNM, X(sm), y + 0.38, z) /* the top bar */;
+    };
+    torpedo(4.1, -2.5);
+    torpedo(4.1, 2.5);
+    torpedo(11.6, -2.72);
+    torpedo(11.6, 2.72);
+    /* the day cabin and engine-room trunk: hatches, skylights and the ventilators */
+    const tk = dy(7.6, 0);
+    B(7.0, 0.62, 2.25, GREEN, X(7.6), tk + 0.29, 0.1);
+    B(7.04, 0.06, 2.29, DECK, X(7.6), tk + 0.61, 0.1);
+    for (const s of [6.6, 8.3]) B(1.0, 0.1, 1.1, DARK, X(s), tk + 0.67, 0.1);
+    for (const s of [9.6, 10.4]) B(0.55, 0.12, 0.55, 0x8a9a9a, X(s), tk + 0.66, -0.55);
+    for (const [s, z] of [
+      [4.6, -1.15],
+      [5.75, 1.3],
+    ]) {
+      C(0.11, 0.11, 1.1, GREEN, X(s), dy(s, z) + 0.55, z);
+      C(0.11, 0.11, 0.35, GREEN, X(s) + 0.12, dy(s, z) + 1.12, z, 0, 0, -Math.PI / 2);
+      C(0.15, 0.15, 0.06, DARK, X(s) + 0.3, dy(s, z) + 1.12, z, 0, 0, -Math.PI / 2);
+    }
+    /* life rafts (floater nets) on the trunk */
+    B(1.5, 0.28, 0.75, 0x9e8f5f, X(8.9), tk + 0.78, 0.55);
+    T(0.32, 0.07, 0xc8b070, X(10.2), tk + 0.7, 0.55, Math.PI / 2, 0, 0);
+    /* the cockpit (armoured, open-topped) and the chart house forward of it */
+    const ck = dy(12.2, 0);
+    /* the cockpit is narrow and to port (PT-109 plan): the forward turret stands outboard of it to starboard */
+    for (const z of [-1.3, 0.45]) B(2.2, 0.98, 0.06, GREEN, X(12.2), ck + 0.49, z);
+    B(0.06, 0.98, 1.81, GREEN, X(11.1), ck + 0.49, -0.425);
+    B(2.2, 0.06, 1.7, DARK, X(12.2), ck + 0.04, -0.425);
+    const ch = dy(14.6, 0);
+    B(3.0, 1.25, 2.6, GREEN, X(14.8), ch + 0.62, 0);
+    B(1.2, 0.06, 2.4, GREEN, X(16.55), ch + 0.92, 0, 0, 0, -0.62) /* the sloped front */;
+    B(3.04, 0.06, 2.64, DECK, X(14.8), ch + 1.26, 0);
+    for (const z of [-1.31, 1.31]) for (const s of [13.8, 14.8, 15.8]) B(0.5, 0.25, 0.02, 0x1d2428, X(s), ch + 0.9, z);
+    for (const z of [-0.8, 0, 0.8]) B(0.02, 0.24, 0.55, 0x1d2428, X(16.35), ch + 1.03, z);
+    /* the windscreen, wheel, throttles, compass and the helmsman */
+    B(0.06, 0.35, 2.3, 0x9bb3c0, X(13.33), ch + 1.42, 0, 0, 0, 0.2);
+    T(0.24, 0.025, 0x3a2a1a, X(13.1), ck + 1.0, -0.1, 0, Math.PI / 2, 0);
+    C(0.04, 0.04, 0.35, STEEL, X(13.22), ck + 1.0, -0.1, 0, 0, Math.PI / 2);
+    for (const z of [-0.6, -0.5, -0.4]) B(0.06, 0.22, 0.04, 0xb02020, X(13.1), ck + 1.05, z, 0, 0, 0.4);
+    C(0.13, 0.15, 0.25, 0x9a8a50, X(13.1), ck + 1.0, -0.95);
+    man(12.6, -0.1, 0, ck);
+    /* the mast (aft end of the chart house), yard, the ensign and the red "Baker" flag she flies while towing; a whip aerial */
+    const mt = ch + 1.27,
+      xm = X(13.5);
+    C(0.06, 0.04, 4.0, 0x8a8a7a, xm, mt + 2.0, 0);
+    B(0.05, 0.05, 1.7, 0x8a8a7a, xm, mt + 3.2, 0);
+    /* the flags stream aft from their halyards: the red "Baker" at the starboard yardarm, the ensign at the masthead with its union
+       at the hoist (next to the mast) */
+    B(0.75, 0.45, 0.02, 0xc8202a, xm - 0.42, mt + 2.95, 0.78);
+    for (let i = 0; i < 7; i++) B(0.95, 0.06, 0.02, i % 2 ? 0xf0f0ea : 0xb8202a, xm - 0.55, mt + 3.75 - i * 0.06, 0);
+    B(0.4, 0.24, 0.026, 0x2a3a6a, xm - 0.28, mt + 3.66, 0);
+    C(0.012, 0.006, 3.6, 0x30302a, X(16.0), ch + 1.26 + 1.8, -1.0);
+    /* the twin .50 turrets (Mk 17): a ring tub, twin M2s on the scarf ring, ammunition boxes, the gunner */
+    /* the tubs stand high (PT-109 plan and profile): the rim about 1.85 m above the deck, the highest thing on her decks, the shell
+       running down to the deck past the cabin side, the gunner's floor 0.9 m up inside */
+    const turret = (s, z, yaw) => {
+      const y0 = dy(s, z),
+        y = y0 + 0.9;
+      P.push(part(new THREE.CylinderGeometry(0.85, 0.88, y + 0.95 - y0, 22, 1, true), GREEN, X(s), (y0 + y + 0.95) / 2, z)) /* the tub, open at the top */;
+      C(0.8, 0.8, y + 0.6 - y0, DARK, X(s), (y0 + y + 0.6) / 2, z, 0, 0, 0, 22) /* the tub's floor */;
+      for (let i = 0; i < 22; i++) {
+        const a = (i / 22) * 2 * Math.PI;
+        B(0.03, 0.36, 0.24, 0x3c4a34, X(s) + Math.cos(a) * 0.8, y + 0.78, z - Math.sin(a) * 0.8, 0, a, 0) /* its inner wall */;
+      }
+      T(0.84, 0.04, STEEL, X(s), y + 0.95, z, Math.PI / 2, 0, 0);
+      man(s - Math.cos(yaw) * 0.45, z + Math.sin(yaw) * 0.45, yaw, y + 0.05);
+      /* the Mk 17 mount: the twin M2 heavy barrels on a cradle on the ring's post, built along +x then turned to yaw and elevated 8 deg */
+      const G = [],
+        put = (g, hex, x, yy, zz, rx, ry, rz) => G.push(part(g, hex, x, yy, zz, rx, ry, rz)),
+        el = 0.14;
+      put(cyl(0.05, 0.06, 0.5, 8), STEEL, 0, 0.25, 0);
+      put(bx(0.35, 0.08, 0.5), GUNM, 0.05, 0.52, 0);
+      for (const k of [-0.11, 0.11]) {
+        put(bx(0.62, 0.16, 0.11), GUNM, 0.0, 0.62, k) /* the receiver */;
+        put(bx(0.12, 0.1, 0.1), 0x2c2e2c, -0.36, 0.6, k) /* the back plate */;
+        for (const g of [-0.04, 0.04]) put(cyl(0.012, 0.012, 0.16, 5), 0x3a2a1a, -0.46, 0.57, k + g, 0, 0, Math.PI / 2) /* spade grips */;
+        put(cyl(0.032, 0.032, 0.42, 10), 0x30322f, 0.5, 0.64, k, 0, 0, -Math.PI / 2) /* the barrel jacket */;
+        for (const q of [0.36, 0.46, 0.56, 0.66]) put(cyl(0.034, 0.034, 0.025, 10), 0x1c1d1c, q, 0.64, k, 0, 0, -Math.PI / 2) /* its cooling holes */;
+        put(cyl(0.019, 0.019, 0.85, 8), GUNM, 1.12, 0.64, k, 0, 0, -Math.PI / 2) /* the heavy barrel */;
+        put(cyl(0.03, 0.026, 0.09, 8), 0x1c1d1c, 1.56, 0.64, k, 0, 0, -Math.PI / 2) /* the muzzle */;
+        put(bx(0.16, 0.04, 0.1), 0x9a8a50, 0.0, 0.66, k + Math.sign(k) * 0.1, 0, 0, 0.2) /* the belt feeding in from outboard */;
+      }
+      put(new THREE.TorusGeometry(0.08, 0.008, 4, 14), GUNM, 0.25, 0.86, 0, 0, Math.PI / 2, 0) /* the ring sight */;
+      /* the curved ammunition trays (Mk 17 plan in the References): one each side round the inside of the ring, from abeam the
+         guns aft, rounds showing, the belt chutes up into the guns; they turn with the mount, not with the guns' elevation */
+      const TR = [];
+      for (const k of [-1, 1])
+        for (let i = 0; i < 9; i++) {
+          const a = k * (0.75 + i * 0.2),
+            cx = Math.cos(a) * 0.6,
+            cz = -Math.sin(a) * 0.6;
+          TR.push(part(bx(0.13, 0.22, 0.19), 0x4a4f38, cx, 0.76, cz, 0, a, 0));
+          TR.push(part(bx(0.11, 0.03, 0.17), 0x9a8a50, cx, 0.88, cz, 0, a, 0));
+        }
+      for (const k of [-1, 1]) TR.push(part(bx(0.3, 0.05, 0.08), 0x9a8a50, 0.1, 1.05, -k * 0.3, 0, -k * 0.5, 0.35));
+      put(cyl(0.006, 0.006, 0.18, 4), GUNM, 0.25, 0.77, 0);
+      const M = new THREE.Matrix4().compose(
+        new THREE.Vector3(X(s) + Math.cos(yaw) * 0.1, y + 0.62, z - Math.sin(yaw) * 0.1),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, el, 'YXZ')),
+        new THREE.Vector3(1, 1, 1),
+      );
+      for (const q of G) (q.m = new THREE.Matrix4().multiplyMatrices(M, q.m)), P.push(q);
+      const My = GX.xf(X(s), y, z, yaw);
+      for (const q of TR) (q.m = new THREE.Matrix4().multiplyMatrices(My, q.m)), P.push(q);
+    };
+    turret(7.45, -1.15, 0.4);
+    turret(12.4, 1.4, -0.2);
+    /* her late-war guns (NavSource: one single 40 mm, one 37 mm, one 20 mm and the two twin .50s):
+       the single 40 mm Bofors on the stern trained aft (the PCE's 40 mm model with one barrel, its pointer, trainer and loader) on a
+       round deck plate; the 20 mm Oerlikon moved up onto the after end of the day cabin roof, trained aft over the Bofors; the
+       37 mm M4 (the P-39's cannon on a pedestal) on the forward deck */
+    const put = (Q, T) => {
+      for (const q of Q) (q.m = q.m ? new THREE.Matrix4().multiplyMatrices(T, q.m) : T.clone()), P.push(q);
+    };
+    const s40 = 1.85,
+      y40 = dy(s40, 0);
+    C(1.12, 1.12, 0.06, STEEL, X(s40), y40 + 0.03, 0, 0, 0, 0, 24);
+    if (PCEM.single40) put(PCEM.single40(0.12), GX.xf(X(s40), y40 + 0.06, 0, Math.PI));
+    const s20 = 4.75;
+    if (PCEM.oer20pt) put(PCEM.oer20pt(), GX.xf(X(s20), dy(7.6, 0) + 0.64, 0.1, Math.PI));
+    {
+      /* the 37 mm (Mk 9 drawing in the References): built along +x about the trunnions 1.0 m up, elevated 0.12 rad, then placed.
+         The pedestal: a flanged deck ring with gussets, a cone, and a narrow yoke up to the trunnions. The gun: a long receiver, the
+         barrel 2 m ahead of the trunnions, the tall clip box standing on the receiver just aft of them, the shoulder yoke at the breech */
+      const s37 = 19.5,
+        y37 = dy(s37, 0),
+        G = [],
+        E = [],
+        g = (A, geo, hex, x, y, z, rx, ry, rz) => A.push(part(geo, hex, x, y, z, rx, ry, rz)),
+        HP = Math.PI / 2;
+      g(G, cyl(0.5, 0.5, 0.04, 24), STEEL, 0, 0.02, 0) /* the deck ring */;
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * 2 * Math.PI;
+        g(G, bx(0.16, 0.1, 0.03), GUNM, Math.cos(a) * 0.4, 0.07, Math.sin(a) * 0.4, 0, -a, 0) /* the gussets */;
+      }
+      g(G, cyl(0.17, 0.36, 0.3, 16), GUNM, 0, 0.19, 0) /* the cone */;
+      g(G, cyl(0.17, 0.17, 0.05, 16), STEEL, 0, 0.36, 0);
+      for (const k of [-1, 1]) g(G, bx(0.08, 0.62, 0.05), GUNM, 0, 0.68, k * 0.1, k * 0.12, 0, 0) /* the yoke arms */;
+      g(G, cyl(0.06, 0.06, 0.28, 10), STEEL, 0, 1.0, 0, HP, 0, 0) /* the trunnion boss */;
+      g(E, bx(1.25, 0.16, 0.16), 0x3a3d3a, -0.35, 0, 0) /* the receiver, from the breech forward past the trunnions */;
+      g(E, bx(0.9, 0.04, 0.12), 0x2c2e2c, -0.35, -0.11, 0) /* the slide under it */;
+      g(E, bx(0.18, 0.12, 0.12), 0x2c2e2c, -1.03, 0.02, 0) /* the back plate */;
+      g(E, cyl(0.05, 0.05, 0.45, 10), GUNM, 0.45, 0.02, 0, 0, 0, -HP) /* the recoil sleeve */;
+      g(E, cyl(0.03, 0.034, 2.0, 10), 0x30322f, 1.65, 0.02, 0, 0, 0, -HP) /* the barrel */;
+      g(E, cyl(0.04, 0.04, 0.08, 10), 0x1c1d1c, 2.62, 0.02, 0, 0, 0, -HP);
+      /* the clip box: tall, banded, standing on the receiver */
+      g(E, bx(0.3, 0.6, 0.2), 0x4a4f38, -0.36, 0.38, 0);
+      for (const y of [0.15, 0.62]) g(E, bx(0.32, 0.04, 0.22), STEEL, -0.36, y, 0);
+      for (let i = 0; i < 3; i++) g(E, cyl(0.025, 0.025, 0.2, 6), 0x9a8a50, -0.46 + i * 0.1, 0.7, 0, HP, 0, 0) /* rounds showing */;
+      /* the shoulder yoke behind the breech, the hand grip and trigger, a ring sight on the left */
+      g(E, bx(0.05, 0.05, 0.44), STEEL, -1.18, -0.02, 0);
+      for (const k of [-1, 1]) {
+        g(E, new THREE.TorusGeometry(0.08, 0.025, 5, 10, Math.PI), 0x262626, -1.2, 0.06, k * 0.22, 0, HP, -HP);
+        g(E, bx(0.3, 0.035, 0.035), STEEL, -1.05, -0.02, k * 0.2);
+      }
+      g(E, cyl(0.018, 0.018, 0.18, 5), 0x262626, -0.85, -0.18, 0.08, 0, 0, 0.3);
+      g(E, bx(0.04, 0.2, 0.04), GUNM, -0.15, 0.18, -0.16);
+      g(E, new THREE.TorusGeometry(0.09, 0.008, 4, 16), GUNM, -0.15, 0.3, -0.16, 0, HP, 0);
+      const Te = new THREE.Matrix4().compose(new THREE.Vector3(0, 1.0, 0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0.12)), new THREE.Vector3(1, 1, 1));
+      for (const q of E) (q.m = new THREE.Matrix4().multiplyMatrices(Te, q.m)), G.push(q);
+      const Tm = GX.xf(X(s37), y37, 0, 0);
+      put(G, Tm);
+      /* the gunner leaning into the rests, and his loader with a round */
+      if (PCEM.crew) {
+        put(PCEM.crew(-1.5, 0, 0, 0, 'lean', 'rests'), Tm);
+        put(PCEM.crew(-0.5, 0, 0.75, -0.5, 'stand', 'round'), Tm);
+      }
+    }
+    man(0.9, 1.4, Math.PI, dy(0.9, 1.4));
+    /* the tow bitt, the smoke generator, cleats and chocks */
+    C(0.12, 0.14, 0.5, STEEL, X(0.7), dy(0.7, 0) + 0.25, 0);
+    C(0.18, 0.12, 0.06, STEEL, X(0.7), dy(0.7, 0) + 0.52, 0);
+    C(0.27, 0.27, 1.05, 0x6b6b5e, X(0.45), dy(0.45, -2.2) + 0.3, -2.2, Math.PI / 2, 0, 0);
+    for (const [s, z] of [
+      [23.6, 0],
+      [20.5, 1.7],
+      [20.5, -1.7],
+      [3.5, 2.6],
+      [3.5, -2.6],
+    ])
+      B(0.3, 0.1, 0.1, STEEL, X(s), dy(s, z) + 0.06, z);
+    /* the crew's hatch and the forward deck's dorades */
+    B(0.8, 0.12, 0.8, DARK, X(20.9), dy(20.9, 0) + 0.06, 0);
+    for (const z of [-0.9, 0.9]) C(0.09, 0.09, 0.35, GREEN, X(18.2), dy(18.2, z) + 0.17, z);
+    /* the exhausts in the transom, the three screws on their struts, three rudders */
+    for (const z of [-2.1, -1.4, -0.6, 0.6, 1.4, 2.1]) C(0.1, 0.1, 0.12, DARK, X(0) - 0.02, 0.35, z, 0, 0, Math.PI / 2, 10);
+    for (const z of [-1.25, 0, 1.25]) {
+      C(0.045, 0.045, 4.0, STEEL, X(2.6), -0.95, z, 0, 0, Math.PI / 2 - 0.08, 8);
+      C(0.33, 0.33, 0.06, 0xb08a40, X(0.75), -1.1, z, 0, 0, Math.PI / 2, 14);
+      B(0.55, 0.62, 0.04, STEEL, X(0.15), -1.0, z);
+      B(0.12, 0.55, 0.06, STEEL, X(1.4), -0.75, z, 0, 0, 0.5);
+    }
+
+    /* ---- more of her fittings ---- */
+    const ck2 = dy(12.2, 0),
+      ch2 = dy(14.6, 0),
+      top = ch2 + 1.27;
+    /* running lights on the chart house sides in their screens (red port, green starboard), the searchlight and the siren */
+    for (const [z, hex] of [
+      [-1.36, 0xd02020],
+      [1.36, 0x20c040],
+    ]) {
+      B(0.3, 0.22, 0.03, GREEN, X(15.9), ch2 + 1.0, z + Math.sign(z) * 0.05);
+      B(0.1, 0.12, 0.08, hex, X(15.95), ch2 + 1.0, z + Math.sign(z) * 0.1);
+    }
+    C(0.16, 0.18, 0.26, GUNM, X(15.6), top + 0.25, 0.6, 0, 0, Math.PI / 2, 12);
+    C(0.14, 0.14, 0.02, 0xfff4c8, X(15.6) + 0.14, top + 0.25, 0.6, 0, 0, Math.PI / 2, 12);
+    C(0.05, 0.07, 0.2, STEEL, X(15.6), top + 0.08, 0.6);
+    C(0.05, 0.11, 0.3, 0x8a8a7a, X(13.5) + 0.12, top + 2.5, 0, 0, 0, -Math.PI / 2, 8);
+    /* the stern staff and the radio aerial from the masthead to it */
+    const ss = [X(0.15), dy(0.15, -0.4), -0.4];
+    C(0.03, 0.02, 1.9, 0x8a8a7a, ss[0], ss[1] + 0.95, ss[2]);
+    const wire = (a, b) => {
+      const dx = b[0] - a[0],
+        dyy = b[1] - a[1],
+        dz = b[2] - a[2],
+        len = Math.hypot(dx, dyy, dz),
+        m = new THREE.Matrix4().lookAt(new THREE.Vector3(...a), new THREE.Vector3(...b), new THREE.Vector3(0, 1, 0)),
+        q = new THREE.Quaternion().setFromRotationMatrix(m).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)),
+        e = new THREE.Euler().setFromQuaternion(q);
+      C(0.008, 0.008, len, 0x202020, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2, e.x, e.y, e.z, 4);
+    };
+    wire([X(13.5), top + 3.9, 0], [ss[0], ss[1] + 1.85, ss[2]]);
+    wire([X(13.5), top + 3.4, 0], [X(17.2), dy(17.2, 0) + 0.1, 0]);
+    /* the anchor on the forward deck, its chain to the hawse, a mushroom vent or two */
+    const sa = 21.9,
+      ya = dy(sa, 0);
+    B(1.1, 0.07, 0.09, STEEL, X(sa), ya + 0.05, 0.35);
+    B(0.07, 0.07, 0.75, STEEL, X(sa) - 0.5, ya + 0.05, 0.35);
+    B(0.25, 0.05, 0.05, STEEL, X(sa) - 0.5, ya + 0.08, 0.04, 0, 0.6, 0);
+    B(0.25, 0.05, 0.05, STEEL, X(sa) - 0.5, ya + 0.08, 0.66, 0, -0.6, 0);
+    for (let i = 0; i < 9; i++) B(0.09, 0.05, 0.05, 0x404040, X(sa + 0.65 + i * 0.12), dy(sa + 0.65 + i * 0.12, 0.2) + 0.03, 0.35 - i * 0.04, 0, (i % 2) * 1.57, 0);
+    C(0.12, 0.12, 0.06, STEEL, X(23.4), dy(23.4, 0) + 0.03, 0);
+    for (const [sv, z] of [
+      [17.3, 0],
+      [9.0, 1.8],
+      [9.0, -1.8],
+    ]) {
+      C(0.05, 0.05, 0.12, STEEL, X(sv), dy(sv, z) + 0.06, z);
+      C(0.13, 0.13, 0.05, STEEL, X(sv), dy(sv, z) + 0.13, z);
+    }
+    /* hatch hinges and dogs on the trunk and the crew's hatch */
+    const tk2 = dy(7.6, 0);
+    for (const sh of [6.6, 8.3]) {
+      C(0.025, 0.025, 1.0, STEEL, X(sh) - 0.5, tk2 + 0.73, 0.1, Math.PI / 2, 0, 0, 6);
+      B(0.08, 0.04, 0.04, STEEL, X(sh) + 0.45, tk2 + 0.74, 0.1);
+    }
+    C(0.025, 0.025, 0.75, STEEL, X(20.9) - 0.4, dy(20.9, 0) + 0.13, 0, Math.PI / 2, 0, 0, 6);
+    /* a life ring on the trunk side, extinguishers by the cockpit and the engine hatch, a boat hook on the trunk */
+    T(0.3, 0.07, 0xe8e2d0, X(9.4), tk2 + 0.32, 1.26, 0, 0, 0);
+    for (const q of [0, 1, 2, 3]) B(0.08, 0.15, 0.03, 0xc84020, X(9.4) + Math.cos(q * 1.57) * 0.3, tk2 + 0.32 + Math.sin(q * 1.57) * 0.3, 1.29);
+    for (const [sx, z, y] of [
+      [11.3, -1.0, ck2],
+      [4.3, 0.95, tk2],
+    ])
+      C(0.08, 0.08, 0.45, 0xb02020, X(sx), y + 0.23, z);
+    C(0.02, 0.02, 3.2, 0x8a6a44, X(7.6), tk2 + 0.67, -0.85, 0, 0, Math.PI / 2, 6);
+    /* ammunition ready lockers by the turrets */
+    B(0.6, 0.45, 0.4, 0x4f5a42, X(9.1), dy(9.1, -2.0) + 0.23, -2.0);
+    B(0.6, 0.45, 0.4, 0x4f5a42, X(13.9), dy(13.9, 2.0) + 0.23, 2.0);
+    /* in the cockpit: the binnacle hood, voice tubes and the radio */
+    S(0.12, 0x9a8a50, X(13.1), ck2 + 1.18, -0.6, 1, 0.6, 1);
+    for (const z of [-0.3, -0.42]) C(0.035, 0.035, 0.8, 0x9a8a50, X(13.18), ck2 + 0.6, z);
+    B(0.4, 0.35, 0.3, 0x3a4038, X(11.5), ck2 + 0.55, 0.9);
+    /* the smoke generator's valve wheel and the transom's underwater exhaust boxes */
+    T(0.1, 0.015, 0xb02020, X(0.45), dy(0.45, -2.2) + 0.3, -1.62, 0, 0, 0);
+    for (const k of [-1, 1]) B(0.6, 0.25, 0.35, GUNM, X(0.3), 0.15, k * 2.55);
+    return P;
+  }
+  /* the rub rail along the sheer, the toe rail on the deck edge and the spray rails along the chines: lofted strips */
+  function rails() {
+    const S = { rub: [], toe: [], spr: [] },
+      Q = (a, A, B, C, D) => a.push(...A, ...B, ...C, ...A, ...C, ...D),
+      N = 48;
+    for (let i = 0; i < N; i++) {
+      const s0 = 0.05 + ((L - 0.4) * i) / N,
+        s1 = 0.05 + ((L - 0.4) * (i + 1)) / N;
+      for (const k of [1, -1]) {
+        const o = (s, d, y) => [X(s), y, k * (hb(s) + d)];
+        /* the rub rail: a half-round wooden fender just below the deck edge */
+        Q(S.rub, o(s0, 0.07, yd(s0) - 0.04), o(s0, 0.07, yd(s0) - 0.16), o(s1, 0.07, yd(s1) - 0.16), o(s1, 0.07, yd(s1) - 0.04));
+        Q(S.rub, o(s0, 0.0, yd(s0) - 0.01), o(s0, 0.07, yd(s0) - 0.04), o(s1, 0.07, yd(s1) - 0.04), o(s1, 0.0, yd(s1) - 0.01));
+        Q(S.rub, o(s0, 0.07, yd(s0) - 0.16), o(s0, 0.0, yd(s0) - 0.19), o(s1, 0.0, yd(s1) - 0.19), o(s1, 0.07, yd(s1) - 0.16));
+        /* the toe rail on the deck edge */
+        Q(S.toe, o(s0, -0.03, yd(s0)), o(s0, -0.03, yd(s0) + 0.07), o(s1, -0.03, yd(s1) + 0.07), o(s1, -0.03, yd(s1)));
+        /* the spray rail along the chine, forward of amidships */
+        if (s0 > 10 && bc(s1) > 0.05) {
+          const c = (s, d, y) => [X(s), y, k * (bc(s) + d)];
+          Q(S.spr, c(s0, 0, yc(s0)), c(s0, 0.1, yc(s0) + 0.02), c(s1, 0.1, yc(s1) + 0.02), c(s1, 0, yc(s1)));
+        }
+      }
+    }
+    const geo = (a) => {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(a, 3));
+      g.computeVertexNormals();
+      return g;
+    };
+    return [GX.part(geo(S.rub), 0x4a3a28, 0, 0, 0), GX.part(geo(S.toe), 0x8a7a5a, 0, 0, 0), GX.part(geo(S.spr), GREEN, 0, 0, 0)];
+  }
+  /* her paint, worked in the shader from the model-space position and the part's colour (no textures to load): planked plywood
+     topsides with salt streaks, a black boot top and grime along the waterline; plywood deck panels with non-skid speckle and
+     worn walkways; mottled anti-fouling with a scum line; weathering on the fittings */
+  /* the torpedoes: bare steel and bronze under a coat of cosmoline that weathers to a dull brass */
+  const TORP = 0x6c5f3b,
+    TD = [];
+  function paint(mat) {
+    const v = (n) => [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255].map((x) => x.toFixed(5)).join(', ');
+    mat.onBeforeCompile = (sh) => {
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vMp;\nvarying vec3 vMn;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvMp = position;\nvMn = normal;');
+      sh.fragmentShader = sh.fragmentShader
+        .replace(
+          '#include <common>',
+          `#include <common>
+varying vec3 vMp;
+varying vec3 vMn;
+float pH(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float pN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(pH(i), pH(i + vec2(1.0, 0.0)), f.x), mix(pH(i + vec2(0.0, 1.0)), pH(i + vec2(1.0, 1.0)), f.x), f.y); }
+float pF(vec2 p){ return 0.5 * pN(p) + 0.25 * pN(p * 2.03 + 7.1) + 0.125 * pN(p * 4.1 + 3.3) + 0.0625 * pN(p * 8.3 + 1.7); }
+float pL(float u, float s){ float f = fract(u / s); return min(f, 1.0 - f) * s; }
+bool pIs(vec3 c, vec3 k){ return distance(c, k) < 0.012; }`,
+        )
+        .replace(
+          '#include <color_fragment>',
+          `#include <color_fragment>
+{
+  vec3 c = vColor;
+  vec3 N = normalize(vMn);
+  float m = 1.0;
+  if (pIs(c, vec3(${v(GREEN)})) && abs(N.y) < 0.6 && abs(vMp.z) > 1.6 && vMp.y < 2.5) {
+    /* topsides: the planking's seams faint under the paint, salt streaks running down, grime and the boot top at the waterline */
+    m *= 1.0 - 0.07 * (1.0 - smoothstep(0.004, 0.012, pL(vMp.y + 0.03 * vMp.x, 0.2)));
+    m *= 1.0 - 0.06 * (1.0 - smoothstep(0.004, 0.012, pL(vMp.x, 2.44)));
+    m *= 0.92 + 0.12 * pF(vec2(vMp.x * 0.8, vMp.y * 3.0));
+    float st = smoothstep(0.62, 0.9, pN(vec2(vMp.x * 6.0, vMp.y * 0.35))) * smoothstep(0.0, 1.0, vMp.y);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.82, 0.84, 0.8), st * 0.25);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.2, 0.22, 0.14), (1.0 - smoothstep(0.1, 0.55, vMp.y)) * 0.45 * (0.6 + 0.4 * pN(vMp.xz * 2.0)));
+    if (vMp.y < 0.17 && vMp.y > -0.02) diffuseColor.rgb = vec3(0.06, 0.065, 0.06);
+  } else if (pIs(c, vec3(${v(DECK)}))) {
+    /* the deck: 4 x 8 ft plywood panels, non-skid speckle, a worn walkway down each side of the trunk */
+    float d = min(pL(vMp.x + 0.3, 2.44), pL(vMp.z + 0.2, 1.22));
+    m *= 1.0 - 0.25 * (1.0 - smoothstep(0.004, 0.012, d));
+    m *= 0.9 + 0.2 * pH(floor(vMp.xz * 90.0)) * 0.6 + 0.08 * pF(vMp.xz * 1.5);
+    float walk = smoothstep(0.7, 0.0, abs(abs(vMp.z) - 1.75)) * smoothstep(-11.0, -6.0, vMp.x) * smoothstep(6.0, 2.0, vMp.x);
+    m *= 1.0 + 0.12 * walk * pN(vMp.xz * 3.0);
+    m *= 1.0 - 0.12 * smoothstep(0.6, 0.9, pN(vMp.xz * 5.0 + 3.0));
+  } else if (pIs(c, vec3(${v(RED)}))) {
+    /* the anti-fouling: mottled, darker toward the keel, a scum line of weed at the waterline */
+    m *= 0.86 + 0.24 * pF(vec2(vMp.x * 1.2, vMp.z * 1.2 + vMp.y * 4.0));
+    m *= 0.8 + 0.2 * smoothstep(-0.9, 0.0, vMp.y);
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.22, 0.28, 0.14), smoothstep(-0.25, 0.0, vMp.y) * 0.55 * pN(vMp.xz * 4.0));
+  } else {
+    /* paint wear and grime on the cabins, tubes and fittings */
+    m *= 0.9 + 0.16 * pF(vMp.xy * 3.0 + vMp.zz * 2.0);
+    if (pIs(c, vec3(${v(TORP)}))) {
+      /* cosmoline: a dull waxy brass, runs and drips streaking along the body, darker dirty smears, a little green verdigris */
+      float rn = pN(vec2(vMp.x * 1.5, vMp.y * 11.0 + vMp.z * 11.0));
+      m *= 0.82 + 0.22 * pF(vMp.xy * 4.0 + vMp.zz * 3.0) + 0.1 * smoothstep(0.5, 0.95, rn);
+      m *= 0.92 + 0.1 * smoothstep(-0.3, 0.8, N.y);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.25, 0.2, 0.12), smoothstep(0.62, 0.85, pN(vMp.xz * 3.0 + vMp.yy * 4.0)) * 0.45);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.36, 0.44, 0.32), smoothstep(0.78, 0.95, pN(vMp.xy * 9.0 + 5.0)) * 0.3);
+    }
+    if (pIs(c, vec3(${v(TUBE)}))) {
+      m *= 1.0 + 0.12 * smoothstep(0.0, 1.0, N.y);
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.42, 0.26, 0.14), smoothstep(0.8, 0.95, pN(vec2(vMp.x * 5.0, vMp.y * 14.0))) * 0.25);
+    }
+  }
+  diffuseColor.rgb *= m;
+}`,
+        );
+    };
+  }
+  /* the hull number on each bow (white on green), drawn on a canvas */
+  function number(txt) {
+    const c = document.createElement('canvas');
+    c.width = 128;
+    c.height = 64;
+    const g = c.getContext('2d');
+    g.fillStyle = '#eceae0';
+    g.font = 'bold 50px Arial';
+    g.textAlign = 'center';
+    g.fillText(txt, 64, 50);
+    const mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }),
+      grp = new THREE.Group();
+    for (const k of [1, -1]) {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.7), mat),
+        s = 20.3;
+      m.position.set(X(s), yd(s) - 0.55, k * (hb(s) + 0.03));
+      m.rotation.y = k > 0 ? 0.1 : Math.PI - 0.1;
+      grp.add(m);
+    }
+    return grp;
+  }
+  /* the shark mouths on the torpedoes' noses, as on the Mustang: a skin just over the nose and the front of the body (a lathe of the
+     nose's profile, u round the body, v along it from the tip) carrying a canvas with a mouth and an eye on each side */
+  let SHK = null;
+  function sharkTex() {
+    if (SHK) return SHK;
+    /* drawn in the body's own terms so the mouth wraps round the nose: d metres aft of the tip, y up, phi round the body (phi 0 to
+       starboard, pi/2 down, pi to port, 3pi/2 up, as the lathe lays u). The mouth is a band between the lips' heights, open at the
+       tip where the two sides meet, closing to its corners 0.95 m aft; the teeth along both lips; an eye above each corner, along
+       the body, its forward end lower */
+    const W = 1024,
+      H = 512,
+      L = 1.4,
+      R = 0.291,
+      c = document.createElement('canvas');
+    c.width = W;
+    c.height = H;
+    const g = c.getContext('2d'),
+      rad = (d) => (d < 0.42 ? R * Math.sqrt(Math.max(0, 1 - (1 - d / 0.42) * (1 - d / 0.42))) : R),
+      DC = 0.95,
+      yU = (d) => 0.11 - 0.14 * Math.pow(Math.min(1, d / DC), 1.3),
+      yL = (d) => -0.17 + 0.14 * Math.pow(Math.min(1, d / DC), 0.8),
+      /* chart pixel of a point d aft, y up, on the starboard (side 1) or port (side -1) of the body */
+      PX = (d, y, side) => {
+        const r = rad(d),
+          q = Math.asin(Math.max(-1, Math.min(1, -y / r))),
+          phi = side > 0 ? q : Math.PI - q;
+        return [(((phi / (2 * Math.PI)) % 1) + 1) % 1 * W, (d / L) * H];
+      };
+    /* the mouth, pixel by pixel: black under the upper lip shading to red in the throat */
+    const img = g.createImageData(W, H),
+      D = img.data;
+    for (let j = 0; j < H; j++) {
+      const d = ((j + 0.5) / H) * L;
+      if (d > DC) break;
+      const r = rad(d),
+        u0 = yU(d),
+        l0 = yL(d);
+      for (let i = 0; i < W; i++) {
+        const phi = ((i + 0.5) / W) * 2 * Math.PI,
+          y = -r * Math.sin(phi);
+        if (y > u0 || y < l0) continue;
+        const t = (u0 - y) / Math.max(1e-4, u0 - l0),
+          k = 4 * (j * W + i),
+          m = Math.min(1, Math.max(0, (t - 0.35) / 0.3));
+        D[k] = 10 + m * 185;
+        D[k + 1] = 9 + m * 12;
+        D[k + 2] = 9 + m * 22;
+        D[k + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    /* a lip on one side: from where it comes over the top (upper) or under the bottom (lower) of the nose back to the corner */
+    const lip = (yf, side, n) => {
+      const out = [];
+      let d0 = 0.002;
+      while (d0 < DC && Math.abs(yf(d0)) >= rad(d0)) d0 += 0.002;
+      for (let i = 0; i <= n; i++) {
+        const d = d0 + (DC - d0) * Math.pow(i / n, 1.25);
+        out.push(PX(d, yf(d), side));
+      }
+      return out;
+    };
+    const draw = (fn) => {
+      for (const off of [0, W, -W]) {
+        g.save();
+        g.translate(off, 0);
+        fn();
+        g.restore();
+      }
+    };
+    for (const side of [1, -1]) {
+      const U = lip(yU, side, 16),
+        Lo = lip(yL, side, 14);
+      /* keep each lip on one copy of the chart (no jump across the seam) */
+      for (const A of [U, Lo]) for (let i = 1; i < A.length; i++) if (Math.abs(A[i][0] - A[i - 1][0]) > W / 2) A[i][0] += A[i][0] < A[i - 1][0] ? W : -W;
+      const teeth = (A, dir, L0) => {
+        for (let i = 2; i < A.length - 1; i++) {
+          const a = A[i],
+            b = A[i + 1],
+            mx = (a[0] + b[0]) / 2,
+            my = (a[1] + b[1]) / 2,
+            dx = b[0] - a[0],
+            dy = b[1] - a[1],
+            l = Math.hypot(dx, dy) || 1,
+            len = Math.min(L0 * (0.55 + 0.45 * (1 - i / A.length)) * (i % 2 ? 0.8 : 1), l * 1.6);
+          /* point toward the mouth: down the body for the upper teeth, up for the lower; phi grows downward to starboard */
+          let nx = -dy / l,
+            ny = dx / l;
+          if (Math.sign(nx) !== dir * side) (nx = -nx), (ny = -ny);
+          g.beginPath();
+          g.moveTo(...a);
+          g.lineTo(mx + nx * len, my + ny * len);
+          g.lineTo(...b);
+          g.closePath();
+          g.fillStyle = '#f4f1e4';
+          g.fill();
+          g.lineWidth = 2.5;
+          g.strokeStyle = '#0c0c0c';
+          g.stroke();
+        }
+      };
+      draw(() => {
+        teeth(U, 1, 30);
+        teeth(Lo, -1, 26);
+        for (const A of [U, Lo]) {
+          g.beginPath();
+          g.moveTo(...A[0]);
+          for (const q of A) g.lineTo(...q);
+          g.lineWidth = 6;
+          g.strokeStyle = '#0c0c0c';
+          g.lineJoin = 'round';
+          g.stroke();
+        }
+      });
+      /* the eye: an almond along the body above the corner, the forward end lower, the pupil forward under the lid */
+      const qb = (p0, p1, p2, t) => [(1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]];
+      const F = [0.6, 0.13],
+        B2 = [0.86, 0.2],
+        top = [0.71, 0.27],
+        bot = [0.76, 0.12],
+        E = [];
+      for (let i = 0; i <= 12; i++) E.push(PX(...qb(F, top, B2, i / 12), side));
+      for (let i = 12; i >= 0; i--) E.push(PX(...qb(F, bot, B2, i / 12), side));
+      for (let i = 1; i < E.length; i++) if (Math.abs(E[i][0] - E[0][0]) > W / 2) E[i][0] += E[i][0] < E[0][0] ? W : -W;
+      const pu = PX(0.69, 0.175, side);
+      if (Math.abs(pu[0] - E[0][0]) > W / 2) pu[0] += pu[0] < E[0][0] ? W : -W;
+      draw(() => {
+        g.beginPath();
+        g.moveTo(...E[0]);
+        for (const q of E) g.lineTo(...q);
+        g.closePath();
+        g.fillStyle = '#f4f1e4';
+        g.fill();
+        g.lineWidth = 4;
+        g.strokeStyle = '#0c0c0c';
+        g.stroke();
+        g.beginPath();
+        g.ellipse(pu[0], pu[1], 9, 13, 0, 0, 7);
+        g.fillStyle = '#0c0c0c';
+        g.fill();
+      });
+    }
+    SHK = new THREE.CanvasTexture(c);
+    SHK.anisotropy = 4;
+    return SHK;
+  }
+  function sharks() {
+    const r = 0.291,
+      L = 1.4,
+      n = 28,
+      pts = [];
+    for (let i = n; i >= 0; i--) {
+      const d = (i / n) * L,
+        e = Math.min(1, d / 0.42),
+        rr = d < 0.42 ? r * Math.sqrt(Math.max(0, 1 - (1 - e) * (1 - e))) : r;
+      pts.push(new THREE.Vector2(Math.max(rr, 0.004), -d));
+    }
+    const geo = new THREE.LatheGeometry(pts, 40);
+    geo.rotateZ(-Math.PI / 2);
+    const mat = new THREE.MeshLambertMaterial({ map: sharkTex(), transparent: true, alphaTest: 0.3, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }),
+      grp = new THREE.Group();
+    for (const [x, y, z] of TD) {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x + 0.002, y, z);
+      m.renderOrder = 1;
+      grp.add(m);
+    }
+    return grp;
+  }
+  /* her bow wave, the wake and the rooster tail: sheets of foam (a speckled texture fading away from the boat) */
+  let FOAM = null;
+  function foamTex() {
+    if (FOAM) return FOAM;
+    const c = document.createElement('canvas');
+    c.width = 256;
+    c.height = 64;
+    const g = c.getContext('2d');
+    for (let i = 0; i < 2600; i++) {
+      const u = Math.random(),
+        v = Math.random(),
+        a = (1 - u) * (1 - u) * (1 - Math.abs(v - 0.5) * 1.6) * (0.35 + Math.random() * 0.65);
+      if (a <= 0) continue;
+      g.fillStyle = 'rgba(255,255,255,' + a.toFixed(3) + ')';
+      g.beginPath();
+      g.arc(u * 256, v * 64, 1 + Math.random() * 3.5 * (1 - u * 0.6), 0, 6.3);
+      g.fill();
+    }
+    FOAM = new THREE.CanvasTexture(c);
+    return FOAM;
+  }
+  function spray() {
+    const mat = new THREE.MeshBasicMaterial({ map: foamTex(), transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+      g = new THREE.Group(),
+      /* a quad: a, b at the boat (u = 0), c, d at the far end (u = 1) */
+      quad = (a, b, c, d) => {
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.Float32BufferAttribute([...a, ...b, ...c, ...a, ...c, ...d], 3));
+        geo.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0], 2));
+        const m = new THREE.Mesh(geo, mat);
+        m.renderOrder = 2;
+        return m;
+      };
+    for (const k of [1, -1]) {
+      /* the bow wave peeling off the chine and curling out */
+      g.add(quad([X(17.5), 0.15, k * 2.75], [X(16.5), 0.75, k * 3.3], [X(6), 0.9, k * 6.0], [X(7), 0.05, k * 4.2]));
+      /* the wake: an arm opening astern on each side */
+      g.add(quad([X(0.3), 0.06, k * 0.6], [X(0.3), 0.06, k * 3.0], [X(-55), 0.06, k * 20], [X(-55), 0.06, k * 6]));
+    }
+    /* the rooster tail off the three screws */
+    g.add(quad([X(0), 0.2, -1.5], [X(0), 0.2, 1.5], [X(-16), 2.2, 0.8], [X(-16), 2.2, -0.8]));
+    g.add(quad([X(-16), 2.2, -0.8], [X(-16), 2.2, 0.8], [X(-34), 0.06, 2.4], [X(-34), 0.06, -2.4]));
+    return g;
+  }
+  function build(num) {
+    TD.length = 0;
+    const a = new GX.Acc();
+    a.add(hull(), null);
+    a.add(rails(), null);
+    a.add(details(), null);
+    const m = new THREE.Mesh(a.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+    m.material.userData.cs = 1;
+    paint(m.material);
+    const grp = new THREE.Group();
+    grp.add(m, number(num || '105'), sharks());
+    const sp = spray();
+    grp.add(sp);
+    grp.userData.spray = sp;
+    return grp;
+  }
+  /* the high-speed target sled: a wooden planing sled about 9 m long, upturned at the bow, on two skids, carrying a canvas screen
+     on a wooden frame painted with a destroyer's silhouette, a flag staff and the towing bridle. Origin at the screen's centre
+     (so the hit box sits on the target), the sled's bottom 1.5 m below it */
+  function sled() {
+    const P = [],
+      { part, bx, cyl } = GX,
+      B = (sx, sy, sz, hex, x, y, z, rx, ry, rz) => P.push(part(bx(sx, sy, sz), hex, x, y, z, rx, ry, rz)),
+      C = (r1, r2, h, hex, x, y, z, rx, ry, rz) => P.push(part(cyl(r1, r2, h, 8), hex, x, y, z, rx, ry, rz)),
+      WOOD = 0x8a6a44,
+      y0 = -1.5;
+    B(8.0, 0.3, 3.4, WOOD, -0.5, y0 + 0.15, 0);
+    B(1.6, 0.3, 3.4, WOOD, 4.1, y0 + 0.45, 0, 0, 0, 0.42) /* the upturned bow */;
+    for (const z of [-1.5, 1.5]) B(9.2, 0.22, 0.22, 0x5e4a30, 0, y0 - 0.02, z);
+    for (const x of [-3.8, -1.3, 1.2]) B(0.2, 0.12, 3.5, 0x6e5434, x, y0 + 0.36, 0);
+    /* the screen: posts, battens and the canvas, with the silhouette of a destroyer on it */
+    for (const x of [-4.0, -1.3, 1.4, 3.6]) C(0.08, 0.1, 3.4, WOOD, x, y0 + 1.95, 0);
+    for (const y of [y0 + 0.75, y0 + 3.55]) B(8.0, 0.12, 0.12, WOOD, -0.2, y, 0);
+    B(7.8, 2.7, 0.05, 0xdcd8c8, -0.2, y0 + 2.15, 0);
+    const SIL = 0x34383c;
+    for (const k of [0.04, -0.04]) {
+      B(7.2, 0.5, 0.02, SIL, -0.2, y0 + 1.05, k);
+      B(1.0, 0.45, 0.02, SIL, 2.2, y0 + 1.5, k);
+      B(1.5, 0.7, 0.02, SIL, 0.9, y0 + 1.65, k);
+      B(0.45, 0.85, 0.02, SIL, -0.2, y0 + 1.7, k);
+      B(0.45, 0.75, 0.02, SIL, -1.2, y0 + 1.65, k);
+      B(0.08, 1.6, 0.02, SIL, 0.6, y0 + 2.4, k);
+      B(1.0, 0.35, 0.02, SIL, -2.6, y0 + 1.45, k);
+    }
+    /* the flag staff with a red flag, the bridle to the tow line */
+    C(0.04, 0.04, 2.0, 0x8a8a7a, -4.2, y0 + 4.3, 1.4);
+    B(0.02, 0.5, 0.8, 0xd02a20, -4.6, y0 + 5.0, 1.4);
+    for (const z of [-1.4, 1.4]) C(0.025, 0.025, 2.4, 0x2a2a24, 4.9 + 1.0, y0 + 0.75, z * 0.5, Math.PI / 2 + Math.sign(z) * 0.95, 0, Math.PI / 2);
+    const a = new GX.Acc();
+    a.add(P, null);
+    const m = new THREE.Mesh(a.geometry(), new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+    m.material.userData.cs = 1;
+    return m;
+  }
+  return { build, sled, L, X, yd, hb, dy, BITT: [X(0.7), dy(0.7, 0) + 0.45, 0] };
+})();
 /* ---------- airfield dressing ---------- */
 /* the wake every ship at sea uses: ONE flat quad with ONE shared painted texture (bow spray along the hull, a churned white trail, and two foam
    lines spreading back at the classic Kelvin angle). Drawn for a 78 m ship; k scales it to other lengths. */
@@ -4366,9 +7327,22 @@ function this_t(o) {
     for (const s of [-1, 1]) P.push(part(cyl(0.3, 0.3, 0.9, 10), 0x4a4d50, 8.8, dk(8.8) + 0.45, s * 3.4), part(cyl(0.24, 0.42, 0.45, 10), 0x303236, 8.8, dk(8.8) + 1.0, s * 3.4, 0, 0, 0.4 * s));
     return P;
   };
-  AFLD.addShip(freighter('us'), 95, 1500, 3800, 6.5, 1);
-  AFLD.addShip(tanker('us'), 112, 2500, 6500, 5.5, 2);
-  AFLD.addShip(pce(), 56, 2000, 5000, 7.5, 3, -8.15, 0.6); /* the US Navy PCE; waterline at the sea plane */
+  /* the allied ships are the detailed PCE-842 and PT-105 models (built from the plans, as in the PCE-842 game); more hulls just wear another number on the bow */
+  const allied = (kind, num, L, r0, r1, sp, seed) => {
+    if (!AFLD.addShip([], L, r0, r1, sp, seed, -8.15, kind === 'pt' ? 0.4 : 0.6)) return; /* waterline at the sea plane */
+    const o = AFLD.a[AFLD.a.length - 1];
+    if (kind === 'pce') {
+      o.m.geometry.dispose();
+      o.m.geometry = PCEM.build(num);
+      o.m.material = PCEM.material;
+      PCEM.flags(o.m);
+      try { PCEM.mounts(o.m); } catch (e) { console.warn('PCE guns', e); }
+    } else o.m.add(PTB.build(num));
+  };
+  allied('pt', '105', 24.4, 1500, 3800, 14, 1);
+  allied('pce', '843', 56.2, 2500, 6500, 6.5, 2);
+  allied('pce', '842', 56.2, 2000, 5000, 7.5, 3); /* the US Navy PCE off the home airfield */
+  allied('pt', '106', 24.4, 3000, 5500, 13, 4);
   AFLD.hullSteps = hullSteps;
   AFLD.models = { freighter, tanker, patrol, pce, fighter, ki84, fuelTruck, cargoTruck, jeep, tug, crew, drums }; /* the port and the airbase reuse these models */
   /* soft contact shadows under everything parked */
