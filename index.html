@@ -519,6 +519,7 @@ Top bar: &#9776; missions &middot; &#9208; menu &middot; &#128247; camera &middo
 <tr><td>ADF Navigation (mission) and Kamome Field</td><td>A small island airfield, <b>Kamome Field</b>, lies 43 km out over the sea to the north-north-west of your airfield (fog hides it until you are within about 15 km). It has a 1,300 m runway, 07 / 25 (heading 070 / 250), a tower, two hangars and a radio beacon, <b>KMM</b>. The <b>ADF radio compass</b> (the round dial on the right) has a red needle that always points at the beacon: the top of the dial is your nose, so the needle straight up means you are flying at the station. Needle to the right: turn right. A crosswind drifts you, so correct a few degrees toward the needle and do not chase it. The dial also shows the beacon bearing, distance and flying time. In free flight, click the dial to switch between KMM and your own field (HOM). The <b>ADF Navigation</b> mission starts you high over your airfield pointed the wrong way and coaches you in five steps: point at the beacon, home on the needle, let down and look for the island, pass over the station (the needle swings to the tail), then land on the runway. The ADF can be hidden in the pause menu (Instruments). Beyond the mapped land the world is open sea.</td></tr>
 <tr><td>Port and airbase (free flight)</td><td>A harbour and a second airbase sit on the north coast, about 7.8 km from your airfield. The port has a quay and pier with a freighter, a tanker, a patrol boat, a Ukuru-class escort (kaib&#333;kan) that patrols up and down the coast off the port, two cranes, warehouses, fuel tanks and vehicles. The airbase has a runway, taxiway and apron with nine parked fighters, hangars, fuel tanks and vehicles, defended by guns and a searchlight at each site. They appear only in free flight; no missions use them yet. The whole airfield is fenced, with guard towers, a control tower and a gravel yard for the buildings. A road runs from the port past the airbase gate to the depot where the convoy starts, and another from the second base, where the convoy ends, back to the port. No road reaches your airfield. Red squares on the map and the compass point to the targets.</td></tr>
 <tr><td>Roam camera</td><td>Press <b>Y</b> to let go of the chase camera: the mouse then moves the camera like photo mode (left-drag looks, right-drag moves along the ground, middle-drag moves up and down, wheel moves in and out; hold the backtick key ` for six times bigger steps) while the flight carries on with all the usual keys. Y again, or C, returns to the chase camera.</td></tr>
+<tr><td>Enemy fighter</td><td>The Nakajima Ki-84-Ia Hayate (Allied code name &ldquo;Frank&rdquo;), the Army&rsquo;s best fighter of 1944&ndash;45: 11.24 m span, 9.92 m long, four-blade 3.1 m propeller, two 12.7 mm guns in the cowl and two 20 mm cannon in the wings. Shape taken from scale drawings, markings after the 11th Sentai&rsquo;s &ldquo;White 46&rdquo;, the one survivor. The same model flies as the bandits and sits parked on the enemy airfields, in P-51 Mustang FS and PCE-842 alike.</td></tr>
 <tr><td>Targets</td><td>The compass shows the nearest target in red (T), home in white (H) and the nearest bandit in pink (B). Fuel tanks and tankers explode. Hull damage from enemy hits shows on the left panel.</td></tr>
 </table></div>
 </div>
@@ -589,7 +590,7 @@ const _el = {},
                            tolerated; corrupt saved data is reported and ignored.
    logWarn(what, e)      - optional browser features (wake lock, vibration, fullscreen, audio...): a failure is logged, never fatal. */
 /* VERSION: major.minor. The user decides when the major number changes; the minor number goes up with every change. */
-const VERSION = '5.29';
+const VERSION = '5.34';
 document.querySelectorAll('.verTag').forEach((e) => (e.textContent = 'Version ' + VERSION));
 const logWarn = (what, e) => console.warn('[P-51] ' + what + ':', (e && e.message) || e);
 const store = {
@@ -2324,6 +2325,476 @@ const GX = (() => {
   }
   return { M4, V3, Q, E, cyl, bx, sph, part, xf, Acc };
 })();
+/* ===== THE KI-84 HAYATE: the Nakajima Ki-84-Ia "Frank" (Army Type 4 Fighter), one model shared by P-51 Mustang FS and PCE-842 =====
+   Keep this block identical in both games: an improvement made in one is copied to the other.
+   Built to the published figures: span 11.238 m, length 9.92 m, wing area 21.0 m^2 (tapered wing, 6 deg dihedral, rounded tips),
+   Ha-45 eighteen-cylinder radial in a 1.3 m cowl, four-blade 3.10 m propeller (brown, yellow tips), two 12.7 mm Ho-103 in the cowl,
+   two 20 mm Ho-5 in the wings, bubble canopy, tall fin. Paint: Army olive green above, grey-green below, yellow-orange IFF
+   strips on the inner leading edges, red hinomaru, white fuselage band.
+   Frame: x forward along the thrust line, y up, z to starboard; origin at the centre of gravity (2.9 m behind the spinner tip).
+   Shape measured off the Kagero 1/32 drawings and the US 3-view in PCE-842/References/Ki-84; markings after the 11th Sentai's
+   White 46 (s/n 1446, the surviving aircraft now at Chiran): red spinner, lightning bolt on the fin.
+   KI84.parts(o)   -> GX parts in the flying frame (o.gear 'down' | 'up', o.body hex, o.spinner hex, o.prop false to leave the blades out,
+                      o.ang blade angle, o.tanks true for the two 200 l drop tanks)
+   KI84.blades(a)  -> the four blades and spinner around the prop hub, for a spinning group placed at KI84.HUB
+   KI84.parked(o)  -> the parts sitting on its wheels in the three-point attitude, wheels on y = 0, nose toward +x
+   KI84.CONTACT    -> [x, z] of the three wheels' ground contacts in that parked frame
+   KI84.mesh(o)    -> one vertex-coloured mesh of KI84.parts(o) */
+const KI84 = (() => {
+  const { part, Acc } = GX,
+    V3 = THREE.Vector3,
+    S0 = 2.9 /* centre of gravity, metres behind the spinner tip */,
+    X = (s) => S0 - s /* station (metres aft of the spinner tip) to x */,
+    lerpT = (T, s, k) => {
+      if (s <= T[0][0]) return T[0][k];
+      for (let i = 1; i < T.length; i++)
+        if (s <= T[i][0]) {
+          const a = T[i - 1],
+            b = T[i],
+            t = (s - a[0]) / (b[0] - a[0]),
+            u = t * t * (3 - 2 * t);
+          return a[k] + (b[k] - a[k]) * (0.5 * t + 0.5 * u);
+        }
+      return T[T.length - 1][k];
+    },
+    /* every triangle is turned to face out(p), the outward direction at its centre */
+    geo = (pos, idx, out) => {
+      if (out)
+        for (let k = 0; k < idx.length; k += 3) {
+          const a = idx[k] * 3,
+            b = idx[k + 1] * 3,
+            c = idx[k + 2] * 3,
+            ux = pos[b] - pos[a],
+            uy = pos[b + 1] - pos[a + 1],
+            uz = pos[b + 2] - pos[a + 2],
+            vx = pos[c] - pos[a],
+            vy = pos[c + 1] - pos[a + 1],
+            vz = pos[c + 2] - pos[a + 2],
+            o = out([(pos[a] + pos[b] + pos[c]) / 3, (pos[a + 1] + pos[b + 1] + pos[c + 1]) / 3, (pos[a + 2] + pos[b + 2] + pos[c + 2]) / 3]);
+          if ((uy * vz - uz * vy) * o[0] + (uz * vx - ux * vz) * o[1] + (ux * vy - uy * vx) * o[2] < 0) {
+            const t = idx[k + 1];
+            idx[k + 1] = idx[k + 2];
+            idx[k + 2] = t;
+          }
+        }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      return g;
+    },
+    /* a surface over a nu x nv grid of points f(i, j) */
+    grid = (nu, nv, f, out) => {
+      const pos = [],
+        idx = [];
+      for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) pos.push(...f(i / nu, j / nv));
+      for (let j = 0; j < nv; j++)
+        for (let i = 0; i < nu; i++) {
+          const a = j * (nu + 1) + i,
+            b = a + 1,
+            c = a + nu + 1,
+            d = c + 1;
+          idx.push(a, c, b, b, c, d);
+        }
+      return geo(pos, idx, out);
+    },
+    /* a flat disc laid on a surface: map(dx, dy) gives the point and the outward normal */
+    disc = (r, map, n, off) => {
+      /* in rings, so it follows the curve of the skin instead of cutting under it */
+      const n0 = map(0, 0)[1];
+      return grid(n || 24, 6, (u, v) => {
+        const [p, nn] = map(r * v * Math.cos(u * 2 * Math.PI), r * v * Math.sin(u * 2 * Math.PI));
+        const k = off || 0.008;
+        return [p[0] + nn[0] * k, p[1] + nn[1] * k, p[2] + nn[2] * k];
+      }, () => n0);
+    };
+
+  /* ---------- the fuselage: stations (s), half width, top and bottom (m, from the thrust line) ---------- */
+  /* measured off the Kagero 1/32 side and plan views (References/Ki-84): the forward decking rises from the cowl to the windscreen,
+     the spine stays high all the way to the fin, and the belly sweeps up behind the wing */
+  const FU = [
+      [0.55, 0.6, 0.6, -0.6],
+      [0.8, 0.645, 0.645, -0.645],
+      [1.5, 0.665, 0.665, -0.67],
+      [1.9, 0.65, 0.74, -0.7],
+      [2.5, 0.62, 0.82, -0.76],
+      [3.2, 0.58, 0.86, -0.78],
+      [4.2, 0.53, 0.84, -0.75],
+      [5.2, 0.46, 0.78, -0.6],
+      [6.5, 0.41, 0.74, -0.45],
+      [7.6, 0.32, 0.71, -0.34],
+      [8.5, 0.23, 0.67, -0.22],
+      [9.2, 0.12, 0.6, -0.1],
+      [9.62, 0.04, 0.5, 0.02],
+    ],
+    NS = 2.5 /* superellipse exponent of the sections */,
+    se = (c, n) => Math.sign(c) * Math.pow(Math.abs(c), 2 / n),
+    /* a point on the fuselage at station s, angle a (0 on top, + toward starboard), pushed out by o */
+    fpt = (s, a, o) => {
+      const hw = lerpT(FU, s, 1) + (o || 0),
+        yt = lerpT(FU, s, 2) + (o || 0),
+        yb = lerpT(FU, s, 3) - (o || 0),
+        ym = (yt + yb) / 2,
+        h = (yt - yb) / 2;
+      const c = Math.cos(a),
+        k = c > 0 ? 1 - 0.18 * c * c * Math.min(1, Math.max(0, (s - 4.6) / 2)) : 1;
+      return [X(s), ym + h * se(c, NS), k * hw * se(Math.sin(a), NS)];
+    },
+    fnorm = (s, a) => {
+      const p = fpt(s, a),
+        q = fpt(s, a + 0.01),
+        r = fpt(s + 0.01, a),
+        u = new V3(q[0] - p[0], q[1] - p[1], q[2] - p[2]),
+        v = new V3(r[0] - p[0], r[1] - p[1], r[2] - p[2]),
+        n = new V3().crossVectors(v, u).normalize();
+      const out = new V3(0, p[1] - (lerpT(FU, s, 2) + lerpT(FU, s, 3)) / 2, p[2]);
+      if (n.dot(out) < 0) n.negate();
+      return n.toArray();
+    },
+    fuse = (s0, s1, a0, a1, o, ns) =>
+      grid(ns || 40, Math.max(2, Math.round(((a1 - a0) / Math.PI) * 14)), (u, v) => fpt(s0 + (s1 - s0) * u, a0 + (a1 - a0) * v, o), (p) => {
+        const ss = S0 - p[0];
+        return [0, p[1] - (lerpT(FU, ss, 2) + lerpT(FU, ss, 3)) / 2, p[2]];
+      }),
+    /* a decal on the fuselage side: centred at station s, height y, on side sd */
+    fdecal = (r, s, y, sd, off) =>
+      disc(r, (dx, dy) => {
+        const ss = s - dx,
+          yt = lerpT(FU, ss, 2),
+          yb = lerpT(FU, ss, 3),
+          ym = (yt + yb) / 2,
+          h = (yt - yb) / 2,
+          c = Math.max(-1, Math.min(1, (y + dy - ym) / h)),
+          /* invert the superellipse for the angle that gives this height */
+          a = Math.acos(Math.sign(c) * Math.pow(Math.abs(c), NS / 2)) * sd;
+        return [fpt(ss, a), fnorm(ss, a)];
+      }, 24, off);
+
+  /* ---------- the wing family: an aerofoil swept along a planform (also the tailplane and the fin) ---------- */
+  const foil = (x, t) => 5 * t * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1036 * x * x * x * x),
+    camber = (x, m) => (x < 0.4 ? (m / 0.16) * (0.8 * x - x * x) : (m / 0.36) * (0.2 - 0.8 * x + x * x)),
+    /* W: { half span, root LE station, LE sweep (m per m), root chord, tip chord, tip round length, t root, t tip, camber, dihedral, root height } */
+    wpt = (W, z, u, up, inf) => {
+      const zt = W.b - W.tr,
+        k = Math.min(z, zt) / zt;
+      let c = W.c0 + (W.c1 - W.c0) * k,
+        le = W.le + W.sw * z;
+      if (z > zt) {
+        /* elliptic tip: the chord shrinks about its 40% line */
+        const e = Math.sqrt(Math.max(0.0004, 1 - Math.pow((z - zt) / W.tr, 2))),
+          mid = le + 0.4 * c;
+        c *= e;
+        le = mid - 0.4 * c;
+      }
+      const uc = (1 - Math.cos(u * Math.PI)) / 2,
+        t = W.t0 + (W.t1 - W.t0) * Math.min(1, z / W.b),
+        yy = c * (camber(uc, W.m) + (up ? 1 : -1) * (foil(uc, t) + (inf || 0) / c));
+      return { s: le + uc * c, y: W.y0 + Math.tan(W.dh) * z + yy, c, le };
+    },
+    /* map the wing's (span, chord, side) to the model frame; vertical surfaces (fin) turn the span to +y */
+    wxyz = (W, z, u, up, sd, inf) => {
+      const p = wpt(W, z, u, up, inf);
+      return W.vert ? [X(p.s), W.yb + z, p.y * (up ? 1 : 1)] : [X(p.s), p.y, sd * (W.z0 + z)];
+    },
+    wsurf = (W, sd, up, z0, z1, u0, u1, inf, nu, nv) =>
+      grid(nu || 16, nv || 18, (u, v) => wxyz(W, z0 + (z1 - z0) * v, u0 + (u1 - u0) * u, up, sd, inf), () => (W.vert ? [0, 0, up ? 1 : -1] : [0, up ? 1 : -1, 0])),
+    /* a decal on a wing surface at span z, chord fraction u */
+    wdecal = (W, r, z, uf, sd, up) =>
+      disc(r, (dx, dy) => {
+        const zz = z + dy,
+          p0 = wpt(W, zz, 0, up),
+          s = p0.le + uf * p0.c - dx,
+          u = Math.acos(Math.max(-1, Math.min(1, 1 - (2 * (s - p0.le)) / p0.c))) / Math.PI,
+          a = wxyz(W, zz, u, up, sd),
+          b = wxyz(W, zz + 0.02, u, up, sd),
+          c = wxyz(W, zz, Math.min(1, u + 0.02), up, sd),
+          n = new V3()
+            .crossVectors(new V3(b[0] - a[0], b[1] - a[1], b[2] - a[2]), new V3(c[0] - a[0], c[1] - a[1], c[2] - a[2]))
+            .normalize();
+        if ((up ? 1 : -1) * n.y < 0) n.negate();
+        return [a, n.toArray()];
+      }, 28);
+  /* the fin's half thickness at station s, height y */
+  const finZ = (s, y) => {
+    const z = Math.max(0.01, Math.min(FIN.b - 0.05, y - FIN.yb)),
+      p0 = wpt(FIN, z, 0, true),
+      xc = Math.max(0.002, Math.min(0.998, (s - p0.le) / p0.c)),
+      t = FIN.t0 + (FIN.t1 - FIN.t0) * (z / FIN.b);
+    return p0.c * foil(xc, t);
+  };
+  const WING = { b: 5.619, z0: 0, le: 2.15, sw: 0.03, c0: 2.5, c1: 1.15, tr: 0.45, t0: 0.16, t1: 0.09, m: 0.02, dh: (6 * Math.PI) / 180, y0: -0.45 },
+    TAIL = { b: 2.22, z0: 0, le: 8.15, sw: 0.03, c0: 1.1, c1: 0.85, tr: 0.45, t0: 0.11, t1: 0.08, m: 0, dh: 0, y0: 0.47 },
+    FIN = { b: 1.53, z0: 0, le: 7.7, sw: 0.85, c0: 2.22, c1: 0.92, tr: 0.42, t0: 0.1, t1: 0.08, m: 0, dh: 0, y0: 0, yb: 0.1, vert: true };
+
+  /* ---------- the propeller ---------- */
+  const HUB = X(0.42),
+    blade = () => {
+      /* one blade along +y: wide paddle, rounded tip, twisted, brown with a yellow tip (built as two parts) */
+      const R0 = 0.26,
+        R1 = 1.55,
+        sec = (u) => {
+          const r = R0 + (R1 - R0) * u,
+            c = (0.17 + 0.16 * Math.sin(Math.min(1, u * 1.25) * Math.PI * 0.85)) * (u > 0.88 ? Math.sqrt(Math.max(0.05, 1 - Math.pow((u - 0.88) / 0.12, 2))) : 1),
+            tw = 0.95 - 0.6 * u;
+          return { r, c, tw, t: 0.05 * (1 - 0.7 * u) + 0.012 };
+        },
+        side = (u0, u1, f) =>
+          grid(6, 10, (i, j) => {
+            const q = sec(u0 + (u1 - u0) * j),
+              cx = (i - 0.5) * q.c,
+              cy = f * q.t * (1 - Math.pow(2 * i - 1, 2)) * 0.5;
+            return [cy * Math.cos(q.tw) - cx * Math.sin(q.tw), q.r, cx * Math.cos(q.tw) + cy * Math.sin(q.tw)];
+          }, (p) => {
+            const q = sec(Math.max(0, Math.min(1, (p[1] - R0) / (R1 - R0))));
+            return [f * Math.cos(q.tw), 0, f * Math.sin(q.tw)];
+          });
+      return { brown: [side(0, 0.8, 1), side(0, 0.8, -1), side(0.83, 0.9, 1), side(0.83, 0.9, -1)], tip: [side(0.8, 0.83, 1), side(0.8, 0.83, -1), side(0.9, 1, 1), side(0.9, 1, -1)] };
+    },
+    BL = blade(),
+    PROPC = 0x2e2a22,
+    TIPC = 0xd9a91f;
+  const blades = (ang, spin) => {
+    const P = [];
+    for (let k = 0; k < 4; k++) {
+      const a = (ang || 0) + (k * Math.PI) / 2;
+      for (const g of BL.brown) P.push(part(g, PROPC, 0, 0, 0, a));
+      for (const g of BL.tip) P.push(part(g, TIPC, 0, 0, 0, a));
+    }
+    /* the spinner, a pointed cone about the hub */
+    P.push(part(new THREE.LatheGeometry([...Array(9)].map((_, i) => new THREE.Vector2(0.31 * Math.sin(((i / 8) * Math.PI) / 2) + 0.001, 0.42 - 0.58 * (i / 8))).reverse(), 18), spin == null ? 0xa82820 : spin, 0, 0, 0, 0, 0, -Math.PI / 2));
+    return P;
+  };
+
+  const parts = (o) => {
+    o = o || {};
+    const body = o.body == null ? 0x4f5b3a : o.body,
+      under = 0x9c9f93,
+      dark = 0x1d1e1b,
+      red = 0xb5141c,
+      white = 0xe2e1d8,
+      iff = 0xe08f22,
+      glass = 0x2f4655,
+      frame = body,
+      metal = 0x55585a,
+      line = (c) => (c === under ? 0x7d8076 : 0x3c4630),
+      P = [],
+      add = (g, hex, x, y, z, rx, ry, rz, sx, sy, sz) => P.push(part(g, hex, x || 0, y || 0, z || 0, rx, ry, rz, sx, sy, sz));
+    const A = 0.62 * Math.PI; /* the colour demarcation, a little below the side's widest point */
+    /* fuselage: olive top and sides, grey belly */
+    add(fuse(0.5, 9.62, -A, A, 0, 48), body);
+    add(fuse(0.5, 9.62, A, 2 * Math.PI - A, 0, 48), under);
+    /* tail cap and the cowl front: the engine's front row of cylinders behind the cowl lip */
+    add(new THREE.CircleGeometry(0.62, 24), dark, X(0.6), 0, 0, 0, Math.PI / 2);
+    add(new THREE.TorusGeometry(0.6, 0.035, 6, 30), 0x2a2b28, X(0.52), 0, 0, 0, Math.PI / 2);
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 9) * 2 * Math.PI;
+      add(new THREE.CylinderGeometry(0.075, 0.085, 0.22, 8), 0x3a3b38, X(0.72), 0.42 * Math.cos(a), 0.42 * Math.sin(a), Math.PI / 2 - a, 0, Math.PI / 2, 1, 1, 1);
+    }
+    add(new THREE.CylinderGeometry(0.2, 0.24, 0.12, 14), 0x2f302d, X(0.62), 0, 0, 0, 0, Math.PI / 2); /* reduction-gear case */
+    /* cowl gills: a slightly flared ring of flaps behind the cowl */
+    add(fuse(1.7, 1.9, -Math.PI, Math.PI, 0.012, 3), 0x3d4632);
+    for (let i = 0; i < 20; i++) {
+      const a = (i / 20) * 2 * Math.PI,
+        p = fpt(1.88, a, 0.012);
+      add(new THREE.BoxGeometry(0.2, 0.01, 0.012), 0x2c3324, p[0], p[1], p[2], -a, 0, 0);
+    }
+    /* anti-glare panel on top of the cowl, and the troughs of the two Ho-103 guns firing through the propeller */
+    add(fuse(0.75, 3.25, -0.33, 0.33, 0.004, 12), 0x23271d);
+    for (const z of [-0.14, 0.14]) {
+      add(new THREE.BoxGeometry(1.0, 0.03, 0.06), 0x111210, X(1.15), 0.65, z);
+      add(new THREE.CylinderGeometry(0.018, 0.018, 0.25, 6), 0x111210, X(0.62), 0.6, z, 0, 0, Math.PI / 2);
+    }
+    /* carburettor intake on top of the cowl lip, oil cooler under the chin */
+    add(new THREE.BoxGeometry(0.55, 0.1, 0.2), body, X(0.95), 0.66, 0);
+    add(new THREE.BoxGeometry(0.04, 0.07, 0.16), dark, X(0.68), 0.66, 0);
+    add(new THREE.BoxGeometry(0.66, 0.3, 0.44), under, X(1.8), -0.78, 0);
+    add(new THREE.BoxGeometry(0.04, 0.22, 0.38), dark, X(1.47), -0.8, 0);
+    /* exhausts: the Ha-45's individual thrust stacks, two banks a side, and the soot streak they leave along the fuselage */
+    for (const sd of [-1, 1]) {
+      for (let i = 0; i < 6; i++) {
+        const s = 1.93 + (i % 2) * 0.05,
+          y = 0.45 - i * 0.19,
+          a = Math.acos(Math.max(-1, Math.min(1, (y - 0.02) / 0.7))),
+          p = fpt(s, sd * a);
+        add(new THREE.CylinderGeometry(0.04, 0.045, 0.22, 6), 0x2b2522, p[0] - 0.08, p[1], p[2] + sd * 0.02, Math.PI / 2, 0, -0.5 * sd, 1, 1, 1);
+      }
+      add(fuse(2.0, 3.3, sd > 0 ? 1.2 : -1.8, sd > 0 ? 1.8 : -1.2, 0.004, 10), 0x434a38);
+    }
+    /* the canopy: windscreen, sliding hood and the fixed rear glazing over the cockpit */
+    const CAN = [
+        [3.19, 0.0, 0.3],
+        [3.65, 0.3, 0.31],
+        [4.2, 0.33, 0.32],
+        [4.75, 0.31, 0.31],
+        [5.0, 0.18, 0.27],
+        [5.25, 0.0, 0.2],
+      ],
+      cpt = (s, a, o) => {
+        const h = lerpT(CAN, s, 1) + (o || 0),
+          w = lerpT(CAN, s, 2) + (o || 0),
+          base = lerpT(FU, s, 2) - 0.05;
+        return [X(s), base + h * se(Math.cos(a), 2.2), w * se(Math.sin(a), 2.2)];
+      };
+    const cout = (p) => [0, p[1] - lerpT(FU, S0 - p[0], 2) + 0.05, p[2]];
+    add(grid(30, 14, (u, v) => cpt(3.19 + 2.06 * u, -Math.PI / 2 + Math.PI * v), cout), glass);
+    /* frames: the windscreen bow, the hood's front and rear bows, the rear section's bow, and the hood's top rail */
+    for (const s of [3.62, 3.72, 4.75, 5.0])
+      add(grid(1, 14, (u, v) => cpt(s + u * 0.04, -Math.PI / 2 + Math.PI * v, 0.012), cout), frame);
+    for (const sd of [-1, 1]) add(grid(20, 1, (u, v) => cpt(3.19 + 0.45 * u, sd * (0.55 + 0.06 * v), 0.01), cout), frame);
+    add(grid(26, 1, (u, v) => cpt(3.75 + 1.0 * u, -0.025 + 0.05 * v, 0.012), cout), frame);
+    /* the head armour and headrest inside the hood, the pilot's gunsight */
+    add(new THREE.BoxGeometry(0.06, 0.32, 0.34), 0x2a2c27, X(4.62), 1.0, 0);
+    add(new THREE.BoxGeometry(0.1, 0.1, 0.08), 0x1a1a1a, X(3.6), 1.0, 0);
+    /* the radio mast behind the canopy and the aerial wire to the fin */
+    add(new THREE.BoxGeometry(0.08, 0.84, 0.035), body, X(5.55), 1.17, 0, 0, 0, 0.08);
+    {
+      const a = new V3(X(5.55) - 0.03, 1.58, 0),
+        b = new V3(X(9.35), FIN.yb + FIN.b * 0.95, 0),
+        d = b.clone().sub(a);
+      add(new THREE.CylinderGeometry(0.005, 0.005, d.length(), 3), 0x111111, (a.x + b.x) / 2, (a.y + b.y) / 2, 0, 0, 0, Math.atan2(d.y, d.x) - Math.PI / 2);
+    }
+    /* markings on the fuselage: the hinomaru and the white band ahead of the tail */
+    for (const sd of [-1, 1]) {
+      add(fdecal(0.46, 6.23, 0.12, sd), white);
+      add(fdecal(0.4, 6.23, 0.12, sd, 0.016), red);
+    }
+    add(fuse(7.05, 7.35, -Math.PI, Math.PI, 0.004, 3), white);
+
+    /* ---------- the wings ---------- */
+    for (const sd of [-1, 1]) {
+      add(wsurf(WING, sd, true, 0, WING.b, 0, 1, 0, 22, 22), body);
+      add(wsurf(WING, sd, false, 0, WING.b, 0, 1, 0, 22, 22), under);
+      /* yellow-orange IFF strip along the leading edge, from the fuselage out to three-quarters of the span */
+      add(wsurf(WING, sd, true, 0.62, 4.4, 0, 0.09, 0.004, 4, 12), iff);
+      add(wsurf(WING, sd, false, 0.62, 4.4, 0, 0.07, 0.004, 4, 12), iff);
+      /* hinomaru on both faces near the tip (the upper ones without a surround, the lower ones too) */
+      add(wdecal(WING, 0.62, 3.96, 0.6, sd, true), red);
+      add(wdecal(WING, 0.62, 3.96, 0.6, sd, false), red);
+      /* hinge lines: the flaps inboard, the ailerons outboard, top and bottom */
+      for (const up of [true, false]) {
+        add(wsurf(WING, sd, up, 0.62, 3.0, 0.775, 0.785, 0.003, 1, 8), line(up ? body : under));
+        add(wsurf(WING, sd, up, 3.05, 5.15, 0.735, 0.745, 0.003, 1, 8), line(up ? body : under));
+        add(wsurf(WING, sd, up, 3.0, 3.05, 0.74, 1.0, 0.003, 4, 1), line(up ? body : under));
+      }
+      /* the 20 mm Ho-5 cannon: barrel and fairing out of the leading edge */
+      {
+        const z = 2.6,
+          p = wpt(WING, z, 0, true),
+          y = WING.y0 + Math.tan(WING.dh) * z - 0.02;
+        add(new THREE.CylinderGeometry(0.05, 0.055, 0.32, 10), body, X(p.s) + 0.08, y, sd * z, 0, 0, Math.PI / 2);
+        add(new THREE.CylinderGeometry(0.022, 0.022, 0.5, 8), 0x161616, X(p.s) + 0.4, y, sd * z, 0, 0, Math.PI / 2);
+      }
+      /* the landing light in the starboard leading edge, the pitot tube on the port wing */
+      if (sd > 0) {
+        const z = 3.55,
+          p = wpt(WING, z, 0, true);
+        add(new THREE.SphereGeometry(0.1, 10, 6), 0xd8e2e6, X(p.s) - 0.03, WING.y0 + Math.tan(WING.dh) * z, z, 0, 0, 0, 0.6, 0.6, 1.4);
+      } else {
+        const z = 4.2,
+          p = wpt(WING, z, 0, false);
+        add(new THREE.CylinderGeometry(0.012, 0.012, 0.6, 5), 0x8a8a86, X(p.s) + 0.2, WING.y0 + Math.tan(WING.dh) * z - 0.1, -z, 0, 0, Math.PI / 2);
+      }
+      /* navigation lights on the tips */
+      add(new THREE.SphereGeometry(0.04, 6, 4), sd > 0 ? 0x2a9a4a : 0xc0262a, X(wpt(WING, WING.b - 0.03, 0.35, true).s), WING.y0 + Math.tan(WING.dh) * (WING.b - 0.03), sd * (WING.b - 0.02));
+    }
+    /* the wing fillet under the fuselage, where the wing meets the belly */
+    add(fuse(2.35, 4.95, Math.PI * 0.75, Math.PI * 1.25, 0.02, 14), under);
+
+    /* ---------- the tail: tailplane with elevators, the fin and rudder ---------- */
+    for (const sd of [-1, 1]) {
+      add(wsurf(TAIL, sd, true, 0, TAIL.b, 0, 1, 0, 12, 12), body);
+      add(wsurf(TAIL, sd, false, 0, TAIL.b, 0, 1, 0, 12, 12), under);
+      for (const up of [true, false]) add(wsurf(TAIL, sd, up, 0.15, 1.9, 0.55, 0.565, 0.003, 1, 6), line(up ? body : under));
+    }
+    add(wsurf(FIN, 1, true, 0, FIN.b, 0, 1, 0, 12, 12), body);
+    add(wsurf(FIN, 1, false, 0, FIN.b, 0, 1, 0, 12, 12), body);
+    for (const up of [true, false]) add(wsurf(FIN, 1, up, 0.02, 1.2, 0.6, 0.615, 0.003, 1, 6), line(body));
+    /* the rudder's lower part, running down behind the tail cone */
+    add(new THREE.BoxGeometry(0.5, 0.22, 0.06), body, X(9.62), 0.1, 0);
+    /* the 11th Sentai's lightning bolt across the fin and rudder, red edged in white (o.unit false leaves it off).
+       Laid out in the fin's own coordinates (chord fraction, height fraction) and draped on its skin, so it stays on the fin. */
+    if (o.unit !== false) {
+      const PTS = [
+          [0.2, 0.42],
+          [0.52, 0.7],
+          [0.55, 0.5],
+          [0.9, 0.74],
+        ],
+        onFin = (u, h, sd, off) => {
+          const z = h * FIN.b,
+            p = wpt(FIN, z, 0, true),
+            xc = Math.max(0.002, Math.min(0.998, u)),
+            t = FIN.t0 + (FIN.t1 - FIN.t0) * h;
+          return [X(p.le + xc * p.c), FIN.yb + z, sd * (p.c * foil(xc, t) + off)];
+        };
+      for (const sd of [-1, 1])
+        for (const [w, c, off] of [
+          [0.05, white, 0.005],
+          [0.027, red, 0.01],
+        ])
+          for (let i = 0; i < 3; i++) {
+            const [u0, h0] = PTS[i],
+              [u1, h1] = PTS[i + 1],
+              /* the strip's width across its direction, in fin fractions (chord ~1.6 m, height 1.53 m) */
+              dl = Math.hypot((u1 - u0) * 1.6, (h1 - h0) * FIN.b),
+              nu = (-(h1 - h0) * FIN.b) / dl / 1.6,
+              nh = ((u1 - u0) * 1.6) / dl / FIN.b,
+              e = w / dl;
+            add(
+              grid(10, 1, (a, b) => {
+                const k = -e + (1 + 2 * e) * a,
+                  q = b - 0.5;
+                return onFin(u0 + (u1 - u0) * k + nu * w * q * 2, h0 + (h1 - h0) * k + nh * w * q * 2, sd, off);
+              }, () => [0, 0, sd]),
+              c,
+            );
+          }
+    }
+
+    /* ---------- undercarriage ---------- */
+    const MW = { s: 2.25, z: 1.75, top: -0.5, ax: -1.62, r: 0.33 };
+    if (o.gear !== 'up') {
+      for (const sd of [-1, 1]) {
+        const x = X(MW.s);
+        /* oleo leg and its torque link, the wheel with its hub, the door on the leg, and the open inner door */
+        add(new THREE.CylinderGeometry(0.06, 0.06, MW.top - MW.ax + 0.05, 8), 0x6c6f70, x, (MW.top + MW.ax) / 2, sd * (MW.z - 0.1));
+        add(new THREE.CylinderGeometry(0.045, 0.045, 0.38, 8), 0xb9bcbd, x, MW.ax + 0.24, sd * (MW.z - 0.1));
+        add(new THREE.BoxGeometry(0.14, 0.04, 0.03), 0x55585a, x - 0.08, MW.ax + 0.33, sd * (MW.z - 0.1), 0, 0, 0.6);
+        add(new THREE.CylinderGeometry(MW.r, MW.r, 0.17, 18), 0x161616, x, MW.ax, sd * MW.z, Math.PI / 2);
+        add(new THREE.CylinderGeometry(0.2, 0.2, 0.18, 14), metal, x, MW.ax, sd * MW.z, Math.PI / 2);
+        add(new THREE.BoxGeometry(0.62, 0.9, 0.025), under, x, MW.ax + 0.42, sd * (MW.z + 0.12));
+        add(new THREE.BoxGeometry(0.62, 0.02, 0.5), under, x, MW.top - 0.22, sd * 0.42, sd * 1.3);
+        /* the open wheel well under the wing */
+        add(wdecal(WING, 0.36, 0.95, 0.32, sd, false), 0x3a4048);
+      }
+      /* the tail wheel */
+      add(new THREE.CylinderGeometry(0.035, 0.035, 0.36, 6), 0x6c6f70, X(8.7), -0.3, 0, 0, 0, 0.25);
+      add(new THREE.CylinderGeometry(0.13, 0.13, 0.09, 14), 0x161616, X(8.75), -0.47, 0, Math.PI / 2);
+    } else {
+      /* gear up: the doors flush under the wing */
+      for (const sd of [-1, 1]) add(wdecal(WING, 0.36, 0.95, 0.32, sd, false), line(under));
+    }
+    /* drop tanks */
+    if (o.tanks)
+      for (const sd of [-1, 1]) {
+        add(new THREE.SphereGeometry(1, 14, 10), 0x8f9286, X(3.3), -1.02, sd * 2.0, 0, 0, 0, 1.15, 0.22, 0.22);
+        add(new THREE.BoxGeometry(0.4, 0.2, 0.04), 0x8f9286, X(3.25), -0.8, sd * 2.0);
+      }
+    if (o.prop !== false) for (const q of blades(o.ang, o.spinner)) P.push(part(q.g, q.hex, 0, 0, 0)), (P[P.length - 1].m = new THREE.Matrix4().makeTranslation(HUB, 0, 0).multiply(q.m));
+    return P;
+  };
+  /* three-point attitude: main wheels and tail wheel on the ground */
+  const MAIN = [X(2.25), -1.62 - 0.33],
+    TAILW = [X(8.75), -0.47 - 0.13],
+    ATT = Math.atan2(TAILW[1] - MAIN[1], MAIN[0] - TAILW[0]),
+    PARK = new THREE.Matrix4().makeTranslation(0, -(MAIN[1] * Math.cos(ATT) + MAIN[0] * Math.sin(ATT)), 0).multiply(new THREE.Matrix4().makeRotationZ(ATT));
+  /* where the wheels touch the ground in the parked frame: [x, z] of the two main wheels and the tail wheel */
+  const CONTACT = [MAIN, MAIN, TAILW].map(([x, y], i) => [x * Math.cos(ATT) - y * Math.sin(ATT), [1.75, -1.75, 0][i]]);
+  const parked = (o) => parts(Object.assign({}, o, { gear: 'down' })).map((q) => ({ g: q.g, hex: q.hex, m: q.m ? PARK.clone().multiply(q.m) : PARK.clone() }));
+  const mesh = (o, mat) => new THREE.Mesh(new Acc().add(parts(o)).geometry(), mat || new THREE.MeshLambertMaterial({ vertexColors: true }));
+  return { parts, blades, parked, mesh, CONTACT, HUB, ATT, S0, SPAN: 11.238, LEN: 9.92, WING, TAIL, FIN, X };
+})();
+/* ===== end of THE KI-84 HAYATE ===== */
 
 let TREES = null;
 const CLOUDS = [],
@@ -6889,45 +7360,9 @@ function this_t(o) {
       for (const s of [-1, 1]) P.push(part(cyl(0.3, 0.3, 2.4, 10), 0xa5aaaf, 0.4, Y - 0.88, s * 2.7, 0, 0, -Z));
     return P;
   };
-  /* a parked Nakajima Ki-84 Hayate: olive-green top, grey belly, red hinomaru, white tail band, orange wing-edge strips, nose toward +x */
-  const ki84 = (body, o) => {
-    o = o || {};
-    const P = [],
-      under = 0x9a9d90,
-      red = 0xb5141c,
-      steel = 0x2b2c27;
-    P.push(part(cyl(0.6, 0.28, 6.1), body, -0.65, Y, 0, 0, 0, -Z)); /* fuselage */
-    P.push(part(cyl(0.28, 0.1, 1.6), body, -4.45, Y + 0.05, 0, 0, 0, -Z)); /* tail cone */
-    P.push(part(bx(4.2, 0.2, 0.62), under, -0.8, Y - 0.5, 0)); /* grey belly */
-    P.push(part(cyl(0.7, 0.62, 1.25), steel, 3.0, Y, 0, 0, 0, -Z)); /* radial cowl */
-    P.push(part(cyl(0.725, 0.725, 0.14), 0x15150f, 2.85, Y, 0, 0, 0, -Z)); /* cooling-gill rings */
-    P.push(part(cyl(0.725, 0.725, 0.14), 0x15150f, 3.2, Y, 0, 0, 0, -Z));
-    P.push(part(new THREE.ConeGeometry(0.3, 0.75, 12), 0xdfe0da, 3.98, Y, 0, 0, 0, -Z)); /* white spinner */
-    for (const s of [-1, 1]) P.push(part(bx(0.7, 0.07, 0.07), steel, 2.0, Y - 0.1, s * 0.62)); /* exhaust stacks */
-    P.push(part(sph(), 0x27384a, -0.35, Y + 0.6, 0, 0, 0, 0, 1.25, 0.44, 0.4)); /* canopy */
-    for (const x of [-0.95, -0.35, 0.2]) P.push(part(bx(0.05, 0.5, 0.74), body, x, Y + 0.62, 0)); /* frame bars */
-    P.push(part(sph(), body, -2.5, Y + 0.45, 0, 0, 0, 0, 2.5, 0.3, 0.38)); /* long dorsal fairing */
-    P.push(part(KW.build(-5.62, 5.62), body, 0, 0, 0));
-    P.push(part(PT.build(-1.97, 1.97), body, 0.1, 0, 0)); /* tailplane */
-    for (const s of [-1, 1]) {
-      P.push(part(s > 0 ? KW.build(1.8, 4.8, 0, 0.17, 0.02) : KW.build(-4.8, -1.8, 0, 0.17, 0.02), 0xe39a2c, 0, 0, 0)); /* orange leading-edge strip */
-      P.push(part(cyl(0.56, 0.56, 0.04), red, -0.12, KW.top(3.9) + 0.012, s * 3.9)); /* hinomaru on the wing */
-      P.push(part(bx(0.12, 0.95, 0.12), 0x6d7176, 0.3, 0.58, s * 1.4));
-      P.push(wheel(0.3, s * 1.4, 0.4, 0.22));
-      P.push(part(bx(0.14, 0.5, 0.7), under, 0.3, Y - 0.75, s * 1.4));
-      P.push(part(cyl(0.34, 0.34, 0.05), red, -1.9, Y, s * 0.5, Z)); /* hinomaru on the fuselage */
-      P.push(part(bx(0.6, 0.18, 0.02), 0xdfe0da, -4.65, Y + 0.85, s * 0.07)); /* tail numerals, simplified */
-      P.push(part(bx(0.4, 0.18, 0.02), 0xdfe0da, -4.6, Y + 0.6, s * 0.07));
-    }
-    P.push(part(cyl(0.33, 0.33, 0.55), 0xdfe0da, -3.1, Y, 0, 0, 0, -Z)); /* white band ahead of the tail */
-    P.push(part(mkFin(-4.15, 0.45, 1.7, 0.8, 1.7, 0, 0.64), body, 0, Y + 0.05, 0, -Z)); /* fin, rooted in the fuselage */
-    P.push(part(mkFin(-4.15, 0.45, 1.7, 0.8, 1.7, 0.64, 1, 0.07), body, 0, Y + 0.05, 0, -Z)); /* rudder */
-    P.push(part(bx(0.08, 0.95, 0.08), 0x6d7176, -4.3, 0.88, 0)); /* tailwheel */
-    P.push(part(sph(), 0x151515, -4.3, 0.17, 0, 0, 0, 0, 0.17, 0.17, 0.17));
-    const a = o.ang || 0;
-    for (const k of [0, 1]) P.push(part(bx(0.07, 3.3, 0.22), 0x181818, 4.4, Y, 0, a + k * Z)); /* four blades */
-    return P;
-  };
+  /* a parked Nakajima Ki-84 Hayate: the shared model (THE KI-84 HAYATE block) on its wheels, tail down, nose toward +x */
+  const ki84 = (body, o) => KI84.parked({ body, ang: ((o && o.ang) || 0) * Math.PI });
+
   const fuelTruck = (c) => {
     const P = [];
     P.push(part(bx(7.2, 0.45, 2.2), 0x2d2f30, 0, 0.85, 0));
@@ -11892,7 +12327,7 @@ function killT(t) {
   if (t.type == 'fuel' || t.type == 'tanker') blast(t.c, t.type == 'fuel' ? 22 : 14, 40);
   if (!RPL.on && !RPL.busy) AF.target(t);
   if (t.kind !== 'veh' || trn.mode === 'convoy')
-    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : t.type == 'ship' ? 'SHIP SUNK' : t.type == 'plane' ? 'AIRCRAFT DESTROYED ON THE GROUND' : t.type == 'tower' ? 'CONTROL TOWER DESTROYED' : t.type == 'crane' ? 'CRANE DESTROYED' : t.type == 'aa25' ? 'FLAK GUN DESTROYED' : t.type == 'sl150' ? 'SEARCHLIGHT DESTROYED' : 'TARGET DESTROYED');
+    note(t.kind == 'bld' ? 'BUILDING DESTROYED' : t.kind == 'veh' ? 'VEHICLE DESTROYED' : t.type == 'ship' ? 'SHIP SUNK' : t.type == 'plane' ? 'AIRCRAFT DESTROYED ON THE GROUND' : t.type == 'tower' ? 'CONTROL TOWER DESTROYED' : t.type == 'crane' ? 'CRANE DESTROYED' : t.type == 'aa25' ? 'FLAK GUN DESTROYED' : t.type == 'coast12' ? 'COAST GUN KNOCKED OUT' : t.type == 'sl150' ? 'SEARCHLIGHT DESTROYED' : 'TARGET DESTROYED');
 }
 function blast(p, R, dmg) {
   EN.forEach((e) => {
@@ -12194,37 +12629,30 @@ egeo.setDrawRange(0, 0);
 const elines = new THREE.LineSegments(egeo, new THREE.LineBasicMaterial({ color: 0xff6a3a, fog: false }));
 elines.frustumCulled = false;
 scene.add(elines);
+/* the bandit is the shared Ki-84 Hayate (THE KI-84 HAYATE block), gear up, with its propeller in a group of its own that spins */
+const KI84GEO = {};
 function buildEnemy() {
   const g = new THREE.Group(),
     inner = new THREE.Group();
   g.add(inner);
-  const gm = new THREE.MeshLambertMaterial({ color: 0x4a5a46 }),
-    gy = new THREE.MeshLambertMaterial({ color: 0x9aa8b4 }),
-    yel = new THREE.MeshLambertMaterial({ color: 0xe8c020 }),
-    dk = new THREE.MeshLambertMaterial({ color: 0x222 }),
-    gl = new THREE.MeshLambertMaterial({ color: 0x6a8aa0, transparent: true, opacity: 0.7 });
-  const ad = (geo, m, x, y, z, p = inner) => {
-    const o = new THREE.Mesh(geo, m);
-    o.position.set(x, y, z);
-    p.add(o);
-    return o;
-  };
-  ad(new THREE.CylinderGeometry(0.12, 0.55, 8.4, 12).rotateX(Math.PI / 2), gm, 0, 0, 0);
-  ad(new THREE.CylinderGeometry(0.5, 0.55, 1.2, 12).rotateX(Math.PI / 2), yel, 0, 0, -4.2);
-  ad(new THREE.ConeGeometry(0.3, 0.7, 10).rotateX(-Math.PI / 2), dk, 0, 0, -5.05);
-  ad(new THREE.BoxGeometry(9.9, 0.16, 1.9), gm, 0, -0.2, 0.3);
-  [-1, 1].forEach((s) => ad(new THREE.BoxGeometry(1, 0.17, 1.9), yel, s * 4.45, -0.2, 0.3));
-  ad(new THREE.BoxGeometry(3.2, 0.1, 1), gm, 0, 0.05, 3.9);
-  ad(new THREE.BoxGeometry(0.1, 1.4, 1.2), gm, 0, 0.8, 3.8);
-  ad(new THREE.BoxGeometry(0.9, 0.35, 1.3), gy, 0, -0.6, 0.6);
-  ad(new THREE.SphereGeometry(0.5, 12, 8), gl, 0, 0.55, 0.1).scale.set(0.9, 0.75, 2.1);
+  if (!KI84GEO.air) {
+    KI84GEO.air = new GX.Acc().add(KI84.parts({ gear: 'up', prop: false })).geometry();
+    KI84GEO.prop = new GX.Acc().add(KI84.blades(0)).geometry();
+    KI84GEO.mat = new THREE.MeshLambertMaterial({ vertexColors: true });
+  }
+  /* the model's nose is +x; the bandit flies along -z */
+  const body = new THREE.Mesh(KI84GEO.air, KI84GEO.mat);
+  body.rotation.y = Math.PI / 2;
+  inner.add(body);
   const pilot = makePilot();
-  pilot.position.set(0, 0.2, 0.42);
+  pilot.position.set(0, 0.45, 1.2); /* in the seat under the hood */
   inner.add(pilot);
   const prop = new THREE.Group();
-  prop.position.set(0, 0, -5.4);
+  prop.position.set(0, 0, -KI84.HUB);
   inner.add(prop);
-  ad(new THREE.BoxGeometry(0.2, 3, 0.06), dk, 0, 0, 0, prop);
+  const pm = new THREE.Mesh(KI84GEO.prop, KI84GEO.mat);
+  pm.rotation.y = Math.PI / 2;
+  prop.add(pm);
   return { g, inner, prop, pilot };
 }
 function damageE(e, d) {
@@ -13800,6 +14228,26 @@ AA.hide = function () {
   const d = document.getElementById('dazzle');
   if (d) d.style.opacity = 0;
 };
+/* is the line from a to b clear of the hills? (the AA crews and the coast batteries need to see their target) */
+const _aaS = new THREE.Vector3();
+function aaSees(a, b) {
+  for (let k = 1; k < 24; k++) {
+    const f = k / 24,
+      x = a.x + (b.x - a.x) * f,
+      z = a.z + (b.z - a.z) * f,
+      y = a.y + (b.y - a.y) * f;
+    if (H(x, z) > y) return false;
+  }
+  return true;
+}
+/* the target the ground fire lays on and the test for a round that strikes it. P-51 Mustang FS: the player's aircraft; PCE-842 sets
+   its own (her hull) in THE AIR RAIDS block */
+AA.aimY = () => pos.y;
+AA.hit = (a, b) => {
+  if (a.distanceToSquared(pos) > 6400 || !segHit(a, b, pos, 6.5)) return false;
+  playerHit(AA.litT > 20 ? 4 : 2, 0.4); /* held in the beams for over 20 s: hit about twice as hard */
+  return true;
+};
 function updAA(dt) {
   if (!AA.on) return;
   AA.t += dt;
@@ -13915,14 +14363,13 @@ function updAA(dt) {
   const dzE = document.getElementById('dazzle');
   if (dzE) dzE.style.opacity = AA.dz * 0.55;
   /* ----- guns ----- */
-  const dmgS = 0.009 + DIFF.spread * 0.12;
   for (const g of AA.gun) {
     const dead = g.t.dead || (g.site && trn.mode !== 'free');
     if (g.site) g.grp.visible = trn.mode === 'free';
     let can = false,
       R = 1e9;
     const dx = pos.x - g.piv.x,
-      dy = pos.y - g.piv.y,
+      dy = AA.aimY() - g.piv.y /* the point they lay on: the aircraft, or the ship's hull */,
       dz = pos.z - g.piv.z;
     if (!dead) {
       R = Math.hypot(dx, dy, dz);
@@ -13932,7 +14379,9 @@ function updAA(dt) {
       }
       /* by day they see as far as the weather lets them; at night they need a beam on you (which reaches only as far as the weather lets it) or you close in */
       const sight = night < 0.35 ? gunVis : litAny > 0 ? Math.min(gunVis > 0 ? 2500 : 0, lightVis) : Math.min(800, gunVis);
-      can = hot && R < Math.min(2500, sight) && !g.occ && pos.y > H(pos.x, pos.z) + 2;
+      /* and they need a clear line to the target past the hills (checked once a second) */
+      if ((g.lt = (g.lt || 0) - dt) <= 0) (g.lt = 1), (g.los = aaSees(g.piv, _aaS.set(pos.x, AA.aimY(), pos.z)));
+      can = hot && R < Math.min(2500, sight) && !g.occ && g.los && AA.aimY() > H(pos.x, pos.z) + 2;
       g.v.lerp(vel, Math.min(1, 1.3 * dt));
       const tt = R / 840,
         ax = dx + g.v.x * tt * 0.9,
@@ -13943,7 +14392,7 @@ function updAA(dt) {
       if (can) {
         g.acq += dt;
         g.yaw = aaSlew(g.yaw, wy, 0.9, dt);
-        g.pit = Math.max(0.02, Math.min(1.45, aaSlew(g.pit, we, 0.7, dt)));
+        g.pit = Math.max(-0.17, Math.min(1.45, aaSlew(g.pit, we, 0.7, dt))) /* the Type 96 mount: -10 to +85 deg */;
       } else {
         g.acq = Math.max(0, g.acq - 2 * dt);
         g.pit = aaSlew(g.pit, 0.55, 0.3, dt);
@@ -13961,7 +14410,18 @@ function updAA(dt) {
           aaDir(g.yaw, g.pit, _aaF);
           _aaR.set(Math.cos(g.yaw), 0, -Math.sin(g.yaw));
           _aaU.crossVectors(_aaR, _aaF).normalize();
-          const s = dmgS * (0.7 + R / 900) + 16 / Math.max(R, 150) /* a floor of about 16 m: shell flight time, hand-cranked traverse and the crew's own guesswork */,
+          /* where the rounds go: the gun's own dispersion (about 2 mils) and the layers' (3: hand-cranked, on a shaking mount), plus the
+             crew's errors, which come from the target's motion, not from who is shooting at what: the lead (their guess of its speed
+             across the line of sight, about 35% out, times the shell's flight time), the lag of a hand-cranked mount tracking it (about
+             0.5 s of its angular rate) and
+             the range guess (15% out, in the shell's drop). A fast crossing aircraft comes out at tens of metres, a ship at a few. The
+             crews' skill follows the difficulty setting (low 1.6x, medium 1x, hard 0.8x the crew errors) */
+          const u = R > 1 ? 1 / R : 0,
+            vr = (g.v.x * dx + g.v.y * dy + g.v.z * dz) * u * u,
+            vp = Math.hypot(g.v.x - dx * vr, g.v.y - dy * vr, g.v.z - dz * vr),
+            tof = R / 840,
+            crew = 0.6 + DIFF.spread * 8,
+            s = Math.hypot(0.002, 0.003, crew * Math.hypot((0.35 * vp * tof) / Math.max(R, 50), (0.5 * vp) / Math.max(R, 50)), (crew * 0.15 * 4.9 * tof * tof) / Math.max(R, 50)),
             gz = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2,
             sg = g.bias,
             d = _aaF.clone().addScaledVector(_aaR, gz() * s + sg.x * 0.012).addScaledVector(_aaU, gz() * s + sg.y * 0.012).normalize(),
@@ -13996,10 +14456,7 @@ function updAA(dt) {
     b.v.y -= 9.8 * dt;
     b.p.addScaledVector(b.v, dt);
     let dead = b.t > 3.6 || b.p.y < H(b.p.x, b.p.z);
-    if (!dead && hot && a.distanceToSquared(pos) < 6400 && segHit(a, b.p, pos, 6.5)) {
-      dead = true;
-      playerHit(AA.litT > 20 ? 4 : 2, 0.4); /* held in the beams for over 20 s: hit about twice as hard */
-    }
+    if (!dead && hot && AA.hit(a, b.p)) dead = true; /* the target's own test: the aircraft, or the ship (see AA.hit) */
     if (dead && b.t > 3.5 && Math.random() < 0.3) fxAdd(b.p, 0x555555, 2, 7, 1.2, 0, false);
     if (dead) AA.bl.splice(i, 1);
   }
@@ -16229,6 +16686,314 @@ nearRoads(h.x, h.z);
   };
   return W;
 })();
+/* ===== THE COAST BATTERIES (Settings > Enable enemy: Shore or All) =====
+   Each Japanese port has a pair of 12 cm/45 3rd Year Type naval guns, the Navy's commonest coast-defence gun in the Pacific
+   (old destroyer guns, hand worked): 20.3 kg HE at 825 m/s, -7 to +33 deg, 15,000 m at 33 deg, 5 - 6 rounds a minute
+   (NavWeaps). Each sits in a sandbagged pit on the shore behind the harbour, with a shield and a crew of five (pointer, trainer,
+   loader, two ammunition handlers). They open fire when she comes inside about 14 km by day (3 km at night, where they can see her),
+   lead her by her course and speed at the moment of firing, and walk the fall of shot onto her: the first round is off by several
+   per cent of the range, and each spotted splash halves the error, down to the battery's limit (about 1% of the range, 3 mils in line). A shell that comes down inside
+   her hull is a hit (counted, like the strafing, until battle damage comes). The guns are targets: the 3"/50 knocks them out. */
+const COAST = {
+  G: [] /* guns: { grp, tur, bar, p (pivot), yaw, el, t (target entry), cd, er, ed, n, ... } */,
+  S: [] /* shells in flight */,
+  hits: 0,
+  msgT: 0,
+  MV: 825,
+  K: 1.26e-4 /* fitted: 15,000 m at 33 deg, as the GSPEC drag law */,
+  RLD: 11 /* seconds a round: 5 - 6 a minute */,
+  EL0: (-7 * Math.PI) / 180,
+  EL1: (33 * Math.PI) / 180,
+};
+{
+  const { part, bx, cyl, sph } = GX,
+    GREY = 0x6e7477 /* IJN gun grey */,
+    DK = 0x3b3f40,
+    BAG = [0xa8996a, 0x9c8d60, 0xb2a476, 0x958658],
+    UNI = 0x6d6a48 /* Navy landing-force green-khaki */,
+    SKIN = 0xc89a7a,
+    HELM = 0x4f5236;
+  /* a standing man (1.68 m) facing +x; arms: 0 at his sides, 1 working the handwheels, 2 carrying a shell at the chest */
+  const man = (x, z, yaw, arms) => {
+    const P = [],
+      c = Math.cos(yaw),
+      s = Math.sin(yaw),
+      at = (lx, y, lz, g, col, rx, ry, rz, sx, sy, sz) => P.push(part(g, col, x + lx * c + lz * s, y, z - lx * s + lz * c, rx, (ry || 0) + yaw, rz, sx, sy, sz));
+    for (const sd of [-1, 1]) {
+      at(0, 0.42, sd * 0.1, bx(0.16, 0.84, 0.15), UNI);
+      at(0.04, 0.05, sd * 0.1, bx(0.26, 0.1, 0.14), 0x2a2620);
+      at(0.02, 0.88, sd * 0.11, bx(0.18, 0.2, 0.17), 0x8a7d58) /* puttees and belt line */;
+    }
+    at(0, 1.13, 0, bx(0.24, 0.55, 0.42), UNI);
+    at(0, 1.52, 0, sph(10), SKIN, 0, 0, 0, 0.12, 0.13, 0.12);
+    at(0, 1.6, 0, sph(10), HELM, 0, 0, 0, 0.16, 0.09, 0.16);
+    for (const sd of [-1, 1])
+      if (arms === 1) at(0.22, 1.15, sd * 0.2, bx(0.42, 0.1, 0.1), UNI, 0, 0, -0.3);
+      else if (arms === 2) {
+        at(0.16, 1.12, sd * 0.2, bx(0.32, 0.1, 0.1), UNI);
+        if (sd > 0) at(0.3, 1.18, 0, cyl(0.06, 0.06, 0.62, 8), 0xb08a3a, Math.PI / 2) /* a 12 cm round, brass case */;
+      } else at(0, 1.05, sd * 0.25, bx(0.1, 0.55, 0.1), UNI);
+    return P;
+  };
+  /* the pit: an earth floor, a horseshoe of sandbags three courses high (open at the back), ready-use boxes and the two handlers */
+  const pit = () => {
+    const P = [part(cyl(4.4, 4.6, 0.6, 24), 0x7a7058, 0, -0.25, 0)];
+    let k = 0;
+    for (let row = 0; row < 3; row++)
+      for (let i = 0; i < 30; i++) {
+        const a = ((i + (row % 2) * 0.5) / 30) * 2 * Math.PI;
+        if (Math.cos(a) < -0.85) continue; /* the entrance at the back (-x) */
+        const r = 4.15 - row * 0.12;
+        P.push(part(bx(0.36, 0.27, 0.86), BAG[k++ % 4], r * Math.cos(a), 0.18 + row * 0.27, r * Math.sin(a), 0, -a, 0));
+      }
+    for (const sd of [-1, 1]) {
+      P.push(part(bx(0.9, 0.55, 0.6), 0x4d4a32, -2.6, 0.3, sd * 2.2));
+      P.push(...man(-2.0, sd * 2.4, sd > 0 ? -2.2 : 2.2, sd > 0 ? 2 : 0));
+    }
+    return P;
+  };
+  /* the gun on its pedestal, shield and platform: turns as a whole (yaw), nose toward +x */
+  const mount = () => [
+    part(cyl(0.55, 0.75, 1.0, 14), GREY, 0, 0.5, 0),
+    part(cyl(1.6, 1.6, 0.12, 20), DK, 0, 1.0, 0) /* the crew's platform */,
+    part(bx(1.3, 0.75, 0.9), GREY, 0.1, 1.35, 0) /* the cradle's carriage */,
+    /* the shield: a square box open at the back, its front plate, sides and roof joined at the edges, and the slot the barrel
+       elevates in */
+    part(bx(0.08, 1.75, 2.58), GREY, 1.05, 1.975, 0),
+    part(bx(1.24, 1.75, 0.08), GREY, 0.45, 1.975, 1.25),
+    part(bx(1.24, 1.75, 0.08), GREY, 0.45, 1.975, -1.25),
+    part(bx(1.24, 0.07, 2.58), GREY, 0.45, 2.885, 0),
+    part(bx(0.09, 0.95, 0.34), DK, 1.065, 1.95, 0),
+    part(cyl(0.22, 0.22, 0.06, 12), DK, 0.2, 1.3, 0.6, Math.PI / 2) /* elevating handwheel */,
+    part(cyl(0.22, 0.22, 0.06, 12), DK, 0.2, 1.3, -0.6, Math.PI / 2) /* training handwheel */,
+    part(bx(0.2, 0.25, 0.18), DK, 0.5, 2.1, -0.65) /* the pointer's telescope */,
+    ...man(-0.2, 0.95, 0, 1).map((q) => ((q.m = new THREE.Matrix4().makeTranslation(0, 1.06, 0).multiply(q.m)), q)) /* pointer */,
+    ...man(-0.2, -0.95, 0, 1).map((q) => ((q.m = new THREE.Matrix4().makeTranslation(0, 1.06, 0).multiply(q.m)), q)) /* trainer */,
+    ...man(-1.25, 0, 0, 2).map((q) => ((q.m = new THREE.Matrix4().makeTranslation(0, 1.06, 0).multiply(q.m)), q)) /* loader with a round */,
+  ];
+  /* the barrel (5.55 m), the breech and the recoil cylinder: elevates about the trunnions */
+  const barrel = () => [
+    part(new THREE.LatheGeometry([new THREE.Vector2(0.001, 0), new THREE.Vector2(0.19, 0), new THREE.Vector2(0.19, 1.3), new THREE.Vector2(0.13, 1.6), new THREE.Vector2(0.1, 5.2), new THREE.Vector2(0.115, 5.35), new THREE.Vector2(0.115, 5.55), new THREE.Vector2(0.06, 5.55)], 14), GREY, -1.0, 0, 0, 0, 0, -Math.PI / 2),
+    part(bx(0.45, 0.42, 0.42), DK, -1.1, 0, 0) /* breech ring and Welin block */,
+    part(cyl(0.08, 0.08, 1.9, 8), GREY, 0.0, 0.27, 0, 0, 0, Math.PI / 2) /* recoil cylinder over the barrel */,
+    part(cyl(0.12, 0.12, 0.5, 10), DK, 0, 0, 0, Math.PI / 2) /* trunnions */,
+  ];
+  const mat = () => new THREE.MeshLambertMaterial({ vertexColors: true });
+  const G = { pit: new GX.Acc().add(pit()).geometry(), mount: new GX.Acc().add(mount()).geometry(), barrel: new GX.Acc().add(barrel()).geometry() };
+  /* one gun at (x, z) on the shore, facing the sea along yaw (world: 0 = +x... as GX.xf) */
+  COAST.add = (x, z, yaw) => {
+    const y = H(x, z),
+      grp = new THREE.Group();
+    grp.position.set(x, y, z);
+    grp.rotation.y = yaw;
+    grp.add(new THREE.Mesh(G.pit, mat()));
+    const tur = new THREE.Group(),
+      bar = new THREE.Group();
+    tur.add(new THREE.Mesh(G.mount, mat()));
+    bar.position.set(0, 1.62, 0);
+    bar.add(new THREE.Mesh(G.barrel, mat()));
+    tur.add(bar);
+    grp.add(tur);
+    scene.add(grp);
+    const t = { m: grp, lit: null, c: grp.position, r: 3.2, hp: 40, hp0: 40, type: 'coast12', dead: false, s1: 2, col: 0x6e7477, kind: 'aa' };
+    T.push(t);
+    const g = { grp, tur, bar, t, p: new THREE.Vector3(x, y + 1.62 + 1.06 * 0, z), yaw: 0, el: 0.05, cd: Math.random() * 6, er: 0, ed: 0, n: 0, rec: 0, home: yaw, smoke: 0 };
+    g.p.y = y + 1.62;
+    COAST.G.push(g);
+    return g;
+  };
+  /* the battery of a port: two guns on land either side of the harbour, a little back from the water, clear of the buildings */
+  COAST.port = (F, rnd, taken, use) => {
+    const SEA = typeof OCEAN !== 'undefined' ? OCEAN.Y : -8; /* P-51 Mustang FS paints its sea at -8 m and has no OCEAN */
+    const [x0, z0] = F.w(0, 0),
+      [x1, z1] = F.w(0, 100),
+      seaYaw = Math.atan2(-(z1 - z0), x1 - x0);
+    for (const side of [-1, 1]) {
+      let best = null;
+      for (let du = 0; du <= 240 && !best; du += 15)
+        for (let d = 40; d >= -170 && !best; d -= 10) {
+          const u = side * (175 + du);
+          if (taken(u, d, 7)) continue;
+          const [x, z] = F.w(u, d);
+          const h = H(x, z);
+          if (h < SEA + 3) continue;
+          /* fairly level ground, and the sea in front of it within 250 m */
+          let lo = 1e9,
+            hi = -1e9;
+          for (const [a, b] of [[4, 0], [-4, 0], [0, 4], [0, -4]]) {
+            const hh = H(x + a, z + b);
+            lo = Math.min(lo, hh);
+            hi = Math.max(hi, hh);
+          }
+          if (hi - lo > 3.5) continue;
+          let sea = false;
+          for (let k = 20; k <= 250 && !sea; k += 20) {
+            const [sx, sz] = F.w(u, d + k);
+            sea = H(sx, sz) < SEA + 0.05;
+          }
+          if (sea) best = [u, d, x, z];
+        }
+      if (!best) continue;
+      const [u, d, x, z] = best;
+      use(u - 6, u + 6, d - 6, d + 6);
+      COAST.add(x, z, seaYaw);
+    }
+  };
+}
+/* the guns' ballistics: the same drag law as the PCE's own guns (GSPEC), from the muzzle down to the sea */
+function coastFly(p0, el, yaw, out) {
+  let x = 0,
+    y = p0.y,
+    vx = COAST.MV * Math.cos(el),
+    vy = COAST.MV * Math.sin(el),
+    t = 0;
+  const h = 0.05;
+  while (t < 90) {
+    const v = Math.hypot(vx, vy),
+      k = COAST.K * Math.exp(-Math.max(0, y) / 9145) * v;
+    vx *= 1 - k * h;
+    vy *= 1 - k * h;
+    vy -= 9.81 * h;
+    x += vx * h;
+    y += vy * h;
+    t += h;
+    if (y <= OCEAN.Y + 2 && vy < 0) break;
+  }
+  if (out) (out.r = x), (out.t = t);
+  return x;
+}
+/* the elevation that throws a shell r metres (the lower trajectory), and its time of flight */
+function coastSolve(p0, r, out) {
+  let lo = COAST.EL0,
+    hi = COAST.EL1;
+  const o = {};
+  if (coastFly(p0, hi, 0, o) < r) return null;
+  for (let i = 0; i < 22; i++) {
+    const m = (lo + hi) / 2;
+    if (coastFly(p0, m, 0) < r) lo = m;
+    else hi = m;
+  }
+  coastFly(p0, hi, 0, o);
+  out.el = hi;
+  out.t = o.t;
+  return out;
+}
+const _cg = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2;
+function coastUpdate(dt) {
+  const on = typeof ENEMY !== 'undefined' && ENEMY.has('shore') && started && !crashed && trn.mode === 'free';
+  COAST.msgT = Math.max(0, COAST.msgT - dt);
+  if (!on && !COAST.S.length) return;
+  const night = WX.lt || 0,
+    tgt = new THREE.Vector3(pos.x, OCEAN.Y + 3, pos.z),
+    sol = {};
+  for (const g of COAST.G) {
+    g.rec = Math.max(0, g.rec - dt * 1.5);
+    g.bar.position.x = -0.45 * g.rec;
+    if (g.t.dead || !on) continue;
+    const R = Math.hypot(pos.x - g.p.x, pos.z - g.p.z);
+    if (R > (night > 0.35 ? 3000 : 14000) || R < 60) {
+      g.n = 0;
+      continue;
+    }
+    if ((g.vt = (g.vt || 0) - dt) <= 0) {
+      g.vt = 1;
+      g.sees = aaSees(g.p, tgt);
+    }
+    if (!g.sees) continue;
+    /* lead her: where she will be when the shell comes down, from her course and speed now (two passes) */
+    let aim = tgt.clone(),
+      ok = true;
+    for (let it = 0; it < 2 && ok; it++) {
+      const r = Math.hypot(aim.x - g.p.x, aim.z - g.p.z);
+      ok = !!coastSolve(g.p, r, sol);
+      if (ok) aim = tgt.clone().addScaledVector(vel, sol.t);
+    }
+    if (!ok) continue;
+    const r = Math.hypot(aim.x - g.p.x, aim.z - g.p.z),
+      wy = Math.atan2(-(aim.z - g.p.z), aim.x - g.p.x) /* GX yaw: 0 = +x, + toward -z */;
+    /* the layers' error, applied to the aim: range (a fraction) and line (radians) */
+    if (!g.n) {
+      g.er = _cg() * 0.07;
+      g.ed = _cg() * 0.012;
+    }
+    coastSolve(g.p, r * (1 + g.er), sol);
+    const want = wy + g.ed - g.home,
+      dy = Math.atan2(Math.sin(want - g.yaw), Math.cos(want - g.yaw));
+    g.yaw += Math.max(-0.12 * dt, Math.min(0.12 * dt, dy)) /* hand training, about 7 deg a second */;
+    g.el += Math.max(-0.08 * dt, Math.min(0.08 * dt, sol.el - g.el));
+    g.tur.rotation.y = g.yaw;
+    g.bar.rotation.z = g.el;
+    g.cd -= dt;
+    if (g.cd <= 0 && Math.abs(dy) < 0.01 && Math.abs(sol.el - g.el) < 0.004) {
+      g.cd = COAST.RLD * (0.9 + Math.random() * 0.25);
+      g.n++;
+      /* the round: out along the bore, plus the gun's own spread and the layers' (about 2 mils in elevation, 1.5 in line) */
+      const az = g.home + g.yaw + _cg() * 0.0015,
+        e2 = g.el + _cg() * 0.002,
+        dir = new THREE.Vector3(Math.cos(az) * Math.cos(e2), Math.sin(e2), -Math.sin(az) * Math.cos(e2)),
+        mz = g.p.clone().addScaledVector(dir, 4.6);
+      COAST.S.push({ p: mz.clone(), v: dir.multiplyScalar(COAST.MV * (1 + _cg() * 0.0015)), t: 0, g, aimR: r });
+      g.rec = 1;
+      gunFx(mz, 0xffc070, 4, 12, 0.18, 0, true);
+      gunFx(mz, 0x9a9890, 4, 22, 3.5, 0.8, false);
+      const d = mz.distanceTo(cam.position);
+      SND.burst(900, 60, 0.7, Math.min(0.9, 2.2 / (1 + d / 400)), 0.8, 'lowpass', Math.min(8, d / 340));
+      if (COAST.msgT <= 0) {
+        note('SHORE BATTERY FIRING!');
+        RADIO.add('LOOKOUT', 'GUN FLASHES ON THE BEACH, BEARING ' + raidBrg(g.p) + '!');
+        COAST.msgT = 40;
+      }
+    }
+  }
+  /* the shells in flight; each splash is spotted from the battery and the next round corrected */
+  const L = new THREE.Vector3(),
+    a = new THREE.Vector3();
+  for (let i = COAST.S.length - 1; i >= 0; i--) {
+    const s = COAST.S[i];
+    a.copy(s.p);
+    const v = s.v.length(),
+      k = COAST.K * Math.exp(-Math.max(0, s.p.y) / 9145) * v;
+    s.v.multiplyScalar(1 - k * dt);
+    s.v.y -= 9.81 * dt;
+    s.p.addScaledVector(s.v, dt);
+    s.t += dt;
+    /* the whistle as it comes down near her */
+    if (!s.wh && s.v.y < 0 && s.p.distanceTo(cam.position) < 900) {
+      s.wh = true;
+      SND.tone(1500, 420, 1.4, 0.25, 'sine');
+    }
+    /* through her hull or superstructure on this step? */
+    let hit = false;
+    for (let j = 1; j <= 6 && !hit; j++) {
+      L.copy(a).lerp(s.p, j / 6);
+      hit = shipStruck(L);
+    }
+    const sea = s.p.y <= OCEAN.Y,
+      land = !sea && s.p.y < H(s.p.x, s.p.z);
+    if (!hit && !sea && !land && s.t < 90) continue;
+    const g = s.g;
+    if (hit) {
+      COAST.hits++;
+      gunFx(L, 0xffa040, 6, 16, 0.5, 0, true);
+      gunFx(L, 0x2a2826, 6, 26, 6, 1.5, false);
+      note('HIT BY A 12 CM SHELL! (' + COAST.hits + ')');
+      SND.burst(700, 50, 1.2, 1, 0.7);
+    } else if (sea) {
+      gunSplash(s.p, { splash: 1.5 });
+      const md = Math.hypot(s.p.x - pos.x, s.p.z - pos.z);
+      if (md < 40 && COAST.msgT < 30) note('NEAR MISS!');
+    } else gunBurst(s.p, { splash: 1.2, blast: null }, false);
+    /* spotting: the battery sees the splash short / over and left / right, and corrects half the error */
+    if (g && !g.t.dead) {
+      g.er *= 0.45 + Math.random() * 0.2;
+      g.ed *= 0.45 + Math.random() * 0.2;
+      if (Math.abs(g.er) < 0.012) g.er = _cg() * 0.012;
+      if (Math.abs(g.ed) < 0.003) g.ed = _cg() * 0.003; /* the battery's own limit: rangefinding by eye and stadia, hand-cranked laying */
+    }
+    COAST.S.splice(i, 1);
+  }
+}
+/* ===== end of THE COAST BATTERIES ===== */
 const SITES = [],
   SITE_OBJ = [];
 {
@@ -16780,7 +17545,12 @@ const SITES = [],
   for (let i = 0; i < 9; i++) {
     const u = -250 + i * 62,
       o = { ang: rnd(), stripes: 0 };
-    target(M.ki84(bodies[i % 4], o), 'plane', 14, 7, u, DR - 100, FR.ryS + (rnd() - 0.5) * 0.25);
+    /* on its wheels on the apron: the apron is draped 0.3 m over the terrain mesh, so stand it on the highest of its three
+       wheel contacts there (the mesh's base goes at the terrain height under its centre, plus yOff) */
+    const ry = FR.ryS + (rnd() - 0.5) * 0.25,
+      [x0, z0] = FR.w(u, DR - 100),
+      top = Math.max(...KI84.CONTACT.map(([cx, cz]) => HMESH(x0 + cx * Math.cos(ry) + cz * Math.sin(ry), z0 - cx * Math.sin(ry) + cz * Math.cos(ry)) + 0.3));
+    target(M.ki84(bodies[i % 4], o), 'plane', 14, 7, u, DR - 100, ry, top - H(x0, z0) + 0.01);
   }
   /* the base yard behind the apron: bare gravel ground for the hangars, offices and stores (as at the other two bases) */
   const yc = document.createElement('canvas');
@@ -17036,6 +17806,8 @@ const SITES = [],
       const cc2 = [0x7a5a38, 0x3a6a78, 0x8a3a2a, 0x6a6a3a];
       for (let i = 0; i < 4; i++) S.at(canoe(cc2[i]), -170 + i * 9, 24 + (i % 2) * 5, YA + (r() - 0.5) * 0.4, null);
     }
+    /* the coast battery: two 12 cm/45 guns either side of the harbour (THE COAST BATTERIES) */
+    COAST.port(F, r, taken, use);
     /* palms over the whole yard, along the shore and round the huts */
     const n = full ? 70 : 40;
     for (let i = 0, k = 0; i < n && k < 400; k++) {
